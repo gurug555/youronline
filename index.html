@@ -64,13 +64,13 @@ html {-webkit-transition : -webkit-filter 300ms linear;}
   <!-- Main Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
     <!-- Category Pills -->
-    <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto pb-3 mb-4"><button class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap">All</button><button class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap">Trending</button></div>
+    <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto pb-3 mb-4"><button class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap">All</button></div>
 
     <!-- Video Grid -->
-    <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"><article class="group bg-slate-900 border border-slate-800 hover:border-red-500/60 rounded-xl overflow-hidden cursor-pointer transition shadow-sm hover:shadow-lg"><div class="relative aspect-video bg-slate-800 overflow-hidden"><img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&amp;fit=crop&amp;w=800&amp;q=80" alt="Sample Video — Clean Player + Gofile" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"><div class="absolute inset-0 bg-black/25 group-hover:bg-black/45 flex items-center justify-center transition z-[2] pointer-events-none"><div class="w-11 h-11 rounded-full bg-red-600/90 group-hover:bg-red-500 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></div></div><span class="absolute top-2 left-2 bg-red-600/95 text-white text-[11px] font-bold tracking-wide px-2 py-0.5 rounded shadow z-[3]">1080p</span><span class="absolute bottom-2 right-2 bg-black/85 text-white text-xs font-bold tracking-wide px-2 py-0.5 rounded shadow z-[3]">09:56</span></div><div class="p-3"><h3 class="text-sm font-semibold text-slate-100 line-clamp-2 group-hover:text-red-400 transition">Sample Video — Clean Player + Gofile</h3><p class="text-xs text-slate-400 mt-1">Trending</p></div></article></div>
+    <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
 
     <!-- Empty State -->
-    <div id="emptyState" class="hidden text-center py-16">
+    <div id="emptyState" class="text-center py-16">
       <p class="text-slate-400 text-base">No videos found.</p>
     </div>
 
@@ -228,8 +228,8 @@ html {-webkit-transition : -webkit-filter 300ms linear;}
 
         <!-- Manage Videos List -->
         <div>
-          <h3 class="text-sm font-semibold text-slate-200 mb-2">Manage Videos (<span id="videoCount">1</span>)</h3>
-          <div id="adminVideoList" class="space-y-2 max-h-56 overflow-y-auto pr-1"><div class="flex items-center justify-between gap-2 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2"><div class="min-w-0"><p class="text-xs font-medium text-slate-200 truncate">Sample Video — Clean Player + Gofile</p><p class="text-[11px] text-slate-500">Trending • 1080p • 09:56 • Gofile</p></div><button class="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded bg-red-950/40 shrink-0">Delete</button></div></div>
+          <h3 class="text-sm font-semibold text-slate-200 mb-2">Manage Videos (<span id="videoCount">0</span>)</h3>
+          <div id="adminVideoList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </div>
 
         <!-- Change Admin Password -->
@@ -258,12 +258,12 @@ html {-webkit-transition : -webkit-filter 300ms linear;}
   </div>
 
   <!-- Toast -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg hidden">GitHub settings saved! Ready to Publish Live.</div>
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg hidden">Password updated! Click Publish Live to save.</div>
 
   <!-- Embedded Admin Config -->
   <script id="adminConfigData" type="application/json">
 {
-  "passHash": "ef5d743d",
+  "passHash": "7c78c98f",
   "gdriveApiKey": "AIzaSyCMnaMWdc9MSN4d4eFCkhXDN2Y1JyWOGkU",
   "githubRepo": "gurug555/youronline",
   "githubBranch": "main"
@@ -272,19 +272,7 @@ html {-webkit-transition : -webkit-filter 300ms linear;}
 
   <!-- Embedded Video Data -->
   <script id="initialVideosData" type="application/json">
-[
-  {
-    "id": "vid-1",
-    "title": "Sample Video — Clean Player + Gofile",
-    "category": "Trending",
-    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    "downloadUrl": "https://gofile.io/",
-    "hoverUrl": "",
-    "thumb": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80",
-    "resolution": "1080p",
-    "duration": "09:56"
-  }
-]
+[]
   </script>
 
   <script>
