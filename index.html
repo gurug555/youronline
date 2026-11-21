@@ -439,6 +439,7 @@
       };
 
       function showToast(msg) {
+        if (!els.toast) return;
         els.toast.textContent = msg;
         els.toast.classList.remove('hidden');
         clearTimeout(window.__toastTimer);
@@ -451,27 +452,31 @@
 
       function updateSettingsUI() {
         const key = (adminConfig.gdriveApiKey || '').trim();
-        els.gdriveApiKeyInput.value = key;
-        els.apiKeyStatus.textContent = key ? 'Active' : 'Not set';
-        els.apiKeyStatus.className = key ? 'text-[11px] font-semibold text-emerald-400' : 'text-[11px] text-slate-400';
+        if (els.gdriveApiKeyInput) els.gdriveApiKeyInput.value = key;
+        if (els.apiKeyStatus) {
+          els.apiKeyStatus.textContent = key ? 'Active' : 'Not set';
+          els.apiKeyStatus.className = key ? 'text-[11px] font-semibold text-emerald-400' : 'text-[11px] text-slate-400';
+        }
 
         const repo = (adminConfig.githubRepo || 'gurug555/youronline').trim();
         const branch = (adminConfig.githubBranch || 'main').trim();
         const token = getSavedGhToken().trim();
-        els.ghRepoInput.value = repo;
-        els.ghBranchInput.value = branch;
-        els.ghTokenInput.value = token;
-        if (repo && token) {
-          els.ghStatus.textContent = 'Ready (' + repo + ')';
-          els.ghStatus.className = 'text-[11px] font-semibold text-emerald-400';
-        } else {
-          els.ghStatus.textContent = 'Not connected';
-          els.ghStatus.className = 'text-[11px] text-slate-400';
+        if (els.ghRepoInput) els.ghRepoInput.value = repo;
+        if (els.ghBranchInput) els.ghBranchInput.value = branch;
+        if (els.ghTokenInput) els.ghTokenInput.value = token;
+        if (els.ghStatus) {
+          if (repo && token) {
+            els.ghStatus.textContent = 'Ready (' + repo + ')';
+            els.ghStatus.className = 'text-[11px] font-semibold text-emerald-400';
+          } else {
+            els.ghStatus.textContent = 'Not connected';
+            els.ghStatus.className = 'text-[11px] text-slate-400';
+          }
         }
       }
 
       async function triggerAuto3x3Thumb() {
-        const rawUrl = document.getElementById('vUrl').value.trim();
+        const rawUrl = (document.getElementById('vUrl').value || '').trim();
         const driveId = extractDriveId(rawUrl);
         if (!rawUrl || !driveId) {
           showToast('Valid Google Drive video link podunga!');
@@ -479,22 +484,22 @@
           return;
         }
 
-        const repo = (els.ghRepoInput.value || adminConfig.githubRepo || 'gurug555/youronline')
+        const repo = ((els.ghRepoInput && els.ghRepoInput.value) || adminConfig.githubRepo || 'gurug555/youronline')
           .trim()
           .replace(/^https?:\/\/github\.com\//i, '')
           .replace(/\.git$/i, '')
           .replace(/^\/+|\/+$/g, '');
-        const branch = (els.ghBranchInput.value || adminConfig.githubBranch || 'main').trim() || 'main';
-        const token = (els.ghTokenInput.value || getSavedGhToken()).trim();
+        const branch = ((els.ghBranchInput && els.ghBranchInput.value) || adminConfig.githubBranch || 'main').trim() || 'main';
+        const token = ((els.ghTokenInput && els.ghTokenInput.value) || getSavedGhToken()).trim();
 
         if (!repo || repo.indexOf('/') === -1 || !token) {
           showToast('Top-la GitHub Repo & Token save pannunga first!');
-          els.ghRepoInput.focus();
+          if (els.ghRepoInput) els.ghRepoInput.focus();
           return;
         }
 
         const thumbInput = document.getElementById('vThumb');
-        const existingVal = thumbInput.value.trim();
+        const existingVal = (thumbInput.value || '').trim();
         let slug = 'vid_' + driveId.slice(0, 10);
         const slugMatch = existingVal.match(/thumbs\/([a-zA-Z0-9_-]+)\.jpg$/i);
         if (slugMatch) slug = slugMatch[1];
@@ -554,19 +559,16 @@
         }
       }
 
+      // Safe ad hiding without removing external scripts that can cause console errors
       function stripInjectedAds() {
         const selectors = [
           'iframe[src*="benchform"]',
           'iframe[src*="biomanos"]',
           'iframe[src*="apiguinee"]',
-          'iframe[src*="adsterra"]',
-          'div[id^="container-"]:not(#fullPageMediaContainer)',
-          'script[src*="benchform"]',
-          'script[src*="biomanos"]',
-          'script[src*="apiguinee"]'
+          'iframe[src*="adsterra"]'
         ];
         document.querySelectorAll(selectors.join(',')).forEach(function (el) {
-          el.remove();
+          el.style.display = 'none';
         });
       }
 
@@ -588,7 +590,7 @@
         if (!adCleanerInterval) {
           adCleanerInterval = setInterval(function () {
             if (isAdminUnlocked || document.body.classList.contains('admin-no-ads')) stripInjectedAds();
-          }, 1000);
+          }, 1500);
         }
       }
 
@@ -601,8 +603,8 @@
           });
         }
         if (list.length === 0 && typeof video.downloadUrl === 'string') {
-          video.downloadUrl.split(/[
-,]+/).forEach(function (u) {
+          video.downloadUrl.split(/[,
+]+/).forEach(function (u) {
             const clean = u.trim();
             if (clean && list.length < 5) list.push(clean);
           });
@@ -653,6 +655,7 @@
       }
 
       function renderFullPageMedia(video) {
+        if (!els.fullPageMediaContainer) return;
         els.fullPageMediaContainer.innerHTML = '';
         const gifSrc = (video.hoverUrl || '').trim();
         const thumbList = getAutoThumbUrls(video);
@@ -685,6 +688,7 @@
       }
 
       function renderFullPageTags(video) {
+        if (!els.fullPageTagsGroup) return;
         els.fullPageTagsGroup.innerHTML = '';
         const tags = getVideoTags(video);
         tags.forEach(function (tag) {
@@ -701,11 +705,11 @@
 
       function showHomeGrid(updateHistory) {
         currentPlayingVideo = null;
-        els.fullPagePlayer.classList.add('hidden');
-        els.tagResultsSection.classList.add('hidden');
-        els.fullPageMediaContainer.innerHTML = '';
-        els.categoryBar.classList.remove('hidden');
-        els.grid.classList.remove('hidden');
+        if (els.fullPagePlayer) els.fullPagePlayer.classList.add('hidden');
+        if (els.tagResultsSection) els.tagResultsSection.classList.add('hidden');
+        if (els.fullPageMediaContainer) els.fullPageMediaContainer.innerHTML = '';
+        if (els.categoryBar) els.categoryBar.classList.remove('hidden');
+        if (els.grid) els.grid.classList.remove('hidden');
         renderGrid();
         if (updateHistory) {
           try { history.pushState({ view: 'home' }, '', window.location.pathname + window.location.search); } catch (e) {}
@@ -715,22 +719,22 @@
       function openFullPageVideo(video, pushState) {
         if (!video) return;
         currentPlayingVideo = video;
-        els.fullPageTitle.textContent = video.title || 'Untitled Video';
+        if (els.fullPageTitle) els.fullPageTitle.textContent = video.title || 'Untitled Video';
 
         const metaParts = [];
         if (video.resolution) metaParts.push(video.resolution);
         if (video.duration) metaParts.push(video.duration);
-        els.fullPageMeta.textContent = metaParts.join(' • ');
+        if (els.fullPageMeta) els.fullPageMeta.textContent = metaParts.join(' • ');
 
         renderFullPageTags(video);
         renderFullPageMedia(video);
         renderHostButtons(els.fullPageHostsGroup, getVideoDownloadLinks(video));
 
-        els.categoryBar.classList.add('hidden');
-        els.grid.classList.add('hidden');
-        els.empty.classList.add('hidden');
-        els.tagResultsSection.classList.add('hidden');
-        els.fullPagePlayer.classList.remove('hidden');
+        if (els.categoryBar) els.categoryBar.classList.add('hidden');
+        if (els.grid) els.grid.classList.add('hidden');
+        if (els.empty) els.empty.classList.add('hidden');
+        if (els.tagResultsSection) els.tagResultsSection.classList.add('hidden');
+        if (els.fullPagePlayer) els.fullPagePlayer.classList.remove('hidden');
 
         if (pushState) {
           try { history.pushState({ view: 'watch', id: video.id }, '', '#watch=' + encodeURIComponent(video.id)); } catch (e) {}
@@ -739,6 +743,7 @@
       }
 
       function renderTagQuickChips(currentTag) {
+        if (!els.tagQuickBar) return;
         els.tagQuickBar.innerHTML = '';
         getAllUniqueTags().forEach(function (tag) {
           const isActive = tag.toLowerCase() === String(currentTag || '').toLowerCase();
@@ -859,27 +864,29 @@
           return getVideoTags(v).some(function (t) { return t.toLowerCase() === targetLower; });
         });
 
-        els.fullPagePlayer.classList.add('hidden');
-        els.fullPageMediaContainer.innerHTML = '';
-        els.categoryBar.classList.add('hidden');
-        els.grid.classList.add('hidden');
-        els.empty.classList.add('hidden');
+        if (els.fullPagePlayer) els.fullPagePlayer.classList.add('hidden');
+        if (els.fullPageMediaContainer) els.fullPageMediaContainer.innerHTML = '';
+        if (els.categoryBar) els.categoryBar.classList.add('hidden');
+        if (els.grid) els.grid.classList.add('hidden');
+        if (els.empty) els.empty.classList.add('hidden');
 
-        els.activeTagHeading.textContent = 'Tag: #' + cleanTag;
-        els.tagMatchCount.textContent = matched.length + (matched.length === 1 ? ' video' : ' videos');
+        if (els.activeTagHeading) els.activeTagHeading.textContent = 'Tag: #' + cleanTag;
+        if (els.tagMatchCount) els.tagMatchCount.textContent = matched.length + (matched.length === 1 ? ' video' : ' videos');
         renderTagQuickChips(cleanTag);
 
-        els.tagVideosGrid.innerHTML = '';
-        if (!matched.length) {
-          els.tagEmptyState.classList.remove('hidden');
-        } else {
-          els.tagEmptyState.classList.add('hidden');
-          matched.forEach(function (video) {
-            els.tagVideosGrid.appendChild(buildVideoCard(video));
-          });
+        if (els.tagVideosGrid) {
+          els.tagVideosGrid.innerHTML = '';
+          if (!matched.length) {
+            if (els.tagEmptyState) els.tagEmptyState.classList.remove('hidden');
+          } else {
+            if (els.tagEmptyState) els.tagEmptyState.classList.add('hidden');
+            matched.forEach(function (video) {
+              els.tagVideosGrid.appendChild(buildVideoCard(video));
+            });
+          }
         }
 
-        els.tagResultsSection.classList.remove('hidden');
+        if (els.tagResultsSection) els.tagResultsSection.classList.remove('hidden');
         if (pushState) {
           try { history.pushState({ view: 'tag', tag: cleanTag }, '', '#tag=' + encodeURIComponent(cleanTag)); } catch (e) {}
         }
@@ -887,6 +894,7 @@
       }
 
       function renderCategories() {
+        if (!els.categoryBar) return;
         const cats = ['All'];
         videos.forEach(function (v) {
           getVideoTags(v).forEach(function (c) {
@@ -910,6 +918,7 @@
       }
 
       function renderGrid() {
+        if (!els.grid) return;
         const q = searchQuery.toLowerCase();
         const filtered = videos.filter(function (v) {
           const tags = getVideoTags(v);
@@ -921,8 +930,11 @@
         });
 
         els.grid.innerHTML = '';
-        if (!filtered.length) { els.empty.classList.remove('hidden'); return; }
-        els.empty.classList.add('hidden');
+        if (!filtered.length) {
+          if (els.empty) els.empty.classList.remove('hidden');
+          return;
+        }
+        if (els.empty) els.empty.classList.add('hidden');
 
         filtered.forEach(function (video) {
           els.grid.appendChild(buildVideoCard(video));
@@ -930,7 +942,8 @@
       }
 
       function renderAdminList() {
-        els.videoCount.textContent = String(videos.length);
+        if (els.videoCount) els.videoCount.textContent = String(videos.length);
+        if (!els.adminVideoList) return;
         els.adminVideoList.innerHTML = '';
         videos.forEach(function (v) {
           const row = document.createElement('div');
@@ -1057,22 +1070,22 @@
       }
 
       async function publishLiveToGitHub() {
-        const repo = (els.ghRepoInput.value || adminConfig.githubRepo || 'gurug555/youronline')
+        const repo = ((els.ghRepoInput && els.ghRepoInput.value) || adminConfig.githubRepo || 'gurug555/youronline')
           .trim()
           .replace(/^https?:\/\/github\.com\//i, '')
           .replace(/\.git$/i, '')
           .replace(/^\/+|\/+$/g, '');
-        const branch = (els.ghBranchInput.value || adminConfig.githubBranch || 'main').trim() || 'main';
-        const token = (els.ghTokenInput.value || getSavedGhToken()).trim();
+        const branch = ((els.ghBranchInput && els.ghBranchInput.value) || adminConfig.githubBranch || 'main').trim() || 'main';
+        const token = ((els.ghTokenInput && els.ghTokenInput.value) || getSavedGhToken()).trim();
 
         if (!repo || repo.indexOf('/') === -1) {
           showToast('Enter GitHub Repo as gurug555/youronline');
-          els.ghRepoInput.focus();
+          if (els.ghRepoInput) els.ghRepoInput.focus();
           return;
         }
         if (!token) {
           showToast('Paste your GitHub Token first');
-          els.ghTokenInput.focus();
+          if (els.ghTokenInput) els.ghTokenInput.focus();
           return;
         }
 
@@ -1081,13 +1094,17 @@
         try { localStorage.setItem(GH_TOKEN_STORAGE_KEY, token); } catch (e) {}
         updateSettingsUI();
 
-        const origHtml = els.publishLiveBtn.innerHTML;
-        els.publishLiveBtn.disabled = true;
-        els.publishLiveBtn.textContent = 'Publishing...';
+        const origHtml = els.publishLiveBtn ? els.publishLiveBtn.innerHTML : 'Publish Live';
+        if (els.publishLiveBtn) {
+          els.publishLiveBtn.disabled = true;
+          els.publishLiveBtn.textContent = 'Publishing...';
+        }
 
         const forceUnlockTimer = setTimeout(function () {
-          els.publishLiveBtn.disabled = false;
-          els.publishLiveBtn.innerHTML = origHtml;
+          if (els.publishLiveBtn) {
+            els.publishLiveBtn.disabled = false;
+            els.publishLiveBtn.innerHTML = origHtml;
+          }
         }, 15000);
 
         function fetchWithTimeout(url, opts, ms) {
@@ -1149,17 +1166,40 @@
           showToast('Publish failed: ' + msg);
         } finally {
           clearTimeout(forceUnlockTimer);
-          els.publishLiveBtn.disabled = false;
-          els.publishLiveBtn.innerHTML = origHtml;
+          if (els.publishLiveBtn) {
+            els.publishLiveBtn.disabled = false;
+            els.publishLiveBtn.innerHTML = origHtml;
+          }
         }
       }
 
       function openAdminDirect() {
-        isAdminUnlocked = true;
-        enableAdminNoAds();
-        updateSettingsUI();
-        renderAdminList();
-        els.adminModal.classList.remove('hidden');
+        try {
+          isAdminUnlocked = true;
+          enableAdminNoAds();
+          updateSettingsUI();
+          renderAdminList();
+          const modal = document.getElementById('adminModal');
+          if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+          }
+        } catch (err) {
+          console.error('Admin Studio open error:', err);
+          const modal = document.getElementById('adminModal');
+          if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+          }
+        }
+      }
+
+      function closeAdminDirect() {
+        const modal = document.getElementById('adminModal');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.style.display = '';
+        }
       }
 
       function syncRouteFromLocation() {
@@ -1196,102 +1236,117 @@
 
       window.addEventListener('hashchange', syncRouteFromLocation);
 
-      els.search.addEventListener('input', function (e) {
-        searchQuery = e.target.value;
-        if (!els.fullPagePlayer.classList.contains('hidden') || !els.tagResultsSection.classList.contains('hidden')) {
-          showHomeGrid(true);
-        } else {
-          renderGrid();
-        }
-      });
-
-      els.brandHomeLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        activeCategory = 'All';
-        searchQuery = '';
-        els.search.value = '';
-        renderCategories();
-        showHomeGrid(true);
-      });
-
-      els.fullPageShareBtn.addEventListener('click', function () {
-        const shareUrl = window.location.href;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(shareUrl).then(function () { showToast('Link copied!'); }).catch(function () { showToast('Copy URL from address bar'); });
-        } else {
-          showToast('Copy URL from address bar');
-        }
-      });
-
-      els.openAdminBtn.addEventListener('click', openAdminDirect);
-      els.closeAdminBtn.addEventListener('click', function () { els.adminModal.classList.add('hidden'); });
-
-      els.saveGhBtn.addEventListener('click', function () {
-        adminConfig.githubRepo = els.ghRepoInput.value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '') || 'gurug555/youronline';
-        adminConfig.githubBranch = els.ghBranchInput.value.trim() || 'main';
-        const tok = els.ghTokenInput.value.trim();
-        try { if (tok) localStorage.setItem(GH_TOKEN_STORAGE_KEY, tok); else localStorage.removeItem(GH_TOKEN_STORAGE_KEY); } catch (e) {}
-        updateSettingsUI();
-        showToast('GitHub settings saved! Ready to Publish Live.');
-      });
-
-      els.saveApiKeyBtn.addEventListener('click', async function () {
-        adminConfig.gdriveApiKey = els.gdriveApiKeyInput.value.trim();
-        updateSettingsUI();
-        if (adminConfig.gdriveApiKey) { showToast('API Key saved! Syncing Google Drive videos...'); await syncMissingDriveMetadata(true); }
-        else showToast('API Key cleared.');
-      });
-
-      els.autoThumbBtn.addEventListener('click', triggerAuto3x3Thumb);
-
-      els.addVideoForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const rawUrl = document.getElementById('vUrl').value.trim();
-        els.addVideoSubmitBtn.disabled = true;
-        els.addVideoSubmitBtn.textContent = 'Fetching GDrive info...';
-        const meta = await fetchDriveMeta(rawUrl);
-        const dlUrls = [
-          document.getElementById('vDownloadUrl1').value.trim(),
-          document.getElementById('vDownloadUrl2').value.trim(),
-          document.getElementById('vDownloadUrl3').value.trim(),
-          document.getElementById('vDownloadUrl4').value.trim(),
-          document.getElementById('vDownloadUrl5').value.trim()
-        ].filter(Boolean).slice(0, 5);
-
-        videos.unshift({
-          id: 'vid-' + Date.now(),
-          title: document.getElementById('vTitle').value.trim(),
-          category: document.getElementById('vCategory').value.trim() || 'Trending',
-          url: rawUrl,
-          downloadUrl: dlUrls[0] || '',
-          downloadUrls: dlUrls,
-          hoverUrl: document.getElementById('vHoverUrl').value.trim(),
-          thumb: document.getElementById('vThumb').value.trim(),
-          resolution: meta ? meta.resolution : '',
-          duration: meta ? meta.duration : ''
+      if (els.search) {
+        els.search.addEventListener('input', function (e) {
+          searchQuery = e.target.value;
+          if ((els.fullPagePlayer && !els.fullPagePlayer.classList.contains('hidden')) ||
+              (els.tagResultsSection && !els.tagResultsSection.classList.contains('hidden'))) {
+            showHomeGrid(true);
+          } else {
+            renderGrid();
+          }
         });
-        els.addVideoForm.reset();
-        els.autoThumbStatus.classList.add('hidden');
-        els.addVideoSubmitBtn.disabled = false;
-        els.addVideoSubmitBtn.textContent = '+ Add Video';
-        renderCategories(); renderGrid(); renderAdminList();
-        showToast(meta && meta.resolution ? ('Added (' + meta.resolution + (meta.duration ? ' • ' + meta.duration : '') + ')! Click Publish Live.') : 'Video added! Click Publish Live.');
-      });
+      }
 
-      els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
-      els.publishLiveBtn.addEventListener('click', publishLiveToGitHub);
+      if (els.brandHomeLink) {
+        els.brandHomeLink.addEventListener('click', function (e) {
+          e.preventDefault();
+          activeCategory = 'All';
+          searchQuery = '';
+          if (els.search) els.search.value = '';
+          renderCategories();
+          showHomeGrid(true);
+        });
+      }
+
+      if (els.fullPageShareBtn) {
+        els.fullPageShareBtn.addEventListener('click', function () {
+          const shareUrl = window.location.href;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareUrl).then(function () { showToast('Link copied!'); }).catch(function () { showToast('Copy URL from address bar'); });
+          } else {
+            showToast('Copy URL from address bar');
+          }
+        });
+      }
+
+      if (els.openAdminBtn) els.openAdminBtn.addEventListener('click', openAdminDirect);
+      if (els.closeAdminBtn) els.closeAdminBtn.addEventListener('click', closeAdminDirect);
+
+      if (els.saveGhBtn) {
+        els.saveGhBtn.addEventListener('click', function () {
+          adminConfig.githubRepo = ((els.ghRepoInput && els.ghRepoInput.value) || '').trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '') || 'gurug555/youronline';
+          adminConfig.githubBranch = ((els.ghBranchInput && els.ghBranchInput.value) || '').trim() || 'main';
+          const tok = ((els.ghTokenInput && els.ghTokenInput.value) || '').trim();
+          try { if (tok) localStorage.setItem(GH_TOKEN_STORAGE_KEY, tok); else localStorage.removeItem(GH_TOKEN_STORAGE_KEY); } catch (e) {}
+          updateSettingsUI();
+          showToast('GitHub settings saved! Ready to Publish Live.');
+        });
+      }
+
+      if (els.saveApiKeyBtn) {
+        els.saveApiKeyBtn.addEventListener('click', async function () {
+          adminConfig.gdriveApiKey = ((els.gdriveApiKeyInput && els.gdriveApiKeyInput.value) || '').trim();
+          updateSettingsUI();
+          if (adminConfig.gdriveApiKey) { showToast('API Key saved! Syncing Google Drive videos...'); await syncMissingDriveMetadata(true); }
+          else showToast('API Key cleared.');
+        });
+      }
+
+      if (els.autoThumbBtn) els.autoThumbBtn.addEventListener('click', triggerAuto3x3Thumb);
+
+      if (els.addVideoForm) {
+        els.addVideoForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const rawUrl = (document.getElementById('vUrl').value || '').trim();
+          els.addVideoSubmitBtn.disabled = true;
+          els.addVideoSubmitBtn.textContent = 'Fetching GDrive info...';
+          const meta = await fetchDriveMeta(rawUrl);
+          const dlUrls = [
+            document.getElementById('vDownloadUrl1').value.trim(),
+            document.getElementById('vDownloadUrl2').value.trim(),
+            document.getElementById('vDownloadUrl3').value.trim(),
+            document.getElementById('vDownloadUrl4').value.trim(),
+            document.getElementById('vDownloadUrl5').value.trim()
+          ].filter(Boolean).slice(0, 5);
+
+          videos.unshift({
+            id: 'vid-' + Date.now(),
+            title: document.getElementById('vTitle').value.trim(),
+            category: document.getElementById('vCategory').value.trim() || 'Trending',
+            url: rawUrl,
+            downloadUrl: dlUrls[0] || '',
+            downloadUrls: dlUrls,
+            hoverUrl: document.getElementById('vHoverUrl').value.trim(),
+            thumb: document.getElementById('vThumb').value.trim(),
+            resolution: meta ? meta.resolution : '',
+            duration: meta ? meta.duration : ''
+          });
+          els.addVideoForm.reset();
+          if (els.autoThumbStatus) els.autoThumbStatus.classList.add('hidden');
+          els.addVideoSubmitBtn.disabled = false;
+          els.addVideoSubmitBtn.textContent = '+ Add Video';
+          renderCategories(); renderGrid(); renderAdminList();
+          showToast(meta && meta.resolution ? ('Added (' + meta.resolution + (meta.duration ? ' • ' + meta.duration : '') + ')! Click Publish Live.') : 'Video added! Click Publish Live.');
+        });
+      }
+
+      if (els.downloadHtmlBtn) els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
+      if (els.publishLiveBtn) els.publishLiveBtn.addEventListener('click', publishLiveToGitHub);
 
       document.addEventListener('keydown', function (e) {
         if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) { e.preventDefault(); openAdminDirect(); }
       });
 
       let footerTaps = 0, footerTimer = null;
-      els.siteFooter.addEventListener('click', function () {
-        footerTaps++;
-        clearTimeout(footerTimer);
-        if (footerTaps >= 5) { footerTaps = 0; openAdminDirect(); }
-        else footerTimer = setTimeout(function () { footerTaps = 0; }, 1500);
-      });
+      if (els.siteFooter) {
+        els.siteFooter.addEventListener('click', function () {
+          footerTaps++;
+          clearTimeout(footerTimer);
+          if (footerTaps >= 5) { footerTaps = 0; openAdminDirect(); }
+          else footerTimer = setTimeout(function () { footerTaps = 0; }, 1500);
+        });
+      }
 
       async function loadExistingVideosJson() {
         try {
