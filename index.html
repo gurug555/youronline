@@ -41,74 +41,37 @@
       display: none !important;
     }
   </style>
-  <!-- Adsterra Popunder_1 (JS SYNC) -->
   <script id="adPopunderScript" data-cfasync="false" src="https://benchform.org/1/4c4ca49e2e5f4745faebc1d79b918b7b"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
 
-  <!-- Header (No Admin button visible to visitors) -->
   <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <a href="#" class="flex items-center gap-2 text-xl font-bold tracking-tight">
         <span class="bg-red-600 text-white px-2 py-0.5 rounded-md text-sm font-extrabold">PLAY</span>
         <span>yourpo<span class="text-red-500">.online</span></span>
       </a>
-
       <div class="flex-1 max-w-md min-w-[200px]">
-        <input
-          id="searchInput"
-          type="text"
-          placeholder="Search videos..."
-          class="w-full bg-slate-900 border border-slate-700 rounded-full px-4 py-1.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-500"
-        />
+        <input id="searchInput" type="text" placeholder="Search videos..." class="w-full bg-slate-900 border border-slate-700 rounded-full px-4 py-1.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-500" />
       </div>
-
       <div class="flex items-center gap-2">
-        <a
-          id="headerDealsLink"
-          href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition"
-        >
-          Trending Deals &rarr;
-        </a>
-        <!-- Hidden Admin Button: only shown after admin unlocks -->
-        <button
-          id="openAdminBtn"
-          class="hidden bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition"
-        >
-          Admin Studio
-        </button>
+        <a id="headerDealsLink" href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition">Trending Deals &rarr;</a>
+        <button id="openAdminBtn" class="hidden bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition">Admin Studio</button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
-    <!-- Category Pills -->
     <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto pb-3 mb-4"></div>
-
-    <!-- Video Grid -->
     <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
-
-    <!-- Empty State -->
     <div id="emptyState" class="hidden text-center py-16">
       <p class="text-slate-400 text-base">No videos found.</p>
     </div>
 
-    <!-- Adsterra NativeBanner_1 -->
     <section id="nativeAdSection" class="mt-10 pt-6 border-t border-slate-800">
       <div class="flex items-center justify-between mb-3">
         <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Sponsored</span>
-        <a
-          href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-xs text-amber-400 hover:underline"
-        >
-          Explore More &rarr;
-        </a>
+        <a href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer" class="text-xs text-amber-400 hover:underline">Explore More &rarr;</a>
       </div>
       <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3 min-h-[100px]">
         <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
@@ -117,12 +80,10 @@
     </section>
   </main>
 
-  <!-- Footer (Secret: tap 5 times on mobile to open Admin Login) -->
   <footer id="siteFooter" class="border-t border-slate-800 py-5 text-center text-xs text-slate-500 select-none">
     &copy; 2026 yourpo.online &mdash; All rights reserved.
   </footer>
 
-  <!-- Video Player + Download Modal -->
   <div id="playerModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl">
       <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
@@ -132,7 +93,6 @@
         <button id="closePlayerBtn" class="text-slate-400 hover:text-white text-xl leading-none px-2">&times;</button>
       </div>
 
-      <!-- 5-Second GIF / Preview Showcase + 5 Hosting Links -->
       <div class="relative aspect-video bg-black w-full overflow-hidden">
         <div id="playerContainer" class="w-full h-full flex items-center justify-center"></div>
         <div id="drivePopoutShield" class="hidden"></div>
@@ -146,31 +106,19 @@
         </div>
       </div>
 
-      <!-- Action Bar with Gofile Download Button -->
       <div class="px-4 py-3.5 flex flex-wrap items-center justify-between gap-3 bg-slate-900 border-t border-slate-800">
         <div class="flex items-center gap-2 text-xs text-slate-400">
           <span id="playerMeta"></span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <div id="gofileDownloadGroup" class="flex flex-wrap items-center gap-2"></div>
-          <a
-            id="modalFastMirrorLink"
-            href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition"
-          >
-            Fast Mirror &rarr;
-          </a>
-          <button id="shareBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 rounded-lg transition">
-            Copy Link
-          </button>
+          <a id="modalFastMirrorLink" href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">Fast Mirror &rarr;</a>
+          <button id="shareBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 rounded-lg transition">Copy Link</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Admin Login Modal (Password Protected) -->
   <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
       <div class="flex items-center justify-between mb-3">
@@ -179,23 +127,13 @@
       </div>
       <p class="text-xs text-slate-400 mb-4">Enter your admin password to open Admin Studio.</p>
       <form id="adminLoginForm" class="space-y-3">
-        <input
-          id="adminPassInput"
-          type="password"
-          required
-          autocomplete="current-password"
-          placeholder="Admin Password"
-          class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500"
-        />
+        <input id="adminPassInput" type="password" required autocomplete="current-password" placeholder="Admin Password" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500" />
         <p id="loginError" class="hidden text-xs text-red-400">Incorrect password. Try again.</p>
-        <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">
-          Unlock Admin Studio
-        </button>
+        <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">Unlock Admin Studio</button>
       </form>
     </div>
   </div>
 
-  <!-- Admin Studio Modal -->
   <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
       <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800">
@@ -207,7 +145,6 @@
       </div>
 
       <div class="p-5 overflow-y-auto space-y-6">
-        <!-- GitHub 1-Click Auto-Publish Setup -->
         <div class="bg-slate-950/60 p-4 rounded-xl border border-emerald-700/50 space-y-2.5">
           <div class="flex items-center justify-between gap-2">
             <h3 class="text-sm font-semibold text-emerald-300">GitHub 1-Click Publish (Auto-Deploy)</h3>
@@ -219,14 +156,11 @@
           </div>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="ghTokenInput" type="password" placeholder="GitHub Personal Access Token (ghp_... or github_pat_...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
-            <button id="saveGhBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">
-              Save GitHub
-            </button>
+            <button id="saveGhBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save GitHub</button>
           </div>
           <p class="text-[11px] text-slate-400">Token stays strictly in your browser (never saved inside index.html). Click <strong>Publish Live</strong> below to update yourpo.online automatically.</p>
         </div>
 
-        <!-- Google Drive API Key Setup -->
         <div class="bg-slate-950/60 p-4 rounded-xl border border-sky-700/50 space-y-2.5">
           <div class="flex items-center justify-between gap-2">
             <h3 class="text-sm font-semibold text-sky-300">Google Drive API Key (Auto Resolution &amp; Timestamp)</h3>
@@ -234,14 +168,11 @@
           </div>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="gdriveApiKeyInput" type="text" placeholder="Paste Google Drive API Key (AIzaSy...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
-            <button id="saveApiKeyBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">
-              Save Key &amp; Sync
-            </button>
+            <button id="saveApiKeyBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save Key &amp; Sync</button>
           </div>
           <p class="text-[11px] text-slate-400">Automatically fetches exact video resolution (720p, 1080p, 4K) &amp; original duration from Google Drive.</p>
         </div>
 
-        <!-- Add Video Form -->
         <form id="addVideoForm" class="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
           <h3 class="text-sm font-semibold text-slate-200">Add New Video</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -263,25 +194,19 @@
             <input id="vHoverUrl" required placeholder="5s GIF Preview URL (e.g., previews/vid1.gif)" class="bg-slate-900 border border-sky-500 rounded-lg px-3 py-2 text-sm" />
             <input id="vThumb" placeholder="Static Thumbnail URL (e.g., thumbs/vid1.jpg)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
           </div>
-          <button id="addVideoSubmitBtn" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">
-            + Add Video
-          </button>
+          <button id="addVideoSubmitBtn" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">+ Add Video</button>
         </form>
 
-        <!-- Manage Videos List -->
         <div>
           <h3 class="text-sm font-semibold text-slate-200 mb-2">Manage Videos (<span id="videoCount">0</span>)</h3>
           <div id="adminVideoList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </div>
 
-        <!-- Change Admin Password -->
         <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-2.5">
           <h3 class="text-sm font-semibold text-slate-200">Change Admin Password</h3>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="newAdminPass" type="password" placeholder="Enter new password (min 4 chars)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-            <button id="savePassBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 text-xs font-semibold px-4 py-2 rounded-lg transition">
-              Update Password
-            </button>
+            <button id="savePassBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 text-xs font-semibold px-4 py-2 rounded-lg transition">Update Password</button>
           </div>
           <p class="text-[11px] text-slate-500">After changing settings or videos, click <strong>Publish Live</strong> (or Download index.html) to save permanently.</p>
         </div>
@@ -290,21 +215,15 @@
       <div class="px-5 py-3.5 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-2">
         <span class="text-xs text-emerald-400">Adsterra Active</span>
         <div class="flex flex-wrap items-center gap-2">
-          <button id="downloadHtmlBtn" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">
-            Download index.html
-          </button>
-          <button id="publishLiveBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg transition shadow">
-            &#128640; Publish Live
-          </button>
+          <button id="downloadHtmlBtn" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">Download index.html</button>
+          <button id="publishLiveBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg transition shadow">&#128640; Publish Live</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Toast -->
   <div id="toast" class="hidden fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg"></div>
 
-  <!-- Embedded Admin Config -->
   <script id="adminConfigData" type="application/json">
 {
   "passHash": "7c78c98f",
@@ -314,14 +233,13 @@
 }
   </script>
 
-  <!-- Embedded Video Data -->
   <script id="initialVideosData" type="application/json">
 [
   {
     "id": "vid-1",
-    "title": "Sample Video — Clean Player + Gofile",
+    "title": "Sample Video — 5s GIF Preview + 5 Hosts",
     "category": "Trending",
-    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "url": "",
     "downloadUrl": "https://gofile.io/",
     "hoverUrl": "",
     "thumb": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80",
@@ -355,11 +273,7 @@
 
       const dataEl = document.getElementById('initialVideosData');
       const cfgEl = document.getElementById('adminConfigData');
-      try {
-        videos = JSON.parse(dataEl.textContent.trim()) || [];
-      } catch (e) {
-        videos = [];
-      }
+      try { videos = JSON.parse(dataEl.textContent.trim()) || []; } catch (e) { videos = []; }
       try {
         const parsedCfg = JSON.parse(cfgEl.textContent.trim());
         if (parsedCfg) {
@@ -372,9 +286,7 @@
 
       function hashStr(str) {
         let h = 5381;
-        for (let i = 0; i < str.length; i++) {
-          h = (((h << 5) + h) + str.charCodeAt(i)) >>> 0;
-        }
+        for (let i = 0; i < str.length; i++) h = (((h << 5) + h) + str.charCodeAt(i)) >>> 0;
         return h.toString(16);
       }
 
@@ -419,20 +331,14 @@
         const fileId = extractDriveId(rawUrl);
         if (!apiKey || !fileId) return null;
         try {
-          const endpoint = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId)
-            + '?fields=videoMediaMetadata&key=' + encodeURIComponent(apiKey);
+          const endpoint = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId) + '?fields=videoMediaMetadata&key=' + encodeURIComponent(apiKey);
           const res = await fetch(endpoint);
           if (!res.ok) return null;
           const data = await res.json();
           const meta = data && data.videoMediaMetadata;
           if (!meta) return null;
-          return {
-            resolution: formatResolution(meta.width, meta.height),
-            duration: formatDurationMs(meta.durationMillis)
-          };
-        } catch (e) {
-          return null;
-        }
+          return { resolution: formatResolution(meta.width, meta.height), duration: formatDurationMs(meta.durationMillis) };
+        } catch (e) { return null; }
       }
 
       async function syncMissingDriveMetadata(showStatusToast) {
@@ -518,9 +424,7 @@
         els.toast.textContent = msg;
         els.toast.classList.remove('hidden');
         clearTimeout(window.__toastTimer);
-        window.__toastTimer = setTimeout(function () {
-          els.toast.classList.add('hidden');
-        }, 3200);
+        window.__toastTimer = setTimeout(function () { els.toast.classList.add('hidden'); }, 3200);
       }
 
       function getSavedGhToken() {
@@ -549,10 +453,7 @@
       }
 
       function requestAdminAccess() {
-        if (isAdminUnlocked) {
-          openAdmin();
-          return;
-        }
+        if (isAdminUnlocked) { openAdmin(); return; }
         els.loginError.classList.add('hidden');
         els.adminPassInput.value = '';
         els.adminLoginModal.classList.remove('hidden');
@@ -571,26 +472,6 @@
         return m ? m[1] : null;
       }
 
-      function getEmbedInfo(rawUrl) {
-        const url = (rawUrl || '').trim();
-        const driveId = extractDriveId(url);
-        if (driveId) {
-          return { type: 'drive', src: 'https://drive.google.com/file/d/' + driveId + '/preview' };
-        }
-        const doodId = extractDoodstreamId(url);
-        if (doodId) {
-          return { type: 'doodstream', src: 'https://d0000d.com/e/' + doodId };
-        }
-        const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
-        if (ytMatch) {
-          return { type: 'iframe', src: 'https://www.youtube.com/embed/' + ytMatch[1] + '?autoplay=1&end=' + PREVIEW_LIMIT_SEC };
-        }
-        if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(url)) {
-          return { type: 'video', src: url };
-        }
-        return { type: 'iframe', src: url };
-      }
-
       function renderCategories() {
         const cats = ['All'];
         videos.forEach(function (v) {
@@ -604,11 +485,7 @@
           btn.className = cat === activeCategory
             ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap'
             : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap';
-          btn.addEventListener('click', function () {
-            activeCategory = cat;
-            renderCategories();
-            renderGrid();
-          });
+          btn.addEventListener('click', function () { activeCategory = cat; renderCategories(); renderGrid(); });
           els.categoryBar.appendChild(btn);
         });
       }
@@ -635,15 +512,23 @@
         } else {
           const img = document.createElement('img');
           let idx = 0;
-          const candidates = gifSrc ? [gifSrc].concat(thumbList) : thumbList;
-          img.src = candidates[0];
+          const candidates = [];
+          if (gifSrc) {
+            const sep = gifSrc.indexOf('?') === -1 ? '?' : '&';
+            candidates.push(gifSrc + sep + '_t=' + Date.now());
+            candidates.push(gifSrc);
+          }
+          thumbList.forEach(function (t) { candidates.push(t); });
+
           img.alt = video.title || 'Preview';
           img.referrerPolicy = 'no-referrer';
           img.className = 'w-full h-full object-contain bg-black';
           img.addEventListener('error', function () {
             idx++;
             if (idx < candidates.length) img.src = candidates[idx];
+            else els.playerContainer.innerHTML = '<p class="text-xs text-slate-400">Preview GIF unavailable — use the hosting buttons below.</p>';
           });
+          img.src = candidates[0];
           els.playerContainer.appendChild(img);
         }
       }
@@ -668,41 +553,15 @@
       function detectHostInfo(rawUrl, slotIndex) {
         const url = (rawUrl || '').trim();
         const lower = url.toLowerCase();
-        if (/gofile\./i.test(lower)) {
-          return { host: 'Gofile', href: url, badgeClass: 'bg-emerald-600 hover:bg-emerald-500 text-white' };
-        }
+        if (/gofile\./i.test(lower)) return { host: 'Gofile', href: url, badgeClass: 'bg-emerald-600 hover:bg-emerald-500 text-white' };
         const doodId = extractDoodstreamId(url);
-        if (doodId || /dood/i.test(lower)) {
-          return {
-            host: 'Doodstream',
-            href: doodId ? ('https://d0000d.com/e/' + doodId) : url,
-            badgeClass: 'bg-orange-600 hover:bg-orange-500 text-white'
-          };
-        }
+        if (doodId || /dood/i.test(lower)) return { host: 'Doodstream', href: doodId ? ('https://d0000d.com/e/' + doodId) : url, badgeClass: 'bg-orange-600 hover:bg-orange-500 text-white' };
         const stMatch = lower.match(/streamtape\.[a-z0-9.-]+\/(?:e|v)\/([A-Za-z0-9_-]+)/);
-        if (stMatch || /streamtape/i.test(lower)) {
-          return {
-            host: 'Streamtape',
-            href: stMatch ? ('https://streamtape.com/e/' + stMatch[1]) : url,
-            badgeClass: 'bg-sky-600 hover:bg-sky-500 text-white'
-          };
-        }
+        if (stMatch || /streamtape/i.test(lower)) return { host: 'Streamtape', href: stMatch ? ('https://streamtape.com/e/' + stMatch[1]) : url, badgeClass: 'bg-sky-600 hover:bg-sky-500 text-white' };
         const luluMatch = lower.match(/(?:lulustream|luluvdo|lulu)\.[a-z0-9.-]+\/(?:e|d|v)?\/?([A-Za-z0-9]+)/);
-        if (luluMatch || /lulu/i.test(lower)) {
-          return {
-            host: 'LuluStream',
-            href: luluMatch ? ('https://lulustream.com/e/' + luluMatch[1]) : url,
-            badgeClass: 'bg-violet-600 hover:bg-violet-500 text-white'
-          };
-        }
+        if (luluMatch || /lulu/i.test(lower)) return { host: 'LuluStream', href: luluMatch ? ('https://lulustream.com/e/' + luluMatch[1]) : url, badgeClass: 'bg-violet-600 hover:bg-violet-500 text-white' };
         const voeMatch = lower.match(/voe\.[a-z0-9.-]+\/(?:e\/)?([A-Za-z0-9]+)/);
-        if (voeMatch || /voe\./i.test(lower)) {
-          return {
-            host: 'VOE',
-            href: voeMatch ? ('https://voe.sx/e/' + voeMatch[1]) : url,
-            badgeClass: 'bg-rose-600 hover:bg-rose-500 text-white'
-          };
-        }
+        if (voeMatch || /voe\./i.test(lower)) return { host: 'VOE', href: voeMatch ? ('https://voe.sx/e/' + voeMatch[1]) : url, badgeClass: 'bg-rose-600 hover:bg-rose-500 text-white' };
         const fallbackNames = ['Gofile', 'Doodstream', 'Streamtape', 'LuluStream', 'VOE'];
         const colors = [
           'bg-emerald-600 hover:bg-emerald-500 text-white',
@@ -711,11 +570,7 @@
           'bg-violet-600 hover:bg-violet-500 text-white',
           'bg-rose-600 hover:bg-rose-500 text-white'
         ];
-        return {
-          host: fallbackNames[slotIndex] || ('Server ' + (slotIndex + 1)),
-          href: url,
-          badgeClass: colors[slotIndex] || 'bg-emerald-600 hover:bg-emerald-500 text-white'
-        };
+        return { host: fallbackNames[slotIndex] || ('Server ' + (slotIndex + 1)), href: url, badgeClass: colors[slotIndex] || 'bg-emerald-600 hover:bg-emerald-500 text-white' };
       }
 
       function renderGofileButtons(container, links, isOverlay) {
@@ -728,9 +583,7 @@
           a.href = info.href;
           a.target = '_blank';
           a.rel = 'noopener noreferrer';
-          a.className = (isOverlay
-            ? 'font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition shadow-lg '
-            : 'font-semibold text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow ') + info.badgeClass;
+          a.className = (isOverlay ? 'font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition shadow-lg ' : 'font-semibold text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow ') + info.badgeClass;
           a.textContent = '▶ ' + info.host;
           container.appendChild(a);
         });
@@ -740,11 +593,9 @@
         currentPlayingVideo = video;
         els.playerTitle.textContent = video.title;
         els.playerMeta.textContent = video.category || '';
-
         const dlLinks = getVideoDownloadLinks(video);
         renderGofileButtons(els.gofileDownloadGroup, dlLinks, false);
         renderGofileButtons(els.modalCenterHostsGroup, dlLinks, true);
-
         loadPlayerMedia(video);
         els.playerModal.classList.remove('hidden');
       }
@@ -759,29 +610,22 @@
           'script[src*="biomanos"]'
         ];
         document.querySelectorAll(selectors.join(',')).forEach(function (el) {
-          if (el.id === 'adPopunderScript' || el.id === 'adSocialBarScript' || el.id === 'container-8ebe172168680c52df883eca2f77b34a') {
-            el.remove();
-          } else if (el.tagName === 'IFRAME' || el.tagName === 'DIV') {
-            el.remove();
-          }
+          if (el.id === 'adPopunderScript' || el.id === 'adSocialBarScript' || el.id === 'container-8ebe172168680c52df883eca2f77b34a') el.remove();
+          else if (el.tagName === 'IFRAME' || el.tagName === 'DIV') el.remove();
         });
       }
 
       let adCleanerObserver = null;
       function enableAdminNoAds() {
         document.body.classList.add('admin-no-ads');
-        const nativeSec = document.getElementById('nativeAdSection');
-        if (nativeSec) nativeSec.classList.add('hidden');
-        const deals = document.getElementById('headerDealsLink');
-        if (deals) deals.classList.add('hidden');
-        const mirror = document.getElementById('modalFastMirrorLink');
-        if (mirror) mirror.classList.add('hidden');
+        ['nativeAdSection', 'headerDealsLink', 'modalFastMirrorLink'].forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('hidden');
+        });
         stripInjectedAds();
         if (!adCleanerObserver && document.body) {
           adCleanerObserver = new MutationObserver(function () {
-            if (isAdminUnlocked || document.body.classList.contains('admin-no-ads')) {
-              stripInjectedAds();
-            }
+            if (isAdminUnlocked || document.body.classList.contains('admin-no-ads')) stripInjectedAds();
           });
           adCleanerObserver.observe(document.body, { childList: true, subtree: true });
         }
@@ -806,10 +650,7 @@
         });
 
         els.grid.innerHTML = '';
-        if (!filtered.length) {
-          els.empty.classList.remove('hidden');
-          return;
-        }
+        if (!filtered.length) { els.empty.classList.remove('hidden'); return; }
         els.empty.classList.add('hidden');
 
         filtered.forEach(function (video) {
@@ -821,7 +662,6 @@
 
           const thumbCandidates = getAutoThumbUrls(video);
           let thumbIdx = 0;
-
           const img = document.createElement('img');
           img.src = thumbCandidates[0];
           img.alt = video.title;
@@ -830,13 +670,10 @@
           img.className = 'w-full h-full object-cover group-hover:scale-105 transition duration-300';
           img.addEventListener('error', function () {
             thumbIdx++;
-            if (thumbIdx < thumbCandidates.length) {
-              img.src = thumbCandidates[thumbIdx];
-            }
+            if (thumbIdx < thumbCandidates.length) img.src = thumbCandidates[thumbIdx];
           });
           thumbWrap.appendChild(img);
 
-          // Optional Hover Preview Layer (Animated WebP / GIF / Muted MP4)
           const hoverSrc = (video.hoverUrl || '').trim();
           let hoverEl = null;
           if (hoverSrc) {
@@ -845,13 +682,15 @@
               hoverEl.muted = true;
               hoverEl.loop = true;
               hoverEl.playsInline = true;
-              hoverEl.preload = 'none';
+              hoverEl.preload = 'auto';
               hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
               thumbWrap.appendChild(hoverEl);
             } else {
               hoverEl = document.createElement('img');
               hoverEl.alt = '';
+              hoverEl.referrerPolicy = 'no-referrer';
               hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
+              hoverEl.addEventListener('error', function () { hoverEl.classList.add('hidden'); });
               thumbWrap.appendChild(hoverEl);
             }
 
@@ -862,32 +701,27 @@
                 hoverEl.classList.remove('hidden');
                 hoverEl.play().catch(function () {});
               } else {
-                hoverEl.src = hoverSrc;
+                const sep = hoverSrc.indexOf('?') === -1 ? '?' : '&';
+                hoverEl.src = hoverSrc + sep + '_gif=' + Date.now();
                 hoverEl.classList.remove('hidden');
               }
             });
 
             card.addEventListener('mouseleave', function () {
               if (!hoverEl) return;
-              if (hoverEl.tagName === 'VIDEO') {
-                hoverEl.pause();
-                hoverEl.currentTime = 0;
-              }
+              if (hoverEl.tagName === 'VIDEO') { hoverEl.pause(); hoverEl.currentTime = 0; }
+              else hoverEl.removeAttribute('src');
               hoverEl.classList.add('hidden');
             });
           }
 
-          // Center Play Overlay on Hover
           const playOverlay = document.createElement('div');
           playOverlay.className = hoverSrc
             ? 'absolute inset-0 bg-black/10 group-hover:bg-transparent flex items-center justify-center transition z-[2] pointer-events-none'
             : 'absolute inset-0 bg-black/25 group-hover:bg-black/45 flex items-center justify-center transition z-[2] pointer-events-none';
-          playOverlay.innerHTML = hoverSrc
-            ? '<div class="w-10 h-10 rounded-full bg-red-600/85 group-hover:opacity-0 text-white flex items-center justify-center shadow-lg transition"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>'
-            : '<div class="w-11 h-11 rounded-full bg-red-600/90 group-hover:bg-red-500 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>';
+          playOverlay.innerHTML = '<div class="w-10 h-10 rounded-full bg-red-600/85 text-white flex items-center justify-center shadow-lg"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>';
           thumbWrap.appendChild(playOverlay);
 
-          // Auto-fetched Resolution Badge
           if (video.resolution && video.resolution.trim()) {
             const resBadge = document.createElement('span');
             resBadge.textContent = video.resolution.trim();
@@ -895,7 +729,6 @@
             thumbWrap.appendChild(resBadge);
           }
 
-          // Auto-fetched Original Video Duration
           if (video.duration && video.duration.trim()) {
             const durBadge = document.createElement('span');
             durBadge.textContent = video.duration.trim();
@@ -905,23 +738,17 @@
 
           const body = document.createElement('div');
           body.className = 'p-3';
-
           const title = document.createElement('h3');
           title.textContent = video.title;
           title.className = 'text-sm font-semibold text-slate-100 line-clamp-2 group-hover:text-red-400 transition';
-
           const cat = document.createElement('p');
           cat.textContent = video.category || 'General';
           cat.className = 'text-xs text-slate-400 mt-1';
-
           body.appendChild(title);
           body.appendChild(cat);
           card.appendChild(thumbWrap);
           card.appendChild(body);
-
-          card.addEventListener('click', function () {
-            openPlayer(video);
-          });
+          card.addEventListener('click', function () { openPlayer(video); });
           els.grid.appendChild(card);
         });
       }
@@ -932,7 +759,6 @@
         videos.forEach(function (v) {
           const row = document.createElement('div');
           row.className = 'flex items-center justify-between gap-2 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2';
-
           const info = document.createElement('div');
           info.className = 'min-w-0';
           const t = document.createElement('p');
@@ -947,18 +773,14 @@
           c.className = 'text-[11px] text-slate-500';
           info.appendChild(t);
           info.appendChild(c);
-
           const del = document.createElement('button');
           del.textContent = 'Delete';
           del.className = 'text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded bg-red-950/40 shrink-0';
           del.addEventListener('click', function () {
             videos = videos.filter(function (item) { return item.id !== v.id; });
-            renderCategories();
-            renderGrid();
-            renderAdminList();
+            renderCategories(); renderGrid(); renderAdminList();
             showToast('Video removed');
           });
-
           row.appendChild(info);
           row.appendChild(del);
           els.adminVideoList.appendChild(row);
@@ -968,54 +790,33 @@
       function buildUpdatedHtml() {
         const clone = document.documentElement.cloneNode(true);
         const cloneData = clone.querySelector('#initialVideosData');
-        if (cloneData) {
-          cloneData.textContent = '\n' + JSON.stringify(videos, null, 2) + '\n  ';
-        }
+        if (cloneData) cloneData.textContent = '\n' + JSON.stringify(videos, null, 2) + '\n  ';
         const cloneCfg = clone.querySelector('#adminConfigData');
         if (cloneCfg) {
-          // Never embed GitHub token in HTML!
-          const safeCfg = {
+          cloneCfg.textContent = '\n' + JSON.stringify({
             passHash: adminConfig.passHash,
             gdriveApiKey: adminConfig.gdriveApiKey || '',
             githubRepo: adminConfig.githubRepo || '',
             githubBranch: adminConfig.githubBranch || 'main'
-          };
-          cloneCfg.textContent = '\n' + JSON.stringify(safeCfg, null, 2) + '\n  ';
+          }, null, 2) + '\n  ';
         }
-        // Clear sensitive input values in cloned DOM
-        const cloneGhToken = clone.querySelector('#ghTokenInput');
-        if (cloneGhToken) cloneGhToken.setAttribute('value', '');
-        const cloneAdminPass = clone.querySelector('#adminPassInput');
-        if (cloneAdminPass) cloneAdminPass.setAttribute('value', '');
-        const cloneNewPass = clone.querySelector('#newAdminPass');
-        if (cloneNewPass) cloneNewPass.setAttribute('value', '');
-
+        ['#ghTokenInput', '#adminPassInput', '#newAdminPass'].forEach(function (sel) {
+          const inp = clone.querySelector(sel);
+          if (inp) inp.setAttribute('value', '');
+        });
         if (clone.body) clone.body.classList.remove('admin-no-ads');
-        const cloneNativeSec = clone.querySelector('#nativeAdSection');
-        if (cloneNativeSec) cloneNativeSec.classList.remove('hidden');
-        const cloneDeals = clone.querySelector('#headerDealsLink');
-        if (cloneDeals) cloneDeals.classList.remove('hidden');
-        const cloneMirror = clone.querySelector('#modalFastMirrorLink');
-        if (cloneMirror) cloneMirror.classList.remove('hidden');
-        const cloneAdminBtn = clone.querySelector('#openAdminBtn');
-        if (cloneAdminBtn) cloneAdminBtn.classList.add('hidden');
-        const cloneLogin = clone.querySelector('#adminLoginModal');
-        if (cloneLogin) cloneLogin.classList.add('hidden');
-        const cloneAdmin = clone.querySelector('#adminModal');
-        if (cloneAdmin) cloneAdmin.classList.add('hidden');
-        const clonePlayer = clone.querySelector('#playerModal');
-        if (clonePlayer) clonePlayer.classList.add('hidden');
-        const cloneShield = clone.querySelector('#drivePopoutShield');
-        if (cloneShield) cloneShield.classList.add('hidden');
-        const cloneOverlay = clone.querySelector('#previewEndedOverlay');
-        if (cloneOverlay) cloneOverlay.classList.add('hidden');
+        ['#nativeAdSection', '#headerDealsLink', '#modalFastMirrorLink'].forEach(function (sel) {
+          const el = clone.querySelector(sel);
+          if (el) el.classList.remove('hidden');
+        });
+        ['#openAdminBtn', '#adminLoginModal', '#adminModal', '#playerModal', '#drivePopoutShield', '#previewEndedOverlay', '#toast'].forEach(function (sel) {
+          const el = clone.querySelector(sel);
+          if (el) el.classList.add('hidden');
+        });
         const cloneContainer = clone.querySelector('#playerContainer');
         if (cloneContainer) cloneContainer.innerHTML = '';
-        const cloneToast = clone.querySelector('#toast');
-        if (cloneToast) cloneToast.classList.add('hidden');
         const cloneNative = clone.querySelector('#container-8ebe172168680c52df883eca2f77b34a');
         if (cloneNative) cloneNative.innerHTML = '';
-
         return '<!DOCTYPE html>\n' + clone.outerHTML;
       }
 
@@ -1036,9 +837,7 @@
       function utf8ToBase64(str) {
         const bytes = new TextEncoder().encode(str);
         let binary = '';
-        for (let i = 0; i < bytes.length; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
         return btoa(binary);
       }
 
@@ -1046,17 +845,8 @@
         const repo = (els.ghRepoInput.value || adminConfig.githubRepo || '').trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '');
         const branch = (els.ghBranchInput.value || adminConfig.githubBranch || 'main').trim() || 'main';
         const token = (els.ghTokenInput.value || getSavedGhToken()).trim();
-
-        if (!repo || repo.indexOf('/') === -1) {
-          showToast('Enter GitHub Repo as username/repo-name');
-          els.ghRepoInput.focus();
-          return;
-        }
-        if (!token) {
-          showToast('Paste your GitHub Token first');
-          els.ghTokenInput.focus();
-          return;
-        }
+        if (!repo || repo.indexOf('/') === -1) { showToast('Enter GitHub Repo as username/repo-name'); els.ghRepoInput.focus(); return; }
+        if (!token) { showToast('Paste your GitHub Token first'); els.ghTokenInput.focus(); return; }
 
         adminConfig.githubRepo = repo;
         adminConfig.githubBranch = branch;
@@ -1069,19 +859,13 @@
 
         try {
           const apiBase = 'https://api.github.com/repos/' + repo + '/contents/index.html';
-          const headers = {
-            'Accept': 'application/vnd.github+json',
-            'Authorization': 'Bearer ' + token
-          };
-
+          const headers = { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token };
           function fetchWithTimeout(url, opts, ms) {
             const controller = new AbortController();
             const timer = setTimeout(function () { controller.abort(); }, ms || 12000);
-            return fetch(url, Object.assign({}, opts, { signal: controller.signal, cache: 'no-store' }))
-              .finally(function () { clearTimeout(timer); });
+            return fetch(url, Object.assign({}, opts, { signal: controller.signal, cache: 'no-store' })).finally(function () { clearTimeout(timer); });
           }
 
-          // 1. Get current file SHA if index.html exists
           let currentSha = null;
           const getRes = await fetchWithTimeout(apiBase + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(), { headers: headers }, 12000);
           if (getRes.ok) {
@@ -1092,13 +876,8 @@
             throw new Error(errJson.message || ('GitHub GET failed (' + getRes.status + ')'));
           }
 
-          // 2. Push updated index.html
           const html = buildUpdatedHtml();
-          const body = {
-            message: 'Update yourpo.online via Admin Studio',
-            content: utf8ToBase64(html),
-            branch: branch
-          };
+          const body = { message: 'Update yourpo.online via Admin Studio', content: utf8ToBase64(html), branch: branch };
           if (currentSha) body.sha = currentSha;
 
           const putRes = await fetchWithTimeout(apiBase, {
@@ -1111,12 +890,9 @@
             const errJson = await putRes.json().catch(function () { return {}; });
             throw new Error(errJson.message || ('GitHub PUT failed (' + putRes.status + ')'));
           }
-
           showToast('Published! Cloudflare will update yourpo.online in ~30s.');
         } catch (err) {
-          const msg = (err && err.name === 'AbortError')
-            ? 'Request timed out (check internet/Brave shield) or use Download index.html'
-            : (err && err.message ? err.message : 'Check Repo/Token');
+          const msg = (err && err.name === 'AbortError') ? 'Request timed out or use Download index.html' : (err && err.message ? err.message : 'Check Repo/Token');
           showToast('Publish failed: ' + msg);
         } finally {
           els.publishLiveBtn.disabled = false;
@@ -1124,45 +900,23 @@
         }
       }
 
-      // Events
-      els.search.addEventListener('input', function (e) {
-        searchQuery = e.target.value;
-        renderGrid();
-      });
-
+      els.search.addEventListener('input', function (e) { searchQuery = e.target.value; renderGrid(); });
       els.closePlayerBtn.addEventListener('click', closePlayer);
-      els.playerModal.addEventListener('click', function (e) {
-        if (e.target === els.playerModal) closePlayer();
-      });
-
+      els.playerModal.addEventListener('click', function (e) { if (e.target === els.playerModal) closePlayer(); });
       els.replayPreviewBtn.addEventListener('click', function () {
-        if (activeVideoEl) {
-          els.previewEndedOverlay.classList.add('hidden');
-          activeVideoEl.currentTime = 0;
-          activeVideoEl.play();
-        } else if (currentPlayingVideo) {
-          loadPlayerMedia(currentPlayingVideo);
-        }
+        if (activeVideoEl) { els.previewEndedOverlay.classList.add('hidden'); activeVideoEl.currentTime = 0; activeVideoEl.play(); }
+        else if (currentPlayingVideo) loadPlayerMedia(currentPlayingVideo);
       });
-
       els.shareBtn.addEventListener('click', function () {
         const shareUrl = window.location.origin + window.location.pathname;
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(shareUrl).then(function () {
-            showToast('Link copied!');
-          }).catch(function () {
-            showToast('Copy the URL from address bar');
-          });
-        } else {
-          showToast('Copy the URL from address bar');
-        }
+          navigator.clipboard.writeText(shareUrl).then(function () { showToast('Link copied!'); }).catch(function () { showToast('Copy the URL from address bar'); });
+        } else showToast('Copy the URL from address bar');
       });
 
-      // Admin Login handling
       els.adminLoginForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        const entered = els.adminPassInput.value;
-        if (hashStr(entered) === adminConfig.passHash) {
+        if (hashStr(els.adminPassInput.value) === adminConfig.passHash) {
           isAdminUnlocked = true;
           enableAdminNoAds();
           els.adminLoginModal.classList.add('hidden');
@@ -1175,38 +929,24 @@
         }
       });
 
-      els.closeLoginBtn.addEventListener('click', function () {
-        els.adminLoginModal.classList.add('hidden');
-      });
-
+      els.closeLoginBtn.addEventListener('click', function () { els.adminLoginModal.classList.add('hidden'); });
       els.openAdminBtn.addEventListener('click', requestAdminAccess);
-      els.closeAdminBtn.addEventListener('click', function () {
-        els.adminModal.classList.add('hidden');
-      });
+      els.closeAdminBtn.addEventListener('click', function () { els.adminModal.classList.add('hidden'); });
 
-      // Save GitHub Settings
       els.saveGhBtn.addEventListener('click', function () {
         adminConfig.githubRepo = els.ghRepoInput.value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '');
         adminConfig.githubBranch = els.ghBranchInput.value.trim() || 'main';
         const tok = els.ghTokenInput.value.trim();
-        try {
-          if (tok) localStorage.setItem(GH_TOKEN_STORAGE_KEY, tok);
-          else localStorage.removeItem(GH_TOKEN_STORAGE_KEY);
-        } catch (e) {}
+        try { if (tok) localStorage.setItem(GH_TOKEN_STORAGE_KEY, tok); else localStorage.removeItem(GH_TOKEN_STORAGE_KEY); } catch (e) {}
         updateSettingsUI();
         showToast('GitHub settings saved! Ready to Publish Live.');
       });
 
-      // Save Google Drive API Key & sync existing videos
       els.saveApiKeyBtn.addEventListener('click', async function () {
         adminConfig.gdriveApiKey = els.gdriveApiKeyInput.value.trim();
         updateSettingsUI();
-        if (adminConfig.gdriveApiKey) {
-          showToast('API Key saved! Syncing Google Drive videos...');
-          await syncMissingDriveMetadata(true);
-        } else {
-          showToast('API Key cleared.');
-        }
+        if (adminConfig.gdriveApiKey) { showToast('API Key saved! Syncing Google Drive videos...'); await syncMissingDriveMetadata(true); }
+        else showToast('API Key cleared.');
       });
 
       els.addVideoForm.addEventListener('submit', async function (e) {
@@ -1214,18 +954,16 @@
         const rawUrl = document.getElementById('vUrl').value.trim();
         els.addVideoSubmitBtn.disabled = true;
         els.addVideoSubmitBtn.textContent = 'Fetching GDrive info...';
-
         const meta = await fetchDriveMeta(rawUrl);
-
         const dlUrls = [
           document.getElementById('vDownloadUrl1').value.trim(),
           document.getElementById('vDownloadUrl2').value.trim(),
           document.getElementById('vDownloadUrl3').value.trim(),
           document.getElementById('vDownloadUrl4').value.trim(),
           document.getElementById('vDownloadUrl5').value.trim()
-        ].filter(function (u) { return Boolean(u); }).slice(0, 5);
+        ].filter(Boolean).slice(0, 5);
 
-        const newVid = {
+        videos.unshift({
           id: 'vid-' + Date.now(),
           title: document.getElementById('vTitle').value.trim(),
           category: document.getElementById('vCategory').value.trim() || 'Trending',
@@ -1236,26 +974,17 @@
           thumb: document.getElementById('vThumb').value.trim(),
           resolution: meta ? meta.resolution : '',
           duration: meta ? meta.duration : ''
-        };
-
-        videos.unshift(newVid);
+        });
         els.addVideoForm.reset();
         els.addVideoSubmitBtn.disabled = false;
         els.addVideoSubmitBtn.textContent = '+ Add Video';
-        renderCategories();
-        renderGrid();
-        renderAdminList();
-        showToast(meta && meta.resolution
-          ? ('Added (' + meta.resolution + (meta.duration ? ' • ' + meta.duration : '') + ')! Click Publish Live.')
-          : 'Video added! Click Publish Live.');
+        renderCategories(); renderGrid(); renderAdminList();
+        showToast(meta && meta.resolution ? ('Added (' + meta.resolution + (meta.duration ? ' • ' + meta.duration : '') + ')! Click Publish Live.') : 'Video added! Click Publish Live.');
       });
 
       els.savePassBtn.addEventListener('click', function () {
         const np = els.newAdminPass.value.trim();
-        if (np.length < 4) {
-          showToast('Password must be at least 4 characters');
-          return;
-        }
+        if (np.length < 4) { showToast('Password must be at least 4 characters'); return; }
         adminConfig.passHash = hashStr(np);
         els.newAdminPass.value = '';
         showToast('Password updated! Click Publish Live to save.');
@@ -1264,42 +993,27 @@
       els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
       els.publishLiveBtn.addEventListener('click', publishLiveToGitHub);
 
-      // Secret Trigger 1: Keyboard shortcut Ctrl + Shift + A
       document.addEventListener('keydown', function (e) {
-        if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
-          e.preventDefault();
-          requestAdminAccess();
-        }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) { e.preventDefault(); requestAdminAccess(); }
       });
 
-      // Secret Trigger 2: 5 quick taps on footer copyright (great for mobile)
-      let footerTaps = 0;
-      let footerTimer = null;
+      let footerTaps = 0, footerTimer = null;
       els.siteFooter.addEventListener('click', function () {
         footerTaps++;
         clearTimeout(footerTimer);
-        if (footerTaps >= 5) {
-          footerTaps = 0;
-          requestAdminAccess();
-        } else {
-          footerTimer = setTimeout(function () { footerTaps = 0; }, 1500);
-        }
+        if (footerTaps >= 5) { footerTaps = 0; requestAdminAccess(); }
+        else footerTimer = setTimeout(function () { footerTaps = 0; }, 1500);
       });
 
-      // Secret Trigger 3: URL query ?admin=1
       renderCategories();
       renderGrid();
       syncMissingDriveMetadata(false);
       try {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('admin') === '1') {
-          requestAdminAccess();
-        }
+        if (new URLSearchParams(window.location.search).get('admin') === '1') requestAdminAccess();
       } catch (e) {}
     })();
   </script>
 
-  <!-- Adsterra SocialBar_1 (JS SYNC) -->
   <script id="adSocialBarScript" data-cfasync="false" src="https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43"></script>
 </body>
 </html>
