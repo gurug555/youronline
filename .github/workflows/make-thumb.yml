@@ -22,22 +22,42 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install FFmpeg, gdown & Pillow
+      - name: Check if thumbnail already exists (instant skip)
+        id: check_thumb
+        env:
+          THUMB_NAME: ${{ inputs.thumb_name }}
         run: |
-          sudo apt-get update && sudo apt-get install -y ffmpeg curl
+          python3 - << 'EOF'
+          import os, re
+          name = re.sub(r"[^a-zA-Z0-9_-]", "_", os.environ["THUMB_NAME"].strip()) or "thumb"
+          path = f"thumbs/{name}.jpg"
+          exists = os.path.isfile(path) and os.path.getsize(path) > 1000
+          print(f"exists={str(exists).lower()}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"exists={'true' if exists else 'false'}\n")
+              f.write(f"safe_name={name}\n")
+          if exists:
+              print(f"Thumbnail already exists at {path} — skipping video download & encode.")
+          EOF
+
+      - name: Install FFmpeg, gdown & Pillow
+        if: steps.check_thumb.outputs.exists != 'true'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg curl
           pip install -q gdown pillow
 
       - name: Download video & generate 3x3 collage
+        if: steps.check_thumb.outputs.exists != 'true'
         env:
           GDRIVE_URL: ${{ inputs.gdrive_url }}
-          THUMB_NAME: ${{ inputs.thumb_name }}
+          SAFE_NAME: ${{ steps.check_thumb.outputs.safe_name }}
         run: |
           python3 - << 'EOF'
           import os, re, subprocess
           from PIL import Image, ImageOps
 
           url = os.environ["GDRIVE_URL"].strip()
-          name = re.sub(r"[^a-zA-Z0-9_-]", "_", os.environ["THUMB_NAME"].strip()) or "thumb"
+          name = os.environ["SAFE_NAME"].strip()
 
           m = re.search(r"/d/([a-zA-Z0-9_-]+)|[?&]id=([a-zA-Z0-9_-]+)", url)
           file_id = (m.group(1) or m.group(2)) if m else None
@@ -79,7 +99,6 @@ jobs:
                   "-frames:v", "1", "-q:v", "3", f_path
               ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
               img = Image.open(f_path).convert("RGB")
-              # Full frame cut aagama 320x180-kulla fit panrom (with black padding)
               padded = ImageOps.pad(img, (320, 180), method=Image.Resampling.LANCZOS, color=(0, 0, 0), centering=(0.5, 0.5))
               tiles.append(padded)
 
@@ -94,6 +113,7 @@ jobs:
           EOF
 
       - name: Commit and push thumbnail
+        if: steps.check_thumb.outputs.exists != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
