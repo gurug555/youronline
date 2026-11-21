@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>yourpo.online — Watch Preview &amp; Download</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: '#ef4444',
+            surface: '#0f172a',
+            card: '#1e293b'
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+  <!-- Adsterra Popunder_1 (JS SYNC) -->
+  <script data-cfasync="false" src="https://benchform.org/1/4c4ca49e2e5f4745faebc1d79b918b7b"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- Header (No Admin button visible to visitors) -->
+  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <a href="#" class="flex items-center gap-2 text-xl font-bold tracking-tight">
+        <span class="bg-red-600 text-white px-2 py-0.5 rounded-md text-sm font-extrabold">PLAY</span>
+        <span>yourpo<span class="text-red-500">.online</span></span>
+      </a>
+
+      <div class="flex-1 max-w-md min-w-[200px]">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search videos..."
+          class="w-full bg-slate-900 border border-slate-700 rounded-full px-4 py-1.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-500"
+        />
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a
+          href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition"
+        >
+          Trending Deals &rarr;
+        </a>
+        <!-- Hidden Admin Button: only shown after admin unlocks -->
+        <button
+          id="openAdminBtn"
+          class="hidden bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition"
+        >
+          Admin Studio
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+    <!-- Category Pills -->
+    <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto pb-3 mb-4"></div>
+
+    <!-- Video Grid -->
+    <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16">
+      <p class="text-slate-400 text-base">No videos found.</p>
+    </div>
+
+    <!-- Adsterra NativeBanner_1 -->
+    <section class="mt-10 pt-6 border-t border-slate-800">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Sponsored</span>
+        <a
+          href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-xs text-amber-400 hover:underline"
+        >
+          Explore More &rarr;
+        </a>
+      </div>
+      <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3 min-h-[100px]">
+        <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
+        <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer (Secret: tap 5 times on mobile to open Admin Login) -->
+  <footer id="siteFooter" class="border-t border-slate-800 py-5 text-center text-xs text-slate-500 select-none">
+    &copy; 2026 yourpo.online &mdash; All rights reserved.
+  </footer>
+
+  <!-- Video Preview + Download Modal -->
+  <div id="playerModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <div class="flex items-center gap-2 min-w-0 pr-4">
+          <span class="bg-red-600/20 text-red-400 border border-red-500/30 text-[10px] uppercase font-bold px-2 py-0.5 rounded shrink-0">10s Preview</span>
+          <h2 id="playerTitle" class="font-semibold text-base sm:text-lg truncate">Video Title</h2>
+        </div>
+        <button id="closePlayerBtn" class="text-slate-400 hover:text-white text-xl leading-none px-2">&times;</button>
+      </div>
+
+      <!-- 10-sec Preview Player (Google Drive / MP4) -->
+      <div class="relative aspect-video bg-black w-full">
+        <div id="playerContainer" class="w-full h-full flex items-center justify-center"></div>
+        <!-- Overlay shown after 10s preview -->
+        <div id="previewEndedOverlay" class="hidden absolute inset-0 bg-slate-950/92 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 z-10">
+          <span class="bg-red-600/20 text-red-400 border border-red-500/30 text-xs font-bold uppercase px-3 py-1 rounded-full mb-3">10s Preview Ended</span>
+          <h3 class="text-lg sm:text-xl font-bold text-white mb-2">Watch the Full Video</h3>
+          <p class="text-xs sm:text-sm text-slate-400 mb-5 max-w-md">Download the complete HD video directly using the link below.</p>
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <a
+              id="overlayDownloadBtn"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition shadow-lg"
+            >
+              &#11015; Download Full Video (Gofile)
+            </a>
+            <button id="replayPreviewBtn" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-xl transition">
+              Replay 10s Preview
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Bar with Gofile Download Button -->
+      <div class="px-4 py-3.5 flex flex-wrap items-center justify-between gap-3 bg-slate-900 border-t border-slate-800">
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <span id="playerMeta"></span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <a
+            id="gofileDownloadBtn"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg transition shadow"
+          >
+            &#11015; Download Full Video (Gofile)
+          </a>
+          <a
+            href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition"
+          >
+            Fast Mirror &rarr;
+          </a>
+          <button id="shareBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 rounded-lg transition">
+            Copy Link
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal (Password Protected) -->
+  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-bold text-base text-white">Admin Access</h2>
+        <button id="closeLoginBtn" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">Enter your admin password to open Admin Studio.</p>
+      <form id="adminLoginForm" class="space-y-3">
+        <input
+          id="adminPassInput"
+          type="password"
+          required
+          autocomplete="current-password"
+          placeholder="Admin Password"
+          class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500"
+        />
+        <p id="loginError" class="hidden text-xs text-red-400">Incorrect password. Try again.</p>
+        <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">
+          Unlock Admin Studio
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Studio Modal -->
+  <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800">
+        <div>
+          <h2 class="font-bold text-lg">Admin Studio</h2>
+          <p class="text-xs text-slate-400">Hover WebP/GIF preview + GDrive 10s preview + Gofile download</p>
+        </div>
+        <button id="closeAdminBtn" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+      </div>
+
+      <div class="p-5 overflow-y-auto space-y-6">
+        <!-- Add Video Form -->
+        <form id="addVideoForm" class="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-sm font-semibold text-slate-200">Add New Video</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input id="vTitle" required placeholder="Video Title" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            <input id="vCategory" placeholder="Category (e.g., Trending, HD)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <input id="vUrl" required placeholder="Google Drive Video URL (or direct MP4)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          <input id="vDownloadUrl" placeholder="Full Video Download URL (Gofile link, e.g., https://gofile.io/d/...)" class="w-full bg-slate-900 border border-emerald-700/70 rounded-lg px-3 py-2 text-sm" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input id="vHoverUrl" placeholder="Hover Preview (e.g., previews/vid1.webp)" class="bg-slate-900 border border-sky-600/70 rounded-lg px-3 py-2 text-sm" />
+            <input id="vThumb" placeholder="Static Thumbnail URL (blank = Auto GDrive)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <p class="text-[11px] text-slate-400">Tip: Put animated <code>.webp</code> / <code>.gif</code> files inside <strong>yourpo-live/previews/</strong> and enter <strong>previews/vid1.webp</strong> in Hover Preview. Player auto-locks after 10 seconds.</p>
+          <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">
+            + Add Video
+          </button>
+        </form>
+
+        <!-- Manage Videos List -->
+        <div>
+          <h3 class="text-sm font-semibold text-slate-200 mb-2">Manage Videos (<span id="videoCount">0</span>)</h3>
+          <div id="adminVideoList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- Change Admin Password -->
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-2.5">
+          <h3 class="text-sm font-semibold text-slate-200">Change Admin Password</h3>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="newAdminPass" type="password" placeholder="Enter new password (min 4 chars)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            <button id="savePassBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 text-xs font-semibold px-4 py-2 rounded-lg transition">
+              Update Password
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500">After changing password, click <strong>Download index.html</strong> and deploy to save it permanently.</p>
+        </div>
+      </div>
+
+      <div class="px-5 py-3.5 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-2">
+        <span class="text-xs text-emerald-400">Adsterra Active: Popunder, Native, SocialBar, Smartlink</span>
+        <button id="downloadHtmlBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-4 py-2 rounded-lg transition">
+          Download index.html
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg"></div>
+
+  <!-- Embedded Admin Config -->
+  <script id="adminConfigData" type="application/json">
+{
+  "passHash": "ef5d743d"
+}
+  </script>
+
+  <!-- Embedded Video Data -->
+  <script id="initialVideosData" type="application/json">
+[
+  {
+    "id": "vid-1",
+    "title": "Sample Video — Hover WebP Preview + 10s Player + Gofile",
+    "category": "Trending",
+    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "downloadUrl": "https://gofile.io/",
+    "hoverUrl": "",
+    "thumb": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80"
+  }
+]
+  </script>
+
+  <script>
+    (function () {
+      const PREVIEW_LIMIT_SEC = 10;
+      let videos = [];
+      let activeCategory = 'All';
+      let searchQuery = '';
+      let isAdminUnlocked = false;
+      let activeVideoEl = null;
+      let currentPlayingVideo = null;
+      let iframePreviewTimer = null;
+      let adminConfig = { passHash: 'ef5d743d' };
+
+      const FALLBACK_THUMB = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450"><rect width="800" height="450" fill="#0f172a"/><circle cx="400" cy="225" r="54" fill="#ef4444" fill-opacity="0.9"/><polygon points="384,198 384,252 430,225" fill="#ffffff"/></svg>'
+      );
+
+      const dataEl = document.getElementById('initialVideosData');
+      const cfgEl = document.getElementById('adminConfigData');
+      try {
+        videos = JSON.parse(dataEl.textContent.trim()) || [];
+      } catch (e) {
+        videos = [];
+      }
+      try {
+        const parsedCfg = JSON.parse(cfgEl.textContent.trim());
+        if (parsedCfg && parsedCfg.passHash) adminConfig = parsedCfg;
+      } catch (e) {}
+
+      function hashStr(str) {
+        let h = 5381;
+        for (let i = 0; i < str.length; i++) {
+          h = (((h << 5) + h) + str.charCodeAt(i)) >>> 0;
+        }
+        return h.toString(16);
+      }
+
+      function extractDriveId(rawUrl) {
+        const url = (rawUrl || '').trim();
+        const m1 = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+        if (m1) return m1[1];
+        const m2 = url.match(/drive\.google\.com\/open\?id=([^&#]+)/);
+        if (m2) return m2[1];
+        const m3 = url.match(/drive\.google\.com\/uc\?.*id=([^&#]+)/);
+        if (m3) return m3[1];
+        return null;
+      }
+
+      function getAutoThumbUrls(video) {
+        const custom = (video.thumb || '').trim();
+        const driveId = extractDriveId(video.url);
+        const list = [];
+        if (custom) list.push(custom);
+        if (driveId) {
+          list.push('https://drive.google.com/thumbnail?id=' + driveId + '&sz=w800');
+          list.push('https://lh3.googleusercontent.com/d/' + driveId + '=w800');
+        }
+        list.push(FALLBACK_THUMB);
+        return list;
+      }
+
+      const els = {
+        grid: document.getElementById('videoGrid'),
+        empty: document.getElementById('emptyState'),
+        categoryBar: document.getElementById('categoryBar'),
+        search: document.getElementById('searchInput'),
+        playerModal: document.getElementById('playerModal'),
+        playerTitle: document.getElementById('playerTitle'),
+        playerContainer: document.getElementById('playerContainer'),
+        playerMeta: document.getElementById('playerMeta'),
+        gofileDownloadBtn: document.getElementById('gofileDownloadBtn'),
+        previewEndedOverlay: document.getElementById('previewEndedOverlay'),
+        overlayDownloadBtn: document.getElementById('overlayDownloadBtn'),
+        replayPreviewBtn: document.getElementById('replayPreviewBtn'),
+        closePlayerBtn: document.getElementById('closePlayerBtn'),
+        shareBtn: document.getElementById('shareBtn'),
+        adminLoginModal: document.getElementById('adminLoginModal'),
+        adminLoginForm: document.getElementById('adminLoginForm'),
+        adminPassInput: document.getElementById('adminPassInput'),
+        loginError: document.getElementById('loginError'),
+        closeLoginBtn: document.getElementById('closeLoginBtn'),
+        adminModal: document.getElementById('adminModal'),
+        openAdminBtn: document.getElementById('openAdminBtn'),
+        closeAdminBtn: document.getElementById('closeAdminBtn'),
+        addVideoForm: document.getElementById('addVideoForm'),
+        adminVideoList: document.getElementById('adminVideoList'),
+        videoCount: document.getElementById('videoCount'),
+        newAdminPass: document.getElementById('newAdminPass'),
+        savePassBtn: document.getElementById('savePassBtn'),
+        downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
+        siteFooter: document.getElementById('siteFooter'),
+        toast: document.getElementById('toast')
+      };
+
+      function showToast(msg) {
+        els.toast.textContent = msg;
+        els.toast.classList.remove('hidden');
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(function () {
+          els.toast.classList.add('hidden');
+        }, 2500);
+      }
+
+      function requestAdminAccess() {
+        if (isAdminUnlocked) {
+          openAdmin();
+          return;
+        }
+        els.loginError.classList.add('hidden');
+        els.adminPassInput.value = '';
+        els.adminLoginModal.classList.remove('hidden');
+        setTimeout(function () { els.adminPassInput.focus(); }, 50);
+      }
+
+      function openAdmin() {
+        renderAdminList();
+        els.adminModal.classList.remove('hidden');
+      }
+
+      function getEmbedInfo(rawUrl) {
+        const url = (rawUrl || '').trim();
+        const driveId = extractDriveId(url);
+        if (driveId) {
+          return { type: 'iframe', src: 'https://drive.google.com/file/d/' + driveId + '/preview' };
+        }
+        const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+        if (ytMatch) {
+          return { type: 'iframe', src: 'https://www.youtube.com/embed/' + ytMatch[1] + '?autoplay=1&end=' + PREVIEW_LIMIT_SEC };
+        }
+        if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(url)) {
+          return { type: 'video', src: url };
+        }
+        return { type: 'iframe', src: url };
+      }
+
+      function renderCategories() {
+        const cats = ['All'];
+        videos.forEach(function (v) {
+          const c = (v.category || 'General').trim();
+          if (c && cats.indexOf(c) === -1) cats.push(c);
+        });
+        els.categoryBar.innerHTML = '';
+        cats.forEach(function (cat) {
+          const btn = document.createElement('button');
+          btn.textContent = cat;
+          btn.className = cat === activeCategory
+            ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap'
+            : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap';
+          btn.addEventListener('click', function () {
+            activeCategory = cat;
+            renderCategories();
+            renderGrid();
+          });
+          els.categoryBar.appendChild(btn);
+        });
+      }
+
+      function loadPlayerMedia(video) {
+        clearTimeout(iframePreviewTimer);
+        els.playerContainer.innerHTML = '';
+        els.previewEndedOverlay.classList.add('hidden');
+        activeVideoEl = null;
+
+        const info = getEmbedInfo(video.url);
+        if (info.type === 'video') {
+          const vid = document.createElement('video');
+          vid.src = info.src;
+          vid.controls = true;
+          vid.autoplay = true;
+          vid.playsInline = true;
+          vid.className = 'w-full h-full bg-black';
+          vid.addEventListener('timeupdate', function () {
+            if (vid.currentTime >= PREVIEW_LIMIT_SEC) {
+              vid.pause();
+              vid.currentTime = PREVIEW_LIMIT_SEC;
+              els.previewEndedOverlay.classList.remove('hidden');
+            }
+          });
+          activeVideoEl = vid;
+          els.playerContainer.appendChild(vid);
+        } else {
+          const ifr = document.createElement('iframe');
+          ifr.src = info.src;
+          ifr.allow = 'autoplay; fullscreen; encrypted-media';
+          ifr.allowFullscreen = true;
+          ifr.className = 'w-full h-full border-0';
+          els.playerContainer.appendChild(ifr);
+
+          iframePreviewTimer = setTimeout(function () {
+            els.playerContainer.innerHTML = '';
+            els.previewEndedOverlay.classList.remove('hidden');
+          }, PREVIEW_LIMIT_SEC * 1000);
+        }
+      }
+
+      function openPlayer(video) {
+        currentPlayingVideo = video;
+        els.playerTitle.textContent = video.title;
+        els.playerMeta.textContent = (video.category || 'General') + ' • Playing 10s Preview';
+
+        if (video.downloadUrl && video.downloadUrl.trim()) {
+          const dl = video.downloadUrl.trim();
+          els.gofileDownloadBtn.href = dl;
+          els.gofileDownloadBtn.classList.remove('hidden');
+          els.overlayDownloadBtn.href = dl;
+          els.overlayDownloadBtn.classList.remove('hidden');
+        } else {
+          els.gofileDownloadBtn.href = '#';
+          els.gofileDownloadBtn.classList.add('hidden');
+          els.overlayDownloadBtn.href = '#';
+          els.overlayDownloadBtn.classList.add('hidden');
+        }
+
+        loadPlayerMedia(video);
+        els.playerModal.classList.remove('hidden');
+      }
+
+      function closePlayer() {
+        clearTimeout(iframePreviewTimer);
+        els.playerModal.classList.add('hidden');
+        els.previewEndedOverlay.classList.add('hidden');
+        els.playerContainer.innerHTML = '';
+        activeVideoEl = null;
+        currentPlayingVideo = null;
+      }
+
+      function renderGrid() {
+        const q = searchQuery.toLowerCase();
+        const filtered = videos.filter(function (v) {
+          const matchCat = activeCategory === 'All' || (v.category || 'General') === activeCategory;
+          const matchQ = !q || (v.title || '').toLowerCase().indexOf(q) !== -1 || (v.category || '').toLowerCase().indexOf(q) !== -1;
+          return matchCat && matchQ;
+        });
+
+        els.grid.innerHTML = '';
+        if (!filtered.length) {
+          els.empty.classList.remove('hidden');
+          return;
+        }
+        els.empty.classList.add('hidden');
+
+        filtered.forEach(function (video) {
+          const card = document.createElement('article');
+          card.className = 'group bg-slate-900 border border-slate-800 hover:border-red-500/60 rounded-xl overflow-hidden cursor-pointer transition shadow-sm hover:shadow-lg';
+
+          const thumbWrap = document.createElement('div');
+          thumbWrap.className = 'relative aspect-video bg-slate-800 overflow-hidden';
+
+          const thumbCandidates = getAutoThumbUrls(video);
+          let thumbIdx = 0;
+
+          const img = document.createElement('img');
+          img.src = thumbCandidates[0];
+          img.alt = video.title;
+          img.loading = 'lazy';
+          img.referrerPolicy = 'no-referrer';
+          img.className = 'w-full h-full object-cover group-hover:scale-105 transition duration-300';
+          img.addEventListener('error', function () {
+            thumbIdx++;
+            if (thumbIdx < thumbCandidates.length) {
+              img.src = thumbCandidates[thumbIdx];
+            }
+          });
+          thumbWrap.appendChild(img);
+
+          // Optional Hover Preview Layer (Animated WebP / GIF / Muted MP4)
+          const hoverSrc = (video.hoverUrl || '').trim();
+          let hoverEl = null;
+          if (hoverSrc) {
+            if (/\.(mp4|webm)(\?.*)?$/i.test(hoverSrc)) {
+              hoverEl = document.createElement('video');
+              hoverEl.muted = true;
+              hoverEl.loop = true;
+              hoverEl.playsInline = true;
+              hoverEl.preload = 'none';
+              hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
+              thumbWrap.appendChild(hoverEl);
+            } else {
+              hoverEl = document.createElement('img');
+              hoverEl.alt = '';
+              hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
+              thumbWrap.appendChild(hoverEl);
+            }
+
+            card.addEventListener('mouseenter', function () {
+              if (!hoverEl) return;
+              if (hoverEl.tagName === 'VIDEO') {
+                if (!hoverEl.src) hoverEl.src = hoverSrc;
+                hoverEl.classList.remove('hidden');
+                hoverEl.play().catch(function () {});
+              } else {
+                hoverEl.src = hoverSrc;
+                hoverEl.classList.remove('hidden');
+              }
+            });
+
+            card.addEventListener('mouseleave', function () {
+              if (!hoverEl) return;
+              if (hoverEl.tagName === 'VIDEO') {
+                hoverEl.pause();
+                hoverEl.currentTime = 0;
+              }
+              hoverEl.classList.add('hidden');
+            });
+          }
+
+          // Center Play Overlay on Hover
+          const playOverlay = document.createElement('div');
+          playOverlay.className = hoverSrc
+            ? 'absolute inset-0 bg-black/10 group-hover:bg-transparent flex items-center justify-center transition z-[2] pointer-events-none'
+            : 'absolute inset-0 bg-black/25 group-hover:bg-black/45 flex items-center justify-center transition z-[2] pointer-events-none';
+          playOverlay.innerHTML = hoverSrc
+            ? '<div class="w-10 h-10 rounded-full bg-red-600/85 group-hover:opacity-0 text-white flex items-center justify-center shadow-lg transition"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>'
+            : '<div class="w-11 h-11 rounded-full bg-red-600/90 group-hover:bg-red-500 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>';
+          thumbWrap.appendChild(playOverlay);
+
+          // Top-left badges
+          const topBadges = document.createElement('div');
+          topBadges.className = 'absolute top-2 left-2 flex items-center gap-1.5 z-[3]';
+
+          if (video.downloadUrl && video.downloadUrl.trim()) {
+            const dlBadge = document.createElement('span');
+            dlBadge.textContent = 'HD Download';
+            dlBadge.className = 'bg-emerald-600/95 text-white text-[10px] font-semibold px-2 py-0.5 rounded shadow';
+            topBadges.appendChild(dlBadge);
+          }
+
+          const prevBadge = document.createElement('span');
+          prevBadge.textContent = '10s Preview';
+          prevBadge.className = 'bg-black/75 border border-white/15 text-slate-200 text-[10px] font-medium px-1.5 py-0.5 rounded';
+          topBadges.appendChild(prevBadge);
+          thumbWrap.appendChild(topBadges);
+
+          const body = document.createElement('div');
+          body.className = 'p-3';
+
+          const title = document.createElement('h3');
+          title.textContent = video.title;
+          title.className = 'text-sm font-semibold text-slate-100 line-clamp-2 group-hover:text-red-400 transition';
+
+          const cat = document.createElement('p');
+          cat.textContent = video.category || 'General';
+          cat.className = 'text-xs text-slate-400 mt-1';
+
+          body.appendChild(title);
+          body.appendChild(cat);
+          card.appendChild(thumbWrap);
+          card.appendChild(body);
+
+          card.addEventListener('click', function () {
+            openPlayer(video);
+          });
+          els.grid.appendChild(card);
+        });
+      }
+
+      function renderAdminList() {
+        els.videoCount.textContent = String(videos.length);
+        els.adminVideoList.innerHTML = '';
+        videos.forEach(function (v) {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-2 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2';
+
+          const info = document.createElement('div');
+          info.className = 'min-w-0';
+          const t = document.createElement('p');
+          t.textContent = v.title;
+          t.className = 'text-xs font-medium text-slate-200 truncate';
+          const c = document.createElement('p');
+          c.textContent = (v.category || 'General')
+            + (v.hoverUrl ? ' • Hover Preview' : '')
+            + (v.downloadUrl ? ' • Gofile' : '');
+          c.className = 'text-[11px] text-slate-500';
+          info.appendChild(t);
+          info.appendChild(c);
+
+          const del = document.createElement('button');
+          del.textContent = 'Delete';
+          del.className = 'text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded bg-red-950/40 shrink-0';
+          del.addEventListener('click', function () {
+            videos = videos.filter(function (item) { return item.id !== v.id; });
+            renderCategories();
+            renderGrid();
+            renderAdminList();
+            showToast('Video removed');
+          });
+
+          row.appendChild(info);
+          row.appendChild(del);
+          els.adminVideoList.appendChild(row);
+        });
+      }
+
+      function downloadUpdatedHtml() {
+        const clone = document.documentElement.cloneNode(true);
+        const cloneData = clone.querySelector('#initialVideosData');
+        if (cloneData) {
+          cloneData.textContent = '\n' + JSON.stringify(videos, null, 2) + '\n  ';
+        }
+        const cloneCfg = clone.querySelector('#adminConfigData');
+        if (cloneCfg) {
+          cloneCfg.textContent = '\n' + JSON.stringify(adminConfig, null, 2) + '\n  ';
+        }
+        const cloneAdminBtn = clone.querySelector('#openAdminBtn');
+        if (cloneAdminBtn) cloneAdminBtn.classList.add('hidden');
+        const cloneLogin = clone.querySelector('#adminLoginModal');
+        if (cloneLogin) cloneLogin.classList.add('hidden');
+        const cloneAdmin = clone.querySelector('#adminModal');
+        if (cloneAdmin) cloneAdmin.classList.add('hidden');
+        const clonePlayer = clone.querySelector('#playerModal');
+        if (clonePlayer) clonePlayer.classList.add('hidden');
+        const cloneOverlay = clone.querySelector('#previewEndedOverlay');
+        if (cloneOverlay) cloneOverlay.classList.add('hidden');
+        const cloneContainer = clone.querySelector('#playerContainer');
+        if (cloneContainer) cloneContainer.innerHTML = '';
+        const cloneToast = clone.querySelector('#toast');
+        if (cloneToast) cloneToast.classList.add('hidden');
+        const cloneNative = clone.querySelector('#container-8ebe172168680c52df883eca2f77b34a');
+        if (cloneNative) cloneNative.innerHTML = '';
+
+        const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Downloaded index.html');
+      }
+
+      // Events
+      els.search.addEventListener('input', function (e) {
+        searchQuery = e.target.value;
+        renderGrid();
+      });
+
+      els.closePlayerBtn.addEventListener('click', closePlayer);
+      els.playerModal.addEventListener('click', function (e) {
+        if (e.target === els.playerModal) closePlayer();
+      });
+
+      els.replayPreviewBtn.addEventListener('click', function () {
+        if (activeVideoEl) {
+          els.previewEndedOverlay.classList.add('hidden');
+          activeVideoEl.currentTime = 0;
+          activeVideoEl.play();
+        } else if (currentPlayingVideo) {
+          loadPlayerMedia(currentPlayingVideo);
+        }
+      });
+
+      els.shareBtn.addEventListener('click', function () {
+        const shareUrl = window.location.origin + window.location.pathname;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareUrl).then(function () {
+            showToast('Link copied!');
+          }).catch(function () {
+            showToast('Copy the URL from address bar');
+          });
+        } else {
+          showToast('Copy the URL from address bar');
+        }
+      });
+
+      // Admin Login handling
+      els.adminLoginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const entered = els.adminPassInput.value;
+        if (hashStr(entered) === adminConfig.passHash) {
+          isAdminUnlocked = true;
+          els.adminLoginModal.classList.add('hidden');
+          els.openAdminBtn.classList.remove('hidden');
+          openAdmin();
+          showToast('Admin unlocked');
+        } else {
+          els.loginError.classList.remove('hidden');
+          els.adminPassInput.select();
+        }
+      });
+
+      els.closeLoginBtn.addEventListener('click', function () {
+        els.adminLoginModal.classList.add('hidden');
+      });
+
+      els.openAdminBtn.addEventListener('click', requestAdminAccess);
+      els.closeAdminBtn.addEventListener('click', function () {
+        els.adminModal.classList.add('hidden');
+      });
+
+      els.addVideoForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const newVid = {
+          id: 'vid-' + Date.now(),
+          title: document.getElementById('vTitle').value.trim(),
+          category: document.getElementById('vCategory').value.trim() || 'Trending',
+          url: document.getElementById('vUrl').value.trim(),
+          downloadUrl: document.getElementById('vDownloadUrl').value.trim(),
+          hoverUrl: document.getElementById('vHoverUrl').value.trim(),
+          thumb: document.getElementById('vThumb').value.trim()
+        };
+        videos.unshift(newVid);
+        els.addVideoForm.reset();
+        renderCategories();
+        renderGrid();
+        renderAdminList();
+        showToast('Video added! Click Download index.html to save.');
+      });
+
+      els.savePassBtn.addEventListener('click', function () {
+        const np = els.newAdminPass.value.trim();
+        if (np.length < 4) {
+          showToast('Password must be at least 4 characters');
+          return;
+        }
+        adminConfig.passHash = hashStr(np);
+        els.newAdminPass.value = '';
+        showToast('Password updated! Download index.html to save.');
+      });
+
+      els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
+
+      // Secret Trigger 1: Keyboard shortcut Ctrl + Shift + A
+      document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+          e.preventDefault();
+          requestAdminAccess();
+        }
+      });
+
+      // Secret Trigger 2: 5 quick taps on footer copyright (great for mobile)
+      let footerTaps = 0;
+      let footerTimer = null;
+      els.siteFooter.addEventListener('click', function () {
+        footerTaps++;
+        clearTimeout(footerTimer);
+        if (footerTaps >= 5) {
+          footerTaps = 0;
+          requestAdminAccess();
+        } else {
+          footerTimer = setTimeout(function () { footerTaps = 0; }, 1500);
+        }
+      });
+
+      // Secret Trigger 3: URL query ?admin=1
+      renderCategories();
+      renderGrid();
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('admin') === '1') {
+          requestAdminAccess();
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Adsterra SocialBar_1 (JS SYNC) -->
+  <script data-cfasync="false" src="https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"32d68517626d47bf8d15629b9d1ebbb4","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
