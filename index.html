@@ -70,10 +70,7 @@
     </div>
 
     <section id="fullPagePlayer" class="hidden max-w-5xl w-full mx-auto py-2">
-      <div class="flex items-center justify-between gap-3 mb-4">
-        <button id="backToHomeBtn" type="button" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition">
-          &larr; Back to Videos
-        </button>
+      <div class="flex items-center justify-end mb-4">
         <button id="fullPageShareBtn" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">
           Copy Link
         </button>
@@ -99,14 +96,9 @@
 
     <section id="tagResultsSection" class="hidden w-full py-2">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div class="flex items-center gap-3">
-          <button id="backFromTagBtn" type="button" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition">
-            &larr; Back to Videos
-          </button>
-          <div>
-            <span class="text-xs uppercase tracking-wider text-red-400 font-semibold">Related Videos by Tag</span>
-            <h1 id="activeTagHeading" class="text-xl sm:text-2xl font-bold text-white">Tag: #Trending</h1>
-          </div>
+        <div>
+          <span class="text-xs uppercase tracking-wider text-red-400 font-semibold">Related Videos by Tag</span>
+          <h1 id="activeTagHeading" class="text-xl sm:text-2xl font-bold text-white">Tag: #Trending</h1>
         </div>
         <span id="tagMatchCount" class="text-xs sm:text-sm text-slate-400">0 videos</span>
       </div>
@@ -411,7 +403,6 @@
         search: document.getElementById('searchInput'),
         brandHomeLink: document.getElementById('brandHomeLink'),
         fullPagePlayer: document.getElementById('fullPagePlayer'),
-        backToHomeBtn: document.getElementById('backToHomeBtn'),
         fullPageShareBtn: document.getElementById('fullPageShareBtn'),
         fullPageTitle: document.getElementById('fullPageTitle'),
         fullPageMeta: document.getElementById('fullPageMeta'),
@@ -419,7 +410,6 @@
         fullPageMediaContainer: document.getElementById('fullPageMediaContainer'),
         fullPageHostsGroup: document.getElementById('fullPageHostsGroup'),
         tagResultsSection: document.getElementById('tagResultsSection'),
-        backFromTagBtn: document.getElementById('backFromTagBtn'),
         activeTagHeading: document.getElementById('activeTagHeading'),
         tagMatchCount: document.getElementById('tagMatchCount'),
         tagQuickBar: document.getElementById('tagQuickBar'),
@@ -611,7 +601,8 @@
           });
         }
         if (list.length === 0 && typeof video.downloadUrl === 'string') {
-          video.downloadUrl.split(/[\n,]+/).forEach(function (u) {
+          video.downloadUrl.split(/[
+,]+/).forEach(function (u) {
             const clean = u.trim();
             if (clean && list.length < 5) list.push(clean);
           });
@@ -702,13 +693,13 @@
           btn.textContent = '#' + tag;
           btn.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 hover:bg-red-600 text-slate-200 hover:text-white border border-slate-700 hover:border-red-500 transition cursor-pointer';
           btn.addEventListener('click', function () {
-            openTagPage(tag);
+            openTagPage(tag, true);
           });
           els.fullPageTagsGroup.appendChild(btn);
         });
       }
 
-      function showHomeGrid() {
+      function showHomeGrid(updateHistory) {
         currentPlayingVideo = null;
         els.fullPagePlayer.classList.add('hidden');
         els.tagResultsSection.classList.add('hidden');
@@ -716,10 +707,12 @@
         els.categoryBar.classList.remove('hidden');
         els.grid.classList.remove('hidden');
         renderGrid();
-        try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
+        if (updateHistory) {
+          try { history.pushState({ view: 'home' }, '', window.location.pathname + window.location.search); } catch (e) {}
+        }
       }
 
-      function openFullPageVideo(video) {
+      function openFullPageVideo(video, pushState) {
         if (!video) return;
         currentPlayingVideo = video;
         els.fullPageTitle.textContent = video.title || 'Untitled Video';
@@ -739,7 +732,9 @@
         els.tagResultsSection.classList.add('hidden');
         els.fullPagePlayer.classList.remove('hidden');
 
-        try { history.replaceState(null, '', '#watch=' + encodeURIComponent(video.id)); } catch (e) {}
+        if (pushState) {
+          try { history.pushState({ view: 'watch', id: video.id }, '', '#watch=' + encodeURIComponent(video.id)); } catch (e) {}
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
@@ -753,7 +748,7 @@
           chip.className = isActive
             ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap'
             : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap';
-          chip.addEventListener('click', function () { openTagPage(tag); });
+          chip.addEventListener('click', function () { openTagPage(tag, true); });
           els.tagQuickBar.appendChild(chip);
         });
       }
@@ -852,11 +847,11 @@
         body.appendChild(tagsLine);
         card.appendChild(thumbWrap);
         card.appendChild(body);
-        card.addEventListener('click', function () { openFullPageVideo(video); });
+        card.addEventListener('click', function () { openFullPageVideo(video, true); });
         return card;
       }
 
-      function openTagPage(tagName) {
+      function openTagPage(tagName, pushState) {
         const cleanTag = String(tagName || '').trim() || 'General';
         const targetLower = cleanTag.toLowerCase();
 
@@ -865,6 +860,7 @@
         });
 
         els.fullPagePlayer.classList.add('hidden');
+        els.fullPageMediaContainer.innerHTML = '';
         els.categoryBar.classList.add('hidden');
         els.grid.classList.add('hidden');
         els.empty.classList.add('hidden');
@@ -884,7 +880,9 @@
         }
 
         els.tagResultsSection.classList.remove('hidden');
-        try { history.replaceState(null, '', '#tag=' + encodeURIComponent(cleanTag)); } catch (e) {}
+        if (pushState) {
+          try { history.pushState({ view: 'tag', tag: cleanTag }, '', '#tag=' + encodeURIComponent(cleanTag)); } catch (e) {}
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
@@ -969,14 +967,18 @@
       function buildUpdatedHtml() {
         const clone = document.documentElement.cloneNode(true);
         const cloneData = clone.querySelector('#initialVideosData');
-        if (cloneData) cloneData.textContent = '\n' + JSON.stringify(videos, null, 2) + '\n  ';
+        if (cloneData) cloneData.textContent = '
+' + JSON.stringify(videos, null, 2) + '
+  ';
         const cloneCfg = clone.querySelector('#adminConfigData');
         if (cloneCfg) {
-          cloneCfg.textContent = '\n' + JSON.stringify({
+          cloneCfg.textContent = '
+' + JSON.stringify({
             gdriveApiKey: adminConfig.gdriveApiKey || '',
             githubRepo: adminConfig.githubRepo || 'gurug555/youronline',
             githubBranch: adminConfig.githubBranch || 'main'
-          }, null, 2) + '\n  ';
+          }, null, 2) + '
+  ';
         }
         const cloneTok = clone.querySelector('#ghTokenInput');
         if (cloneTok) cloneTok.setAttribute('value', '');
@@ -993,7 +995,8 @@
         if (cloneMedia) cloneMedia.innerHTML = '';
         const cloneNative = clone.querySelector('#container-8ebe172168680c52df883eca2f77b34a');
         if (cloneNative) cloneNative.innerHTML = '';
-        return '<!DOCTYPE html>\n' + clone.outerHTML;
+        return '<!DOCTYPE html>
+' + clone.outerHTML;
       }
 
       function downloadUpdatedHtml() {
@@ -1019,6 +1022,38 @@
           binary += String.fromCharCode.apply(null, slice);
         }
         return btoa(binary);
+      }
+
+      async function syncVideosJsonToRepo(repo, branch, token) {
+        const apiUrl = 'https://api.github.com/repos/' + repo + '/contents/videos.json';
+        const headers = {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': 'Bearer ' + token
+        };
+        let sha = null;
+        const getRes = await fetch(apiUrl + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(), {
+          headers: headers,
+          cache: 'no-store'
+        });
+        if (getRes.ok) {
+          const info = await getRes.json();
+          sha = info.sha || null;
+        }
+        const body = {
+          message: 'Update videos.json via Admin Studio',
+          content: utf8ToBase64(JSON.stringify(videos, null, 2)),
+          branch: branch
+        };
+        if (sha) body.sha = sha;
+        const putRes = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
+          body: JSON.stringify(body)
+        });
+        if (!putRes.ok) {
+          const err = await putRes.json().catch(function () { return {}; });
+          throw new Error(err.message || 'Failed updating videos.json');
+        }
       }
 
       async function publishLiveToGitHub() {
@@ -1104,6 +1139,7 @@
             const errJson = await putRes.json().catch(function () { return {}; });
             throw new Error(errJson.message || ('PUT failed (' + putRes.status + ')'));
           }
+
           await syncVideosJsonToRepo(repo, branch, token);
           showToast('Published! Site will update in ~30s.');
         } catch (err) {
@@ -1117,37 +1153,6 @@
           els.publishLiveBtn.innerHTML = origHtml;
         }
       }
-      async function syncVideosJsonToRepo(repo, branch, token) {
-        const apiUrl = 'https://api.github.com/repos/' + repo + '/contents/videos.json';
-        const headers = {
-          'Accept': 'application/vnd.github+json',
-          'Authorization': 'Bearer ' + token
-        };
-        let sha = null;
-        const getRes = await fetch(apiUrl + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(), {
-          headers: headers,
-          cache: 'no-store'
-        });
-        if (getRes.ok) {
-          const info = await getRes.json();
-          sha = info.sha || null;
-        }
-        const body = {
-          message: 'Update videos.json via Admin Studio',
-          content: utf8ToBase64(JSON.stringify(videos, null, 2)),
-          branch: branch
-        };
-        if (sha) body.sha = sha;
-        const putRes = await fetch(apiUrl, {
-          method: 'PUT',
-          headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
-          body: JSON.stringify(body)
-        });
-        if (!putRes.ok) {
-          const err = await putRes.json().catch(function () { return {}; });
-          throw new Error(err.message || 'Failed updating videos.json');
-        }
-      }
 
       function openAdminDirect() {
         isAdminUnlocked = true;
@@ -1157,10 +1162,44 @@
         els.adminModal.classList.remove('hidden');
       }
 
+      function syncRouteFromLocation() {
+        const h = window.location.hash || '';
+        const watchMatch = h.match(/^#watch=(.+)$/);
+        const tagMatch = h.match(/^#tag=(.+)$/);
+        if (watchMatch) {
+          const vidId = decodeURIComponent(watchMatch[1]);
+          const found = videos.find(function (v) { return String(v.id) === vidId; });
+          if (found) { openFullPageVideo(found, false); return; }
+        } else if (tagMatch) {
+          openTagPage(decodeURIComponent(tagMatch[1]), false);
+          return;
+        }
+        showHomeGrid(false);
+      }
+
+      try {
+        history.replaceState({ view: 'home' }, '', window.location.pathname + window.location.search);
+      } catch (e) {}
+
+      window.addEventListener('popstate', function (event) {
+        const st = event.state;
+        if (st && st.view === 'watch' && st.id) {
+          const found = videos.find(function (v) { return String(v.id) === String(st.id); });
+          if (found) { openFullPageVideo(found, false); return; }
+        }
+        if (st && st.view === 'tag' && st.tag) {
+          openTagPage(st.tag, false);
+          return;
+        }
+        syncRouteFromLocation();
+      });
+
+      window.addEventListener('hashchange', syncRouteFromLocation);
+
       els.search.addEventListener('input', function (e) {
         searchQuery = e.target.value;
         if (!els.fullPagePlayer.classList.contains('hidden') || !els.tagResultsSection.classList.contains('hidden')) {
-          showHomeGrid();
+          showHomeGrid(true);
         } else {
           renderGrid();
         }
@@ -1172,11 +1211,8 @@
         searchQuery = '';
         els.search.value = '';
         renderCategories();
-        showHomeGrid();
+        showHomeGrid(true);
       });
-
-      els.backToHomeBtn.addEventListener('click', showHomeGrid);
-      els.backFromTagBtn.addEventListener('click', showHomeGrid);
 
       els.fullPageShareBtn.addEventListener('click', function () {
         const shareUrl = window.location.href;
@@ -1257,36 +1293,28 @@
         else footerTimer = setTimeout(function () { footerTaps = 0; }, 1500);
       });
 
+      async function loadExistingVideosJson() {
+        try {
+          const res = await fetch('videos.json?_t=' + Date.now(), { cache: 'no-store' });
+          if (!res.ok) return;
+          const data = await res.json();
+          const list = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : null);
+          if (list && list.length) {
+            videos = list;
+            renderCategories();
+            renderGrid();
+            syncRouteFromLocation();
+          }
+        } catch (e) {}
+      }
+
       renderCategories();
       renderGrid();
       syncMissingDriveMetadata(false);
-      async function loadExistingVideosJson() {
-  try {
-    const res = await fetch('videos.json?_t=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) return;
-    const data = await res.json();
-    const list = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : null);
-    if (list && list.length) {
-      videos = list;
-      renderCategories();
-      renderGrid();
       syncRouteFromLocation();
-    }
-  } catch (e) {}
-}
-loadExistingVideosJson();
-  
+      loadExistingVideosJson();
+
       try {
-        const h = window.location.hash || '';
-        const watchMatch = h.match(/^#watch=(.+)$/);
-        const tagMatch = h.match(/^#tag=(.+)$/);
-        if (watchMatch) {
-          const vidId = decodeURIComponent(watchMatch[1]);
-          const found = videos.find(function (v) { return String(v.id) === vidId; });
-          if (found) openFullPageVideo(found);
-        } else if (tagMatch) {
-          openTagPage(decodeURIComponent(tagMatch[1]));
-        }
         if (new URLSearchParams(window.location.search).get('admin') === '1') openAdminDirect();
       } catch (e) {}
     })();
