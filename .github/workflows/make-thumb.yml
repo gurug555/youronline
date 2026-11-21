@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       thumb_name:
-        description: "Output filename without extension (e.g., vid1)"
+        description: "Output filename without extension"
         required: true
         type: string
 
@@ -24,10 +24,10 @@ jobs:
 
       - name: Install FFmpeg, gdown & Pillow
         run: |
-          sudo apt-get update && sudo apt-get install -y ffmpeg
+          sudo apt-get update && sudo apt-get install -y ffmpeg curl
           pip install -q gdown pillow
 
-      - name: Download video from Google Drive & build 3x3 collage
+      - name: Download video & generate 3x3 collage
         env:
           GDRIVE_URL: ${{ inputs.gdrive_url }}
           THUMB_NAME: ${{ inputs.thumb_name }}
@@ -37,13 +37,29 @@ jobs:
           from PIL import Image
 
           url = os.environ["GDRIVE_URL"].strip()
-          name = os.environ["THUMB_NAME"].strip()
+          name = re.sub(r"[^a-zA-Z0-9_-]", "_", os.environ["THUMB_NAME"].strip()) or "thumb"
 
-          m = re.search(r"/d/([a-zA-Z0-9_-]+)", url)
-          download_target = f"https://drive.google.com/uc?id={m.group(1)}" if m else url
+          m = re.search(r"/d/([a-zA-Z0-9_-]+)|[?&]id=([a-zA-Z0-9_-]+)", url)
+          file_id = (m.group(1) or m.group(2)) if m else None
+          if not file_id:
+              raise RuntimeError("Invalid Google Drive URL: no file ID found.")
 
           video_file = "input_video.mp4"
-          subprocess.run(["gdown", "--fuzzy", download_target, "-O", video_file], check=True)
+          # Call gdown without --fuzzy
+          subprocess.run(["gdown", f"https://drive.google.com/uc?id={file_id}", "-O", video_file])
+
+          # Fallback to curl if file is missing or small (e.g., HTML confirmation page)
+          if not os.path.exists(video_file) or os.path.getsize(video_file) < 50000:
+              if os.path.exists(video_file):
+                  os.remove(video_file)
+              subprocess.run([
+                  "curl", "-L", "-sS",
+                  f"https://drive.google.com/uc?export=download&confirm=t&id={file_id}",
+                  "-o", video_file
+              ], check=True)
+
+          if not os.path.exists(video_file) or os.path.getsize(video_file) < 50000:
+              raise RuntimeError("Could not download video from Drive. Make sure file sharing is 'Anyone with the link'.")
 
           probe = subprocess.check_output([
               "ffprobe", "-v", "error", "-show_entries", "format=duration",
@@ -51,7 +67,7 @@ jobs:
           ]).decode().strip()
           duration = float(probe)
 
-          start_t = max(1.0, duration * 0.08)
+          start_t = max(0.5, duration * 0.08)
           end_t = max(start_t + 1.0, duration * 0.92)
           step = (end_t - start_t) / 8.0
 
@@ -81,4 +97,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add thumbs/
-          git diff --staged --quiet || (git commit -m "Add thumbnail for ${{ inputs.thumb_name }}" && git push)
+          git diff --staged --quiet || (git commit -m "Add 3x3 thumbnail ${{ inputs.thumb_name }}" && git push)
