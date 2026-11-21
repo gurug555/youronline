@@ -135,4 +135,1117 @@
   </footer>
 
   <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800">
+        <div>
+          <h2 class="font-bold text-lg">Admin Studio</h2>
+          <p class="text-xs text-slate-400">1-Click GitHub Publish + Auto 3x3 Collage &amp; GDrive Metadata</p>
+        </div>
+        <button id="closeAdminBtn" type="button" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+      </div>
+
+      <div class="p-5 overflow-y-auto space-y-6">
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-emerald-700/50 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-sm font-semibold text-emerald-300">GitHub 1-Click Publish (Auto-Deploy)</h3>
+            <span id="ghStatus" class="text-[11px] text-slate-400">Not connected</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <input id="ghRepoInput" type="text" placeholder="gurug555/youronline" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
+            <input id="ghBranchInput" type="text" placeholder="main" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="ghTokenInput" type="password" placeholder="GitHub Personal Access Token (ghp_... or github_pat_...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
+            <button id="saveGhBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save GitHub</button>
+          </div>
+          <p class="text-[11px] text-slate-400">Token stays strictly in your browser (needs <strong>Contents: Read &amp; write</strong> + <strong>Actions: Read &amp; write</strong>).</p>
+        </div>
+
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-sky-700/50 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-sm font-semibold text-sky-300">Google Drive API Key (Auto Resolution &amp; Timestamp)</h3>
+            <span id="apiKeyStatus" class="text-[11px] text-slate-400">Not set</span>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="gdriveApiKeyInput" type="text" placeholder="Paste Google Drive API Key (AIzaSy...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
+            <button id="saveApiKeyBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save Key &amp; Sync</button>
+          </div>
+          <p class="text-[11px] text-slate-400">Automatically fetches exact video resolution (720p, 1080p, 4K) &amp; original duration from Google Drive.</p>
+        </div>
+
+        <form id="addVideoForm" class="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-sm font-semibold text-slate-200">Add New Video</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input id="vTitle" required placeholder="Video Title" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            <input id="vCategory" placeholder="Tags / Category (e.g., Trending, HD, Collage)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="vUrl" placeholder="Google Drive Video URL (for Auto 3x3 Thumb + Resolution/Duration)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            <button id="autoThumbBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg transition shrink-0">&#9889; Auto 3x3 Thumb</button>
+          </div>
+          <p id="autoThumbStatus" class="hidden text-xs text-amber-300"></p>
+          <div class="space-y-2 bg-slate-900/50 p-3 rounded-lg border border-emerald-800/50">
+            <p class="text-xs font-semibold text-emerald-300">5 Hosting / Mirror Links (Gofile, Doodstream, Streamtape, LuluStream, VOE)</p>
+            <input id="vDownloadUrl1" placeholder="Link 1 — Gofile / Mirror (e.g., https://gofile.io/d/...)" class="w-full bg-slate-900 border border-emerald-700/70 rounded-lg px-3 py-2 text-sm" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input id="vDownloadUrl2" placeholder="Link 2 — Doodstream URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
+              <input id="vDownloadUrl3" placeholder="Link 3 — Streamtape URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
+              <input id="vDownloadUrl4" placeholder="Link 4 — LuluStream URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
+              <input id="vDownloadUrl5" placeholder="Link 5 — VOE URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input id="vThumb" placeholder="3x3 Collage / Thumbnail URL (e.g., thumbs/vid1.jpg)" class="bg-slate-900 border border-sky-500 rounded-lg px-3 py-2 text-sm" />
+            <input id="vHoverUrl" placeholder="5s GIF Preview URL (optional — e.g., previews/vid1.gif)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <button id="addVideoSubmitBtn" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">+ Add Video</button>
+        </form>
+
+        <div>
+          <h3 class="text-sm font-semibold text-slate-200 mb-2">Manage Videos (<span id="videoCount">0</span>)</h3>
+          <div id="adminVideoList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3.5 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-2">
+        <span class="text-xs text-emerald-400">Adsterra Active</span>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="downloadHtmlBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">Download index.html</button>
+          <button id="publishLiveBtn" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg transition shadow">&#128640; Publish Live</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg"></div>
+
+  <script id="adminConfigData" type="application/json">
+{
+  "gdriveApiKey": "",
+  "githubRepo": "gurug555/youronline",
+  "githubBranch": "main"
+}
+  </script>
+
+  <script id="initialVideosData" type="application/json">
+[
+  {
+    "id": "vid-1",
+    "title": "Sample Video — 3x3 Collage Thumbnail + 5 Hosts",
+    "category": "Trending, HD",
+    "url": "",
+    "downloadUrl": "https://gofile.io/",
+    "hoverUrl": "",
+    "thumb": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80",
+    "resolution": "1080p",
+    "duration": "09:56"
+  }
+]
+  </script>
+
+  <script>
+    (function () {
+      const GH_TOKEN_STORAGE_KEY = 'yourpo_gh_token';
+      const THUMB_WORKFLOW_FILE = 'make-thumb.yml';
+      let videos = [];
+      let activeCategory = 'All';
+      let searchQuery = '';
+      let isAdminUnlocked = false;
+      let currentPlayingVideo = null;
+      let adminConfig = {
+        gdriveApiKey: '',
+        githubRepo: 'gurug555/youronline',
+        githubBranch: 'main'
+      };
+
+      const FALLBACK_THUMB = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450"><rect width="800" height="450" fill="#0f172a"/><circle cx="400" cy="225" r="54" fill="#ef4444" fill-opacity="0.9"/><polygon points="384,198 384,252 430,225" fill="#ffffff"/></svg>'
+      );
+
+      const dataEl = document.getElementById('initialVideosData');
+      const cfgEl = document.getElementById('adminConfigData');
+      try { videos = JSON.parse(dataEl.textContent.trim()) || []; } catch (e) { videos = []; }
+      try {
+        const parsedCfg = JSON.parse(cfgEl.textContent.trim());
+        if (parsedCfg) {
+          if (typeof parsedCfg.gdriveApiKey === 'string') adminConfig.gdriveApiKey = parsedCfg.gdriveApiKey;
+          if (typeof parsedCfg.githubRepo === 'string' && parsedCfg.githubRepo.trim()) adminConfig.githubRepo = parsedCfg.githubRepo.trim();
+          if (typeof parsedCfg.githubBranch === 'string' && parsedCfg.githubBranch.trim()) adminConfig.githubBranch = parsedCfg.githubBranch.trim();
+        }
+      } catch (e) {}
+
+      function extractDriveId(rawUrl) {
+        const url = (rawUrl || '').trim();
+        const m1 = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+        if (m1) return m1[1];
+        const m2 = url.match(/drive\.google\.com\/open\?id=([^&#]+)/);
+        if (m2) return m2[1];
+        const m3 = url.match(/drive\.google\.com\/uc\?.*id=([^&#]+)/);
+        if (m3) return m3[1];
+        return null;
+      }
+
+      function extractDoodstreamId(rawUrl) {
+        const url = (rawUrl || '').trim();
+        const m = url.match(/(?:doodstream\.[a-z]+|dood\.[a-z]+|ds2play\.com|ds2video\.com|d0000d\.com|d000d\.com|do7go\.com|dood\.watch|dood\.pm|dood\.so|dood\.sx|dood\.sh|dood\.re|dood\.yt|dood\.li|dood\.wf|dood\.la|dood\.ws|dood\.to|dood\.cx)\/(?:e|d|v|f)\/([A-Za-z0-9]+)/i);
+        return m ? m[1] : null;
+      }
+
+      function formatResolution(width, height) {
+        const h = Number(height) || 0;
+        const w = Number(width) || 0;
+        if (!h && !w) return '';
+        const dim = Math.min(w || h, h || w);
+        const maxDim = Math.max(w, h);
+        if (maxDim >= 3800 || dim >= 2160) return '4K';
+        if (dim >= 1400) return '1440p';
+        if (dim >= 1000) return '1080p';
+        if (dim >= 700) return '720p';
+        if (dim >= 460) return '480p';
+        if (dim >= 340) return '360p';
+        return dim + 'p';
+      }
+
+      function formatDurationMs(ms) {
+        const totalSec = Math.floor((Number(ms) || 0) / 1000);
+        if (totalSec <= 0) return '';
+        const hrs = Math.floor(totalSec / 3600);
+        const mins = Math.floor((totalSec % 3600) / 60);
+        const secs = totalSec % 60;
+        const pad = function (n) { return n < 10 ? '0' + n : String(n); };
+        return hrs > 0 ? (hrs + ':' + pad(mins) + ':' + pad(secs)) : (pad(mins) + ':' + pad(secs));
+      }
+
+      async function fetchDriveMeta(rawUrl) {
+        const apiKey = (adminConfig.gdriveApiKey || '').trim();
+        const fileId = extractDriveId(rawUrl);
+        if (!apiKey || !fileId) return null;
+        try {
+          const endpoint = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId) + '?fields=videoMediaMetadata&key=' + encodeURIComponent(apiKey);
+          const res = await fetch(endpoint);
+          if (!res.ok) return null;
+          const data = await res.json();
+          const meta = data && data.videoMediaMetadata;
+          if (!meta) return null;
+          return { resolution: formatResolution(meta.width, meta.height), duration: formatDurationMs(meta.durationMillis) };
+        } catch (e) { return null; }
+      }
+
+      async function syncMissingDriveMetadata(showStatusToast) {
+        const apiKey = (adminConfig.gdriveApiKey || '').trim();
+        if (!apiKey) return;
+        let updatedCount = 0;
+        const tasks = videos.map(async function (v) {
+          if (!extractDriveId(v.url)) return;
+          if (v.resolution && v.duration) return;
+          const meta = await fetchDriveMeta(v.url);
+          if (meta) {
+            if (meta.resolution && !v.resolution) { v.resolution = meta.resolution; updatedCount++; }
+            if (meta.duration && !v.duration) { v.duration = meta.duration; }
+          }
+        });
+        await Promise.all(tasks);
+        if (updatedCount > 0) {
+          renderGrid();
+          if (isAdminUnlocked) renderAdminList();
+          if (showStatusToast) showToast('Synced resolution for ' + updatedCount + ' video(s)');
+        }
+      }
+
+      function getAutoThumbUrls(video) {
+        const custom = (video.thumb || '').trim();
+        const driveId = extractDriveId(video.url);
+        const list = [];
+        if (custom) list.push(custom);
+        if (driveId) {
+          list.push('https://drive.google.com/thumbnail?id=' + driveId + '&sz=w800');
+          list.push('https://lh3.googleusercontent.com/d/' + driveId + '=w800');
+        }
+        list.push(FALLBACK_THUMB);
+        return list;
+      }
+
+      function getVideoTags(video) {
+        const rawList = [];
+        if (Array.isArray(video.tags)) {
+          video.tags.forEach(function (t) { rawList.push(String(t || '')); });
+        } else if (typeof video.tags === 'string') {
+          video.tags.split(/[,|#]+/).forEach(function (t) { rawList.push(t); });
+        }
+        if (typeof video.category === 'string') {
+          video.category.split(/[,|#]+/).forEach(function (t) { rawList.push(t); });
+        }
+        const seen = {};
+        const tags = [];
+        rawList.forEach(function (item) {
+          const clean = item.trim();
+          if (!clean) return;
+          const key = clean.toLowerCase();
+          if (!seen[key]) {
+            seen[key] = true;
+            tags.push(clean);
+          }
+        });
+        return tags.length ? tags : ['General'];
+      }
+
+      function getAllUniqueTags() {
+        const seen = {};
+        const list = [];
+        videos.forEach(function (v) {
+          getVideoTags(v).forEach(function (tag) {
+            const key = tag.toLowerCase();
+            if (!seen[key]) {
+              seen[key] = true;
+              list.push(tag);
+            }
+          });
+        });
+        return list;
+      }
+
+      const els = {
+        grid: document.getElementById('videoGrid'),
+        empty: document.getElementById('emptyState'),
+        categoryBar: document.getElementById('categoryBar'),
+        search: document.getElementById('searchInput'),
+        brandHomeLink: document.getElementById('brandHomeLink'),
+        fullPagePlayer: document.getElementById('fullPagePlayer'),
+        backToHomeBtn: document.getElementById('backToHomeBtn'),
+        fullPageShareBtn: document.getElementById('fullPageShareBtn'),
+        fullPageTitle: document.getElementById('fullPageTitle'),
+        fullPageMeta: document.getElementById('fullPageMeta'),
+        fullPageTagsGroup: document.getElementById('fullPageTagsGroup'),
+        fullPageMediaContainer: document.getElementById('fullPageMediaContainer'),
+        fullPageHostsGroup: document.getElementById('fullPageHostsGroup'),
+        tagResultsSection: document.getElementById('tagResultsSection'),
+        backFromTagBtn: document.getElementById('backFromTagBtn'),
+        activeTagHeading: document.getElementById('activeTagHeading'),
+        tagMatchCount: document.getElementById('tagMatchCount'),
+        tagQuickBar: document.getElementById('tagQuickBar'),
+        tagVideosGrid: document.getElementById('tagVideosGrid'),
+        tagEmptyState: document.getElementById('tagEmptyState'),
+        adminModal: document.getElementById('adminModal'),
+        openAdminBtn: document.getElementById('openAdminBtn'),
+        closeAdminBtn: document.getElementById('closeAdminBtn'),
+        ghRepoInput: document.getElementById('ghRepoInput'),
+        ghBranchInput: document.getElementById('ghBranchInput'),
+        ghTokenInput: document.getElementById('ghTokenInput'),
+        ghStatus: document.getElementById('ghStatus'),
+        saveGhBtn: document.getElementById('saveGhBtn'),
+        gdriveApiKeyInput: document.getElementById('gdriveApiKeyInput'),
+        apiKeyStatus: document.getElementById('apiKeyStatus'),
+        saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
+        autoThumbBtn: document.getElementById('autoThumbBtn'),
+        autoThumbStatus: document.getElementById('autoThumbStatus'),
+        addVideoForm: document.getElementById('addVideoForm'),
+        addVideoSubmitBtn: document.getElementById('addVideoSubmitBtn'),
+        adminVideoList: document.getElementById('adminVideoList'),
+        videoCount: document.getElementById('videoCount'),
+        downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
+        publishLiveBtn: document.getElementById('publishLiveBtn'),
+        siteFooter: document.getElementById('siteFooter'),
+        toast: document.getElementById('toast')
+      };
+
+      function showToast(msg) {
+        els.toast.textContent = msg;
+        els.toast.classList.remove('hidden');
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(function () { els.toast.classList.add('hidden'); }, 3500);
+      }
+
+      function getSavedGhToken() {
+        try { return localStorage.getItem(GH_TOKEN_STORAGE_KEY) || ''; } catch (e) { return ''; }
+      }
+
+      function updateSettingsUI() {
+        const key = (adminConfig.gdriveApiKey || '').trim();
+        els.gdriveApiKeyInput.value = key;
+        els.apiKeyStatus.textContent = key ? 'Active' : 'Not set';
+        els.apiKeyStatus.className = key ? 'text-[11px] font-semibold text-emerald-400' : 'text-[11px] text-slate-400';
+
+        const repo = (adminConfig.githubRepo || 'gurug555/youronline').trim();
+        const branch = (adminConfig.githubBranch || 'main').trim();
+        const token = getSavedGhToken().trim();
+        els.ghRepoInput.value = repo;
+        els.ghBranchInput.value = branch;
+        els.ghTokenInput.value = token;
+        if (repo && token) {
+          els.ghStatus.textContent = 'Ready (' + repo + ')';
+          els.ghStatus.className = 'text-[11px] font-semibold text-emerald-400';
+        } else {
+          els.ghStatus.textContent = 'Not connected';
+          els.ghStatus.className = 'text-[11px] text-slate-400';
+        }
+      }
+
+      async function triggerAuto3x3Thumb() {
+        const rawUrl = document.getElementById('vUrl').value.trim();
+        const driveId = extractDriveId(rawUrl);
+        if (!rawUrl || !driveId) {
+          showToast('Valid Google Drive video link podunga!');
+          document.getElementById('vUrl').focus();
+          return;
+        }
+
+        const repo = (els.ghRepoInput.value || adminConfig.githubRepo || 'gurug555/youronline')
+          .trim()
+          .replace(/^https?:\/\/github\.com\//i, '')
+          .replace(/\.git$/i, '')
+          .replace(/^\/+|\/+$/g, '');
+        const branch = (els.ghBranchInput.value || adminConfig.githubBranch || 'main').trim() || 'main';
+        const token = (els.ghTokenInput.value || getSavedGhToken()).trim();
+
+        if (!repo || repo.indexOf('/') === -1 || !token) {
+          showToast('Top-la GitHub Repo & Token save pannunga first!');
+          els.ghRepoInput.focus();
+          return;
+        }
+
+        const thumbInput = document.getElementById('vThumb');
+        const existingVal = thumbInput.value.trim();
+        let slug = 'vid_' + driveId.slice(0, 10);
+        const slugMatch = existingVal.match(/thumbs\/([a-zA-Z0-9_-]+)\.jpg$/i);
+        if (slugMatch) slug = slugMatch[1];
+
+        const thumbPath = 'thumbs/' + slug + '.jpg';
+        const headers = {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': 'Bearer ' + token
+        };
+
+        els.autoThumbBtn.disabled = true;
+        els.autoThumbBtn.textContent = 'Checking...';
+        els.autoThumbStatus.classList.remove('hidden');
+        els.autoThumbStatus.textContent = 'Checking if ' + thumbPath + ' already exists...';
+
+        try {
+          const checkUrl = 'https://api.github.com/repos/' + repo + '/contents/' + encodeURIComponent(thumbPath) + '?ref=' + encodeURIComponent(branch);
+          const checkRes = await fetch(checkUrl, { headers: headers, cache: 'no-store' });
+
+          if (checkRes.ok) {
+            thumbInput.value = thumbPath;
+            els.autoThumbStatus.textContent = 'Already exists! Skipped workflow — using ' + thumbPath + ' (instant).';
+            showToast('Thumbnail already exists — skipped!');
+            return;
+          }
+
+          els.autoThumbBtn.textContent = 'Triggering...';
+          els.autoThumbStatus.textContent = 'Starting GitHub Action for 3x3 collage...';
+
+          const endpoint = 'https://api.github.com/repos/' + repo + '/actions/workflows/' + THUMB_WORKFLOW_FILE + '/dispatches';
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
+            body: JSON.stringify({
+              ref: branch,
+              inputs: {
+                gdrive_url: rawUrl,
+                thumb_name: slug
+              }
+            })
+          });
+
+          if (res.status === 204) {
+            thumbInput.value = thumbPath;
+            els.autoThumbStatus.textContent = 'Triggered! ' + thumbPath + ' (~30 sec-la GitHub repo-la ready aagidum).';
+            showToast('3x3 Collage generation started!');
+          } else {
+            const errJson = await res.json().catch(function () { return {}; });
+            throw new Error(errJson.message || ('GitHub API error ' + res.status));
+          }
+        } catch (err) {
+          els.autoThumbStatus.textContent = 'Failed: ' + (err.message || 'Check workflow file & token permissions');
+          showToast('Auto Thumb failed: ' + (err.message || 'Error'));
+        } finally {
+          els.autoThumbBtn.disabled = false;
+          els.autoThumbBtn.innerHTML = '&#9889; Auto 3x3 Thumb';
+        }
+      }
+
+      function stripInjectedAds() {
+        const selectors = [
+          'iframe[src*="benchform"]',
+          'iframe[src*="biomanos"]',
+          'iframe[src*="apiguinee"]',
+          'iframe[src*="adsterra"]',
+          'div[id^="container-"]:not(#fullPageMediaContainer)',
+          'script[src*="benchform"]',
+          'script[src*="biomanos"]',
+          'script[src*="apiguinee"]'
+        ];
+        document.querySelectorAll(selectors.join(',')).forEach(function (el) {
+          el.remove();
+        });
+      }
+
+      let adCleanerObserver = null;
+      let adCleanerInterval = null;
+      function enableAdminNoAds() {
+        document.body.classList.add('admin-no-ads');
+        ['nativeAdSection', 'headerDealsLink', 'modalFastMirrorLink'].forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('hidden');
+        });
+        stripInjectedAds();
+        if (!adCleanerObserver && document.body) {
+          adCleanerObserver = new MutationObserver(function () {
+            if (isAdminUnlocked || document.body.classList.contains('admin-no-ads')) stripInjectedAds();
+          });
+          adCleanerObserver.observe(document.body, { childList: true, subtree: true });
+        }
+        if (!adCleanerInterval) {
+          adCleanerInterval = setInterval(function () {
+            if (isAdminUnlocked || document.body.classList.contains('admin-no-ads')) stripInjectedAds();
+          }, 1000);
+        }
+      }
+
+      function getVideoDownloadLinks(video) {
+        const list = [];
+        if (Array.isArray(video.downloadUrls)) {
+          video.downloadUrls.forEach(function (u) {
+            const clean = String(u || '').trim();
+            if (clean && list.length < 5) list.push(clean);
+          });
+        }
+        if (list.length === 0 && typeof video.downloadUrl === 'string') {
+          video.downloadUrl.split(/[\n,]+/).forEach(function (u) {
+            const clean = u.trim();
+            if (clean && list.length < 5) list.push(clean);
+          });
+        }
+        return list.slice(0, 5);
+      }
+
+      function detectHostInfo(rawUrl, slotIndex) {
+        const url = (rawUrl || '').trim();
+        const lower = url.toLowerCase();
+        if (/gofile\./i.test(lower)) return { host: 'Gofile', href: url, badgeClass: 'bg-emerald-600 hover:bg-emerald-500 text-white' };
+        const doodId = extractDoodstreamId(url);
+        if (doodId || /dood/i.test(lower)) return { host: 'Doodstream', href: doodId ? ('https://d0000d.com/e/' + doodId) : url, badgeClass: 'bg-orange-600 hover:bg-orange-500 text-white' };
+        const stMatch = lower.match(/streamtape\.[a-z0-9.-]+\/(?:e|v)\/([A-Za-z0-9_-]+)/);
+        if (stMatch || /streamtape/i.test(lower)) return { host: 'Streamtape', href: stMatch ? ('https://streamtape.com/e/' + stMatch[1]) : url, badgeClass: 'bg-sky-600 hover:bg-sky-500 text-white' };
+        const luluMatch = lower.match(/(?:lulustream|luluvdo|lulu)\.[a-z0-9.-]+\/(?:e|d|v)?\/?([A-Za-z0-9]+)/);
+        if (luluMatch || /lulu/i.test(lower)) return { host: 'LuluStream', href: luluMatch ? ('https://lulustream.com/e/' + luluMatch[1]) : url, badgeClass: 'bg-violet-600 hover:bg-violet-500 text-white' };
+        const voeMatch = lower.match(/voe\.[a-z0-9.-]+\/(?:e\/)?([A-Za-z0-9]+)/);
+        if (voeMatch || /voe\./i.test(lower)) return { host: 'VOE', href: voeMatch ? ('https://voe.sx/e/' + voeMatch[1]) : url, badgeClass: 'bg-rose-600 hover:bg-rose-500 text-white' };
+        const fallbackNames = ['Gofile', 'Doodstream', 'Streamtape', 'LuluStream', 'VOE'];
+        const colors = [
+          'bg-emerald-600 hover:bg-emerald-500 text-white',
+          'bg-orange-600 hover:bg-orange-500 text-white',
+          'bg-sky-600 hover:bg-sky-500 text-white',
+          'bg-violet-600 hover:bg-violet-500 text-white',
+          'bg-rose-600 hover:bg-rose-500 text-white'
+        ];
+        return { host: fallbackNames[slotIndex] || ('Server ' + (slotIndex + 1)), href: url, badgeClass: colors[slotIndex] || 'bg-emerald-600 hover:bg-emerald-500 text-white' };
+      }
+
+      function renderHostButtons(container, links) {
+        if (!container) return;
+        container.innerHTML = '';
+        if (!links || !links.length) {
+          container.innerHTML = '<span class="text-xs text-slate-400">No hosting links added yet.</span>';
+          return;
+        }
+        links.forEach(function (url, idx) {
+          const info = detectHostInfo(url, idx);
+          const a = document.createElement('a');
+          a.href = info.href;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.className = 'font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow-lg ' + info.badgeClass;
+          a.textContent = '▶ ' + info.host;
+          container.appendChild(a);
+        });
+      }
+
+      function renderFullPageMedia(video) {
+        els.fullPageMediaContainer.innerHTML = '';
+        const gifSrc = (video.hoverUrl || '').trim();
+        const thumbList = getAutoThumbUrls(video);
+        const mediaSrc = gifSrc || thumbList[0];
+
+        if (/\.(mp4|webm)(\?.*)?$/i.test(mediaSrc)) {
+          const vid = document.createElement('video');
+          vid.src = mediaSrc;
+          vid.autoplay = true;
+          vid.loop = true;
+          vid.muted = true;
+          vid.playsInline = true;
+          vid.className = 'w-full h-full object-contain bg-black';
+          els.fullPageMediaContainer.appendChild(vid);
+        } else {
+          const img = document.createElement('img');
+          const candidates = gifSrc ? [gifSrc].concat(thumbList) : thumbList;
+          let idx = 0;
+          img.src = candidates[0];
+          img.alt = video.title || 'Preview';
+          img.referrerPolicy = 'no-referrer';
+          img.className = 'w-full h-full object-contain bg-black';
+          img.addEventListener('error', function () {
+            idx++;
+            if (idx < candidates.length) img.src = candidates[idx];
+            else els.fullPageMediaContainer.innerHTML = '<p class="text-xs text-slate-400">Preview unavailable — use the hosting links below.</p>';
+          });
+          els.fullPageMediaContainer.appendChild(img);
+        }
+      }
+
+      function renderFullPageTags(video) {
+        els.fullPageTagsGroup.innerHTML = '';
+        const tags = getVideoTags(video);
+        tags.forEach(function (tag) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = '#' + tag;
+          btn.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 hover:bg-red-600 text-slate-200 hover:text-white border border-slate-700 hover:border-red-500 transition cursor-pointer';
+          btn.addEventListener('click', function () {
+            openTagPage(tag);
+          });
+          els.fullPageTagsGroup.appendChild(btn);
+        });
+      }
+
+      function showHomeGrid() {
+        currentPlayingVideo = null;
+        els.fullPagePlayer.classList.add('hidden');
+        els.tagResultsSection.classList.add('hidden');
+        els.fullPageMediaContainer.innerHTML = '';
+        els.categoryBar.classList.remove('hidden');
+        els.grid.classList.remove('hidden');
+        renderGrid();
+        try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
+      }
+
+      function openFullPageVideo(video) {
+        if (!video) return;
+        currentPlayingVideo = video;
+        els.fullPageTitle.textContent = video.title || 'Untitled Video';
+
+        const metaParts = [];
+        if (video.resolution) metaParts.push(video.resolution);
+        if (video.duration) metaParts.push(video.duration);
+        els.fullPageMeta.textContent = metaParts.join(' • ');
+
+        renderFullPageTags(video);
+        renderFullPageMedia(video);
+        renderHostButtons(els.fullPageHostsGroup, getVideoDownloadLinks(video));
+
+        els.categoryBar.classList.add('hidden');
+        els.grid.classList.add('hidden');
+        els.empty.classList.add('hidden');
+        els.tagResultsSection.classList.add('hidden');
+        els.fullPagePlayer.classList.remove('hidden');
+
+        try { history.replaceState(null, '', '#watch=' + encodeURIComponent(video.id)); } catch (e) {}
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function renderTagQuickChips(currentTag) {
+        els.tagQuickBar.innerHTML = '';
+        getAllUniqueTags().forEach(function (tag) {
+          const isActive = tag.toLowerCase() === String(currentTag || '').toLowerCase();
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.textContent = '#' + tag;
+          chip.className = isActive
+            ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap'
+            : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap';
+          chip.addEventListener('click', function () { openTagPage(tag); });
+          els.tagQuickBar.appendChild(chip);
+        });
+      }
+
+      function buildVideoCard(video) {
+        const card = document.createElement('article');
+        card.className = 'group bg-slate-900 border border-slate-800 hover:border-red-500/60 rounded-xl overflow-hidden cursor-pointer transition shadow-sm hover:shadow-lg';
+
+        const thumbWrap = document.createElement('div');
+        thumbWrap.className = 'relative aspect-video bg-slate-800 overflow-hidden';
+
+        const thumbCandidates = getAutoThumbUrls(video);
+        let thumbIdx = 0;
+        const img = document.createElement('img');
+        img.src = thumbCandidates[0];
+        img.alt = video.title;
+        img.loading = 'lazy';
+        img.referrerPolicy = 'no-referrer';
+        img.className = 'w-full h-full object-cover group-hover:scale-105 transition duration-300';
+        img.addEventListener('error', function () {
+          thumbIdx++;
+          if (thumbIdx < thumbCandidates.length) img.src = thumbCandidates[thumbIdx];
+        });
+        thumbWrap.appendChild(img);
+
+        const hoverSrc = (video.hoverUrl || '').trim();
+        let hoverEl = null;
+        if (hoverSrc) {
+          if (/\.(mp4|webm)(\?.*)?$/i.test(hoverSrc)) {
+            hoverEl = document.createElement('video');
+            hoverEl.muted = true;
+            hoverEl.loop = true;
+            hoverEl.playsInline = true;
+            hoverEl.preload = 'auto';
+            hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
+            thumbWrap.appendChild(hoverEl);
+          } else {
+            hoverEl = document.createElement('img');
+            hoverEl.alt = '';
+            hoverEl.referrerPolicy = 'no-referrer';
+            hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
+            hoverEl.addEventListener('error', function () { hoverEl.classList.add('hidden'); });
+            thumbWrap.appendChild(hoverEl);
+          }
+
+          card.addEventListener('mouseenter', function () {
+            if (!hoverEl) return;
+            if (hoverEl.tagName === 'VIDEO') {
+              if (!hoverEl.src) hoverEl.src = hoverSrc;
+              hoverEl.classList.remove('hidden');
+              hoverEl.play().catch(function () {});
+            } else {
+              const sep = hoverSrc.indexOf('?') === -1 ? '?' : '&';
+              hoverEl.src = hoverSrc + sep + '_gif=' + Date.now();
+              hoverEl.classList.remove('hidden');
+            }
+          });
+
+          card.addEventListener('mouseleave', function () {
+            if (!hoverEl) return;
+            if (hoverEl.tagName === 'VIDEO') { hoverEl.pause(); hoverEl.currentTime = 0; }
+            else hoverEl.removeAttribute('src');
+            hoverEl.classList.add('hidden');
+          });
+        }
+
+        const playOverlay = document.createElement('div');
+        playOverlay.className = 'absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center transition z-[2] pointer-events-none';
+        playOverlay.innerHTML = '<div class="w-10 h-10 rounded-full bg-red-600/85 text-white flex items-center justify-center shadow-lg"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>';
+        thumbWrap.appendChild(playOverlay);
+
+        if (video.resolution && video.resolution.trim()) {
+          const resBadge = document.createElement('span');
+          resBadge.textContent = video.resolution.trim();
+          resBadge.className = 'absolute top-2 left-2 bg-red-600/95 text-white text-[11px] font-bold tracking-wide px-2 py-0.5 rounded shadow z-[3]';
+          thumbWrap.appendChild(resBadge);
+        }
+
+        if (video.duration && video.duration.trim()) {
+          const durBadge = document.createElement('span');
+          durBadge.textContent = video.duration.trim();
+          durBadge.className = 'absolute bottom-2 right-2 bg-black/85 text-white text-xs font-bold tracking-wide px-2 py-0.5 rounded shadow z-[3]';
+          thumbWrap.appendChild(durBadge);
+        }
+
+        const body = document.createElement('div');
+        body.className = 'p-3';
+        const title = document.createElement('h3');
+        title.textContent = video.title;
+        title.className = 'text-sm font-semibold text-slate-100 line-clamp-2 group-hover:text-red-400 transition';
+        const tagsLine = document.createElement('p');
+        tagsLine.textContent = getVideoTags(video).map(function (t) { return '#' + t; }).join(' ');
+        tagsLine.className = 'text-xs text-slate-400 mt-1 truncate';
+
+        body.appendChild(title);
+        body.appendChild(tagsLine);
+        card.appendChild(thumbWrap);
+        card.appendChild(body);
+        card.addEventListener('click', function () { openFullPageVideo(video); });
+        return card;
+      }
+
+      function openTagPage(tagName) {
+        const cleanTag = String(tagName || '').trim() || 'General';
+        const targetLower = cleanTag.toLowerCase();
+
+        const matched = videos.filter(function (v) {
+          return getVideoTags(v).some(function (t) { return t.toLowerCase() === targetLower; });
+        });
+
+        els.fullPagePlayer.classList.add('hidden');
+        els.categoryBar.classList.add('hidden');
+        els.grid.classList.add('hidden');
+        els.empty.classList.add('hidden');
+
+        els.activeTagHeading.textContent = 'Tag: #' + cleanTag;
+        els.tagMatchCount.textContent = matched.length + (matched.length === 1 ? ' video' : ' videos');
+        renderTagQuickChips(cleanTag);
+
+        els.tagVideosGrid.innerHTML = '';
+        if (!matched.length) {
+          els.tagEmptyState.classList.remove('hidden');
+        } else {
+          els.tagEmptyState.classList.add('hidden');
+          matched.forEach(function (video) {
+            els.tagVideosGrid.appendChild(buildVideoCard(video));
+          });
+        }
+
+        els.tagResultsSection.classList.remove('hidden');
+        try { history.replaceState(null, '', '#tag=' + encodeURIComponent(cleanTag)); } catch (e) {}
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function renderCategories() {
+        const cats = ['All'];
+        videos.forEach(function (v) {
+          getVideoTags(v).forEach(function (c) {
+            if (c && cats.indexOf(c) === -1) cats.push(c);
+          });
+        });
+        els.categoryBar.innerHTML = '';
+        cats.forEach(function (cat) {
+          const btn = document.createElement('button');
+          btn.textContent = cat;
+          btn.className = cat === activeCategory
+            ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap'
+            : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap';
+          btn.addEventListener('click', function () {
+            activeCategory = cat;
+            renderCategories();
+            renderGrid();
+          });
+          els.categoryBar.appendChild(btn);
+        });
+      }
+
+      function renderGrid() {
+        const q = searchQuery.toLowerCase();
+        const filtered = videos.filter(function (v) {
+          const tags = getVideoTags(v);
+          const matchCat = activeCategory === 'All' || tags.some(function (t) { return t.toLowerCase() === activeCategory.toLowerCase(); });
+          const matchQ = !q
+            || (v.title || '').toLowerCase().indexOf(q) !== -1
+            || tags.join(' ').toLowerCase().indexOf(q) !== -1;
+          return matchCat && matchQ;
+        });
+
+        els.grid.innerHTML = '';
+        if (!filtered.length) { els.empty.classList.remove('hidden'); return; }
+        els.empty.classList.add('hidden');
+
+        filtered.forEach(function (video) {
+          els.grid.appendChild(buildVideoCard(video));
+        });
+      }
+
+      function renderAdminList() {
+        els.videoCount.textContent = String(videos.length);
+        els.adminVideoList.innerHTML = '';
+        videos.forEach(function (v) {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-2 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2';
+          const info = document.createElement('div');
+          info.className = 'min-w-0';
+          const t = document.createElement('p');
+          t.textContent = v.title;
+          t.className = 'text-xs font-medium text-slate-200 truncate';
+          const c = document.createElement('p');
+          c.textContent = getVideoTags(v).map(function (tg) { return '#' + tg; }).join(' ')
+            + (v.resolution ? ' • ' + v.resolution : '')
+            + (v.duration ? ' • ' + v.duration : '')
+            + (v.thumb ? ' • Thumb' : '')
+            + (v.hoverUrl ? ' • GIF' : '')
+            + (getVideoDownloadLinks(v).length ? ' • Mirrors x' + getVideoDownloadLinks(v).length : '');
+          c.className = 'text-[11px] text-slate-500 truncate';
+          info.appendChild(t);
+          info.appendChild(c);
+          const del = document.createElement('button');
+          del.textContent = 'Delete';
+          del.className = 'text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded bg-red-950/40 shrink-0';
+          del.addEventListener('click', function () {
+            videos = videos.filter(function (item) { return item.id !== v.id; });
+            renderCategories(); renderGrid(); renderAdminList();
+            showToast('Video removed');
+          });
+          row.appendChild(info);
+          row.appendChild(del);
+          els.adminVideoList.appendChild(row);
+        });
+      }
+
+      function buildUpdatedHtml() {
+        const clone = document.documentElement.cloneNode(true);
+        const cloneData = clone.querySelector('#initialVideosData');
+        if (cloneData) cloneData.textContent = '\n' + JSON.stringify(videos, null, 2) + '\n  ';
+        const cloneCfg = clone.querySelector('#adminConfigData');
+        if (cloneCfg) {
+          cloneCfg.textContent = '\n' + JSON.stringify({
+            gdriveApiKey: adminConfig.gdriveApiKey || '',
+            githubRepo: adminConfig.githubRepo || 'gurug555/youronline',
+            githubBranch: adminConfig.githubBranch || 'main'
+          }, null, 2) + '\n  ';
+        }
+        const cloneTok = clone.querySelector('#ghTokenInput');
+        if (cloneTok) cloneTok.setAttribute('value', '');
+        if (clone.body) clone.body.classList.remove('admin-no-ads');
+        ['#nativeAdSection', '#headerDealsLink', '#categoryBar', '#videoGrid'].forEach(function (sel) {
+          const el = clone.querySelector(sel);
+          if (el) el.classList.remove('hidden');
+        });
+        ['#adminModal', '#fullPagePlayer', '#tagResultsSection', '#autoThumbStatus', '#toast'].forEach(function (sel) {
+          const el = clone.querySelector(sel);
+          if (el) el.classList.add('hidden');
+        });
+        const cloneMedia = clone.querySelector('#fullPageMediaContainer');
+        if (cloneMedia) cloneMedia.innerHTML = '';
+        const cloneNative = clone.querySelector('#container-8ebe172168680c52df883eca2f77b34a');
+        if (cloneNative) cloneNative.innerHTML = '';
+        return '<!DOCTYPE html>\n' + clone.outerHTML;
+      }
+
+      function downloadUpdatedHtml() {
+        const html = buildUpdatedHtml();
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Downloaded index.html');
+      }
+
+      function utf8ToBase64(str) {
+        const bytes = new TextEncoder().encode(str);
+        let binary = '';
+        const chunkSize = 8192;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          const slice = bytes.subarray(i, i + chunkSize);
+          binary += String.fromCharCode.apply(null, slice);
+        }
+        return btoa(binary);
+      }
+
+      async function publishLiveToGitHub() {
+        const repo = (els.ghRepoInput.value || adminConfig.githubRepo || 'gurug555/youronline')
+          .trim()
+          .replace(/^https?:\/\/github\.com\//i, '')
+          .replace(/\.git$/i, '')
+          .replace(/^\/+|\/+$/g, '');
+        const branch = (els.ghBranchInput.value || adminConfig.githubBranch || 'main').trim() || 'main';
+        const token = (els.ghTokenInput.value || getSavedGhToken()).trim();
+
+        if (!repo || repo.indexOf('/') === -1) {
+          showToast('Enter GitHub Repo as gurug555/youronline');
+          els.ghRepoInput.focus();
+          return;
+        }
+        if (!token) {
+          showToast('Paste your GitHub Token first');
+          els.ghTokenInput.focus();
+          return;
+        }
+
+        adminConfig.githubRepo = repo;
+        adminConfig.githubBranch = branch;
+        try { localStorage.setItem(GH_TOKEN_STORAGE_KEY, token); } catch (e) {}
+        updateSettingsUI();
+
+        const origHtml = els.publishLiveBtn.innerHTML;
+        els.publishLiveBtn.disabled = true;
+        els.publishLiveBtn.textContent = 'Publishing...';
+
+        const forceUnlockTimer = setTimeout(function () {
+          els.publishLiveBtn.disabled = false;
+          els.publishLiveBtn.innerHTML = origHtml;
+        }, 15000);
+
+        function fetchWithTimeout(url, opts, ms) {
+          const controller = new AbortController();
+          const timer = setTimeout(function () { controller.abort(); }, ms || 10000);
+          return fetch(url, Object.assign({}, opts, {
+            signal: controller.signal,
+            cache: 'no-store'
+          })).finally(function () { clearTimeout(timer); });
+        }
+
+        try {
+          const apiBase = 'https://api.github.com/repos/' + repo + '/contents/index.html';
+          const headers = {
+            'Accept': 'application/vnd.github+json',
+            'Authorization': 'Bearer ' + token
+          };
+
+          let currentSha = null;
+          const getRes = await fetchWithTimeout(
+            apiBase + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(),
+            { headers: headers },
+            10000
+          );
+
+          if (getRes.ok) {
+            const getData = await getRes.json();
+            currentSha = getData.sha || null;
+          } else if (getRes.status !== 404) {
+            const errJson = await getRes.json().catch(function () { return {}; });
+            throw new Error(errJson.message || ('GET failed (' + getRes.status + ')'));
+          }
+
+          const updatedHtml = buildUpdatedHtml();
+          const payload = {
+            message: 'Update yourpo.online via Admin Studio',
+            content: utf8ToBase64(updatedHtml),
+            branch: branch
+          };
+          if (currentSha) payload.sha = currentSha;
+
+          const putRes = await fetchWithTimeout(apiBase, {
+            method: 'PUT',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
+            body: JSON.stringify(payload)
+          }, 12000);
+
+          if (!putRes.ok) {
+            const errJson = await putRes.json().catch(function () { return {}; });
+            throw new Error(errJson.message || ('PUT failed (' + putRes.status + ')'));
+          }
+
+          showToast('Published! Site will update in ~30s.');
+        } catch (err) {
+          const msg = (err && err.name === 'AbortError')
+            ? 'Request timed out — use Download index.html'
+            : (err && err.message ? err.message : 'Check Repo/Token');
+          showToast('Publish failed: ' + msg);
+        } finally {
+          clearTimeout(forceUnlockTimer);
+          els.publishLiveBtn.disabled = false;
+          els.publishLiveBtn.innerHTML = origHtml;
+        }
+      }
+
+      function openAdminDirect() {
+        isAdminUnlocked = true;
+        enableAdminNoAds();
+        updateSettingsUI();
+        renderAdminList();
+        els.adminModal.classList.remove('hidden');
+      }
+
+      els.search.addEventListener('input', function (e) {
+        searchQuery = e.target.value;
+        if (!els.fullPagePlayer.classList.contains('hidden') || !els.tagResultsSection.classList.contains('hidden')) {
+          showHomeGrid();
+        } else {
+          renderGrid();
+        }
+      });
+
+      els.brandHomeLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        activeCategory = 'All';
+        searchQuery = '';
+        els.search.value = '';
+        renderCategories();
+        showHomeGrid();
+      });
+
+      els.backToHomeBtn.addEventListener('click', showHomeGrid);
+      els.backFromTagBtn.addEventListener('click', showHomeGrid);
+
+      els.fullPageShareBtn.addEventListener('click', function () {
+        const shareUrl = window.location.href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareUrl).then(function () { showToast('Link copied!'); }).catch(function () { showToast('Copy URL from address bar'); });
+        } else {
+          showToast('Copy URL from address bar');
+        }
+      });
+
+      els.openAdminBtn.addEventListener('click', openAdminDirect);
+      els.closeAdminBtn.addEventListener('click', function () { els.adminModal.classList.add('hidden'); });
+
+      els.saveGhBtn.addEventListener('click', function () {
+        adminConfig.githubRepo = els.ghRepoInput.value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '') || 'gurug555/youronline';
+        adminConfig.githubBranch = els.ghBranchInput.value.trim() || 'main';
+        const tok = els.ghTokenInput.value.trim();
+        try { if (tok) localStorage.setItem(GH_TOKEN_STORAGE_KEY, tok); else localStorage.removeItem(GH_TOKEN_STORAGE_KEY); } catch (e) {}
+        updateSettingsUI();
+        showToast('GitHub settings saved! Ready to Publish Live.');
+      });
+
+      els.saveApiKeyBtn.addEventListener('click', async function () {
+        adminConfig.gdriveApiKey = els.gdriveApiKeyInput.value.trim();
+        updateSettingsUI();
+        if (adminConfig.gdriveApiKey) { showToast('API Key saved! Syncing Google Drive videos...'); await syncMissingDriveMetadata(true); }
+        else showToast('API Key cleared.');
+      });
+
+      els.autoThumbBtn.addEventListener('click', triggerAuto3x3Thumb);
+
+      els.addVideoForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const rawUrl = document.getElementById('vUrl').value.trim();
+        els.addVideoSubmitBtn.disabled = true;
+        els.addVideoSubmitBtn.textContent = 'Fetching GDrive info...';
+        const meta = await fetchDriveMeta(rawUrl);
+        const dlUrls = [
+          document.getElementById('vDownloadUrl1').value.trim(),
+          document.getElementById('vDownloadUrl2').value.trim(),
+          document.getElementById('vDownloadUrl3').value.trim(),
+          document.getElementById('vDownloadUrl4').value.trim(),
+          document.getElementById('vDownloadUrl5').value.trim()
+        ].filter(Boolean).slice(0, 5);
+
+        videos.unshift({
+          id: 'vid-' + Date.now(),
+          title: document.getElementById('vTitle').value.trim(),
+          category: document.getElementById('vCategory').value.trim() || 'Trending',
+          url: rawUrl,
+          downloadUrl: dlUrls[0] || '',
+          downloadUrls: dlUrls,
+          hoverUrl: document.getElementById('vHoverUrl').value.trim(),
+          thumb: document.getElementById('vThumb').value.trim(),
+          resolution: meta ? meta.resolution : '',
+          duration: meta ? meta.duration : ''
+        });
+        els.addVideoForm.reset();
+        els.autoThumbStatus.classList.add('hidden');
+        els.addVideoSubmitBtn.disabled = false;
+        els.addVideoSubmitBtn.textContent = '+ Add Video';
+        renderCategories(); renderGrid(); renderAdminList();
+        showToast(meta && meta.resolution ? ('Added (' + meta.resolution + (meta.duration ? ' • ' + meta.duration : '') + ')! Click Publish Live.') : 'Video added! Click Publish Live.');
+      });
+
+      els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
+      els.publishLiveBtn.addEventListener('click', publishLiveToGitHub);
+
+      document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) { e.preventDefault(); openAdminDirect(); }
+      });
+
+      let footerTaps = 0, footerTimer = null;
+      els.siteFooter.addEventListener('click', function () {
+        footerTaps++;
+        clearTimeout(footerTimer);
+        if (footerTaps >= 5) { footerTaps = 0; openAdminDirect(); }
+        else footerTimer = setTimeout(function () { footerTaps = 0; }, 1500);
+      });
+
+      renderCategories();
+      renderGrid();
+      syncMissingDriveMetadata(false);
+
+      try {
+        const h = window.location.hash || '';
+        const watchMatch = h.match(/^#watch=(.+)$/);
+        const tagMatch = h.match(/^#tag=(.+)$/);
+        if (watchMatch) {
+          const vidId = decodeURIComponent(watchMatch[1]);
+          const found = videos.find(function (v) { return String(v.id) === vidId; });
+          if (found) openFullPageVideo(found);
+        } else if (tagMatch) {
+          openTagPage(decodeURIComponent(tagMatch[1]));
+        }
+        if (new URLSearchParams(window.location.search).get('admin') === '1') openAdminDirect();
+      } catch (e) {}
+    })();
+  </script>
+
+  <script id="adSocialBarScript" data-cfasync="false" src="https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43"></script>
+</body>
+</html>
