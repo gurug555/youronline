@@ -47,4 +47,1259 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
 
   <!-- Header (No Admin button visible to visitors) -->
-  <header class="sticky top-
+  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <a href="#" class="flex items-center gap-2 text-xl font-bold tracking-tight">
+        <span class="bg-red-600 text-white px-2 py-0.5 rounded-md text-sm font-extrabold">PLAY</span>
+        <span>yourpo<span class="text-red-500">.online</span></span>
+      </a>
+
+      <div class="flex-1 max-w-md min-w-[200px]">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search videos..."
+          class="w-full bg-slate-900 border border-slate-700 rounded-full px-4 py-1.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-500"
+        />
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a
+          id="headerDealsLink"
+          href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition"
+        >
+          Trending Deals &rarr;
+        </a>
+        <!-- Hidden Admin Button: only shown after admin unlocks -->
+        <button
+          id="openAdminBtn"
+          class="hidden bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition"
+        >
+          Admin Studio
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+    <!-- Category Pills -->
+    <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto pb-3 mb-4"></div>
+
+    <!-- Video Grid -->
+    <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16">
+      <p class="text-slate-400 text-base">No videos found.</p>
+    </div>
+
+    <!-- Adsterra NativeBanner_1 -->
+    <section id="nativeAdSection" class="mt-10 pt-6 border-t border-slate-800">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Sponsored</span>
+        <a
+          href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-xs text-amber-400 hover:underline"
+        >
+          Explore More &rarr;
+        </a>
+      </div>
+      <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3 min-h-[100px]">
+        <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
+        <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer (Secret: tap 5 times on mobile to open Admin Login) -->
+  <footer id="siteFooter" class="border-t border-slate-800 py-5 text-center text-xs text-slate-500 select-none">
+    &copy; 2026 yourpo.online &mdash; All rights reserved.
+  </footer>
+
+  <!-- Video Player + Download Modal -->
+  <div id="playerModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <div class="flex items-center gap-2 min-w-0 pr-4">
+          <h2 id="playerTitle" class="font-semibold text-base sm:text-lg truncate">Video Title</h2>
+        </div>
+        <button id="closePlayerBtn" class="text-slate-400 hover:text-white text-xl leading-none px-2">&times;</button>
+      </div>
+
+      <!-- 5-Second GIF / Preview Showcase + 5 Hosting Links -->
+      <div class="relative aspect-video bg-black w-full overflow-hidden">
+        <div id="playerContainer" class="w-full h-full flex items-center justify-center"></div>
+        <div id="drivePopoutShield" class="hidden"></div>
+        <div id="previewEndedOverlay" class="hidden">
+          <div id="overlayDownloadGroup" class="hidden"></div>
+          <button id="replayPreviewBtn" type="button" class="hidden">Replay</button>
+        </div>
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-4 sm:p-5 flex flex-col items-center text-center z-10">
+          <span class="text-[11px] uppercase tracking-wider font-semibold text-emerald-400 bg-emerald-950/80 border border-emerald-700/50 px-2.5 py-0.5 rounded-full mb-2">5s Preview • Watch / Download Full Video Below</span>
+          <div id="modalCenterHostsGroup" class="flex flex-wrap items-center justify-center gap-2"></div>
+        </div>
+      </div>
+
+      <!-- Action Bar with Gofile Download Button -->
+      <div class="px-4 py-3.5 flex flex-wrap items-center justify-between gap-3 bg-slate-900 border-t border-slate-800">
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <span id="playerMeta"></span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <div id="gofileDownloadGroup" class="flex flex-wrap items-center gap-2"></div>
+          <a
+            id="modalFastMirrorLink"
+            href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition"
+          >
+            Fast Mirror &rarr;
+          </a>
+          <button id="shareBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 rounded-lg transition">
+            Copy Link
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal (Password Protected) -->
+  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-bold text-base text-white">Admin Access</h2>
+        <button id="closeLoginBtn" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">Enter your admin password to open Admin Studio.</p>
+      <form id="adminLoginForm" class="space-y-3">
+        <input
+          id="adminPassInput"
+          type="password"
+          required
+          autocomplete="current-password"
+          placeholder="Admin Password"
+          class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500"
+        />
+        <p id="loginError" class="hidden text-xs text-red-400">Incorrect password. Try again.</p>
+        <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">
+          Unlock Admin Studio
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Studio Modal -->
+  <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800">
+        <div>
+          <h2 class="font-bold text-lg">Admin Studio</h2>
+          <p class="text-xs text-slate-400">1-Click GitHub Publish + Auto GDrive Resolution &amp; Duration</p>
+        </div>
+        <button id="closeAdminBtn" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+      </div>
+
+      <div class="p-5 overflow-y-auto space-y-6">
+        <!-- GitHub 1-Click Auto-Publish Setup -->
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-emerald-700/50 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-sm font-semibold text-emerald-300">GitHub 1-Click Publish (Auto-Deploy)</h3>
+            <span id="ghStatus" class="text-[11px] text-slate-400">Not connected</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <input id="ghRepoInput" type="text" placeholder="username/repo-name" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
+            <input id="ghBranchInput" type="text" placeholder="main" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="ghTokenInput" type="password" placeholder="GitHub Personal Access Token (ghp_... or github_pat_...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
+            <button id="saveGhBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">
+              Save GitHub
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400">Token stays strictly in your browser (never saved inside index.html). Click <strong>Publish Live</strong> below to update yourpo.online automatically.</p>
+        </div>
+
+        <!-- Google Drive API Key Setup -->
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-sky-700/50 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-sm font-semibold text-sky-300">Google Drive API Key (Auto Resolution &amp; Timestamp)</h3>
+            <span id="apiKeyStatus" class="text-[11px] text-slate-400">Not set</span>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="gdriveApiKeyInput" type="text" placeholder="Paste Google Drive API Key (AIzaSy...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
+            <button id="saveApiKeyBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">
+              Save Key &amp; Sync
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400">Automatically fetches exact video resolution (720p, 1080p, 4K) &amp; original duration from Google Drive.</p>
+        </div>
+
+        <!-- Add Video Form -->
+        <form id="addVideoForm" class="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-sm font-semibold text-slate-200">Add New Video</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input id="vTitle" required placeholder="Video Title" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            <input id="vCategory" placeholder="Category (e.g., Trending, HD)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <input id="vUrl" placeholder="Google Drive Video URL (optional — only for auto resolution/duration)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          <div class="space-y-2 bg-slate-900/50 p-3 rounded-lg border border-emerald-800/50">
+            <p class="text-xs font-semibold text-emerald-300">5 Hosting / Mirror Links (Gofile, Doodstream, Streamtape, LuluStream, VOE)</p>
+            <input id="vDownloadUrl1" placeholder="Link 1 — Gofile / Mirror (e.g., https://gofile.io/d/...)" class="w-full bg-slate-900 border border-emerald-700/70 rounded-lg px-3 py-2 text-sm" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input id="vDownloadUrl2" placeholder="Link 2 — Doodstream URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
+              <input id="vDownloadUrl3" placeholder="Link 3 — Streamtape URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
+              <input id="vDownloadUrl4" placeholder="Link 4 — LuluStream URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
+              <input id="vDownloadUrl5" placeholder="Link 5 — VOE URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input id="vHoverUrl" required placeholder="5s GIF Preview URL (e.g., previews/vid1.gif)" class="bg-slate-900 border border-sky-500 rounded-lg px-3 py-2 text-sm" />
+            <input id="vThumb" placeholder="Static Thumbnail URL (e.g., thumbs/vid1.jpg)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <button id="addVideoSubmitBtn" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">
+            + Add Video
+          </button>
+        </form>
+
+        <!-- Manage Videos List -->
+        <div>
+          <h3 class="text-sm font-semibold text-slate-200 mb-2">Manage Videos (<span id="videoCount">0</span>)</h3>
+          <div id="adminVideoList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- Change Admin Password -->
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-2.5">
+          <h3 class="text-sm font-semibold text-slate-200">Change Admin Password</h3>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="newAdminPass" type="password" placeholder="Enter new password (min 4 chars)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            <button id="savePassBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 text-xs font-semibold px-4 py-2 rounded-lg transition">
+              Update Password
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500">After changing settings or videos, click <strong>Publish Live</strong> (or Download index.html) to save permanently.</p>
+        </div>
+      </div>
+
+      <div class="px-5 py-3.5 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-2">
+        <span class="text-xs text-emerald-400">Adsterra Active</span>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="downloadHtmlBtn" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">
+            Download index.html
+          </button>
+          <button id="publishLiveBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg transition shadow">
+            &#128640; Publish Live
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg"></div>
+
+  <!-- Embedded Admin Config -->
+  <script id="adminConfigData" type="application/json">
+{
+  "passHash": "7c78c98f",
+  "gdriveApiKey": "",
+  "githubRepo": "",
+  "githubBranch": "main"
+}
+  </script>
+
+  <!-- Embedded Video Data -->
+  <script id="initialVideosData" type="application/json">
+[
+  {
+    "id": "vid-1",
+    "title": "Sample Video — Clean Player + Gofile",
+    "category": "Trending",
+    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "downloadUrl": "https://gofile.io/",
+    "hoverUrl": "",
+    "thumb": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80",
+    "resolution": "1080p",
+    "duration": "09:56"
+  }
+]
+  </script>
+
+  <script>
+    (function () {
+      const PREVIEW_LIMIT_SEC = 10;
+      const GH_TOKEN_STORAGE_KEY = 'yourpo_gh_token';
+      let videos = [];
+      let activeCategory = 'All';
+      let searchQuery = '';
+      let isAdminUnlocked = false;
+      let activeVideoEl = null;
+      let currentPlayingVideo = null;
+      let iframePreviewTimer = null;
+      let adminConfig = {
+        passHash: '7c78c98f',
+        gdriveApiKey: '',
+        githubRepo: '',
+        githubBranch: 'main'
+      };
+
+      const FALLBACK_THUMB = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450"><rect width="800" height="450" fill="#0f172a"/><circle cx="400" cy="225" r="54" fill="#ef4444" fill-opacity="0.9"/><polygon points="384,198 384,252 430,225" fill="#ffffff"/></svg>'
+      );
+
+      const dataEl = document.getElementById('initialVideosData');
+      const cfgEl = document.getElementById('adminConfigData');
+      try {
+        videos = JSON.parse(dataEl.textContent.trim()) || [];
+      } catch (e) {
+        videos = [];
+      }
+      try {
+        const parsedCfg = JSON.parse(cfgEl.textContent.trim());
+        if (parsedCfg) {
+          if (parsedCfg.passHash) adminConfig.passHash = parsedCfg.passHash;
+          if (typeof parsedCfg.gdriveApiKey === 'string') adminConfig.gdriveApiKey = parsedCfg.gdriveApiKey;
+          if (typeof parsedCfg.githubRepo === 'string') adminConfig.githubRepo = parsedCfg.githubRepo;
+          if (typeof parsedCfg.githubBranch === 'string' && parsedCfg.githubBranch.trim()) adminConfig.githubBranch = parsedCfg.githubBranch.trim();
+        }
+      } catch (e) {}
+
+      function hashStr(str) {
+        let h = 5381;
+        for (let i = 0; i < str.length; i++) {
+          h = (((h << 5) + h) + str.charCodeAt(i)) >>> 0;
+        }
+        return h.toString(16);
+      }
+
+      function extractDriveId(rawUrl) {
+        const url = (rawUrl || '').trim();
+        const m1 = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+        if (m1) return m1[1];
+        const m2 = url.match(/drive\.google\.com\/open\?id=([^&#]+)/);
+        if (m2) return m2[1];
+        const m3 = url.match(/drive\.google\.com\/uc\?.*id=([^&#]+)/);
+        if (m3) return m3[1];
+        return null;
+      }
+
+      function formatResolution(width, height) {
+        const h = Number(height) || 0;
+        const w = Number(width) || 0;
+        if (!h && !w) return '';
+        const dim = Math.min(w || h, h || w);
+        const maxDim = Math.max(w, h);
+        if (maxDim >= 3800 || dim >= 2160) return '4K';
+        if (dim >= 1400) return '1440p';
+        if (dim >= 1000) return '1080p';
+        if (dim >= 700) return '720p';
+        if (dim >= 460) return '480p';
+        if (dim >= 340) return '360p';
+        return dim + 'p';
+      }
+
+      function formatDurationMs(ms) {
+        const totalSec = Math.floor((Number(ms) || 0) / 1000);
+        if (totalSec <= 0) return '';
+        const hrs = Math.floor(totalSec / 3600);
+        const mins = Math.floor((totalSec % 3600) / 60);
+        const secs = totalSec % 60;
+        const pad = function (n) { return n < 10 ? '0' + n : String(n); };
+        return hrs > 0 ? (hrs + ':' + pad(mins) + ':' + pad(secs)) : (pad(mins) + ':' + pad(secs));
+      }
+
+      async function fetchDriveMeta(rawUrl) {
+        const apiKey = (adminConfig.gdriveApiKey || '').trim();
+        const fileId = extractDriveId(rawUrl);
+        if (!apiKey || !fileId) return null;
+        try {
+          const endpoint = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId)
+            + '?fields=videoMediaMetadata&key=' + encodeURIComponent(apiKey);
+          const res = await fetch(endpoint);
+          if (!res.ok) return null;
+          const data = await res.json();
+          const meta = data && data.videoMediaMetadata;
+          if (!meta) return null;
+          return {
+            resolution: formatResolution(meta.width, meta.height),
+            duration: formatDurationMs(meta.durationMillis)
+          };
+        } catch (e) {
+          return null;
+        }
+      }
+
+      async function syncMissingDriveMetadata(showStatusToast) {
+        const apiKey = (adminConfig.gdriveApiKey || '').trim();
+        if (!apiKey) return;
+        let updatedCount = 0;
+        const tasks = videos.map(async function (v) {
+          if (!extractDriveId(v.url)) return;
+          if (v.resolution && v.duration) return;
+          const meta = await fetchDriveMeta(v.url);
+          if (meta) {
+            if (meta.resolution && !v.resolution) { v.resolution = meta.resolution; updatedCount++; }
+            if (meta.duration && !v.duration) { v.duration = meta.duration; }
+          }
+        });
+        await Promise.all(tasks);
+        if (updatedCount > 0) {
+          renderGrid();
+          if (isAdminUnlocked) renderAdminList();
+          if (showStatusToast) showToast('Synced resolution for ' + updatedCount + ' video(s)');
+        }
+      }
+
+      function getAutoThumbUrls(video) {
+        const custom = (video.thumb || '').trim();
+        const driveId = extractDriveId(video.url);
+        const list = [];
+        if (custom) list.push(custom);
+        if (driveId) {
+          list.push('https://drive.google.com/thumbnail?id=' + driveId + '&sz=w800');
+          list.push('https://lh3.googleusercontent.com/d/' + driveId + '=w800');
+        }
+        list.push(FALLBACK_THUMB);
+        return list;
+      }
+
+      const els = {
+        grid: document.getElementById('videoGrid'),
+        empty: document.getElementById('emptyState'),
+        categoryBar: document.getElementById('categoryBar'),
+        search: document.getElementById('searchInput'),
+        playerModal: document.getElementById('playerModal'),
+        playerTitle: document.getElementById('playerTitle'),
+        playerContainer: document.getElementById('playerContainer'),
+        drivePopoutShield: document.getElementById('drivePopoutShield'),
+        playerMeta: document.getElementById('playerMeta'),
+        gofileDownloadGroup: document.getElementById('gofileDownloadGroup'),
+        modalCenterHostsGroup: document.getElementById('modalCenterHostsGroup'),
+        previewEndedOverlay: document.getElementById('previewEndedOverlay'),
+        overlayDownloadGroup: document.getElementById('overlayDownloadGroup'),
+        replayPreviewBtn: document.getElementById('replayPreviewBtn'),
+        closePlayerBtn: document.getElementById('closePlayerBtn'),
+        shareBtn: document.getElementById('shareBtn'),
+        adminLoginModal: document.getElementById('adminLoginModal'),
+        adminLoginForm: document.getElementById('adminLoginForm'),
+        adminPassInput: document.getElementById('adminPassInput'),
+        loginError: document.getElementById('loginError'),
+        closeLoginBtn: document.getElementById('closeLoginBtn'),
+        adminModal: document.getElementById('adminModal'),
+        openAdminBtn: document.getElementById('openAdminBtn'),
+        closeAdminBtn: document.getElementById('closeAdminBtn'),
+        ghRepoInput: document.getElementById('ghRepoInput'),
+        ghBranchInput: document.getElementById('ghBranchInput'),
+        ghTokenInput: document.getElementById('ghTokenInput'),
+        ghStatus: document.getElementById('ghStatus'),
+        saveGhBtn: document.getElementById('saveGhBtn'),
+        gdriveApiKeyInput: document.getElementById('gdriveApiKeyInput'),
+        apiKeyStatus: document.getElementById('apiKeyStatus'),
+        saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
+        addVideoForm: document.getElementById('addVideoForm'),
+        addVideoSubmitBtn: document.getElementById('addVideoSubmitBtn'),
+        adminVideoList: document.getElementById('adminVideoList'),
+        videoCount: document.getElementById('videoCount'),
+        newAdminPass: document.getElementById('newAdminPass'),
+        savePassBtn: document.getElementById('savePassBtn'),
+        downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
+        publishLiveBtn: document.getElementById('publishLiveBtn'),
+        siteFooter: document.getElementById('siteFooter'),
+        toast: document.getElementById('toast')
+      };
+
+      function showToast(msg) {
+        els.toast.textContent = msg;
+        els.toast.classList.remove('hidden');
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(function () {
+          els.toast.classList.add('hidden');
+        }, 3200);
+      }
+
+      function getSavedGhToken() {
+        try { return localStorage.getItem(GH_TOKEN_STORAGE_KEY) || ''; } catch (e) { return ''; }
+      }
+
+      function updateSettingsUI() {
+        const key = (adminConfig.gdriveApiKey || '').trim();
+        els.gdriveApiKeyInput.value = key;
+        els.apiKeyStatus.textContent = key ? 'Active' : 'Not set';
+        els.apiKeyStatus.className = key ? 'text-[11px] font-semibold text-emerald-400' : 'text-[11px] text-slate-400';
+
+        const repo = (adminConfig.githubRepo || '').trim();
+        const branch = (adminConfig.githubBranch || 'main').trim();
+        const token = getSavedGhToken().trim();
+        els.ghRepoInput.value = repo;
+        els.ghBranchInput.value = branch;
+        els.ghTokenInput.value = token;
+        if (repo && token) {
+          els.ghStatus.textContent = 'Ready (' + repo + ')';
+          els.ghStatus.className = 'text-[11px] font-semibold text-emerald-400';
+        } else {
+          els.ghStatus.textContent = 'Not connected';
+          els.ghStatus.className = 'text-[11px] text-slate-400';
+        }
+      }
+
+      function requestAdminAccess() {
+        if (isAdminUnlocked) {
+          openAdmin();
+          return;
+        }
+        els.loginError.classList.add('hidden');
+        els.adminPassInput.value = '';
+        els.adminLoginModal.classList.remove('hidden');
+        setTimeout(function () { els.adminPassInput.focus(); }, 50);
+      }
+
+      function openAdmin() {
+        updateSettingsUI();
+        renderAdminList();
+        els.adminModal.classList.remove('hidden');
+      }
+
+      function extractDoodstreamId(rawUrl) {
+        const url = (rawUrl || '').trim();
+        const m = url.match(/(?:doodstream\.[a-z]+|dood\.[a-z]+|ds2play\.com|ds2video\.com|d0000d\.com|d000d\.com|do7go\.com|dood\.watch|dood\.pm|dood\.so|dood\.sx|dood\.sh|dood\.re|dood\.yt|dood\.li|dood\.wf|dood\.la|dood\.ws|dood\.to|dood\.cx)\/(?:e|d|v|f)\/([A-Za-z0-9]+)/i);
+        return m ? m[1] : null;
+      }
+
+      function getEmbedInfo(rawUrl) {
+        const url = (rawUrl || '').trim();
+        const driveId = extractDriveId(url);
+        if (driveId) {
+          return { type: 'drive', src: 'https://drive.google.com/file/d/' + driveId + '/preview' };
+        }
+        const doodId = extractDoodstreamId(url);
+        if (doodId) {
+          return { type: 'doodstream', src: 'https://d0000d.com/e/' + doodId };
+        }
+        const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+        if (ytMatch) {
+          return { type: 'iframe', src: 'https://www.youtube.com/embed/' + ytMatch[1] + '?autoplay=1&end=' + PREVIEW_LIMIT_SEC };
+        }
+        if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(url)) {
+          return { type: 'video', src: url };
+        }
+        return { type: 'iframe', src: url };
+      }
+
+      function renderCategories() {
+        const cats = ['All'];
+        videos.forEach(function (v) {
+          const c = (v.category || 'General').trim();
+          if (c && cats.indexOf(c) === -1) cats.push(c);
+        });
+        els.categoryBar.innerHTML = '';
+        cats.forEach(function (cat) {
+          const btn = document.createElement('button');
+          btn.textContent = cat;
+          btn.className = cat === activeCategory
+            ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap'
+            : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap';
+          btn.addEventListener('click', function () {
+            activeCategory = cat;
+            renderCategories();
+            renderGrid();
+          });
+          els.categoryBar.appendChild(btn);
+        });
+      }
+
+      function loadPlayerMedia(video) {
+        clearTimeout(iframePreviewTimer);
+        els.playerContainer.innerHTML = '';
+        activeVideoEl = null;
+
+        const gifSrc = (video.hoverUrl || '').trim();
+        const thumbList = getAutoThumbUrls(video);
+        const mediaSrc = gifSrc || thumbList[0];
+
+        if (/\.(mp4|webm)(\?.*)?$/i.test(mediaSrc)) {
+          const vid = document.createElement('video');
+          vid.src = mediaSrc;
+          vid.autoplay = true;
+          vid.loop = true;
+          vid.muted = true;
+          vid.playsInline = true;
+          vid.className = 'w-full h-full object-contain bg-black';
+          activeVideoEl = vid;
+          els.playerContainer.appendChild(vid);
+        } else {
+          const img = document.createElement('img');
+          let idx = 0;
+          const candidates = gifSrc ? [gifSrc].concat(thumbList) : thumbList;
+          img.src = candidates[0];
+          img.alt = video.title || 'Preview';
+          img.referrerPolicy = 'no-referrer';
+          img.className = 'w-full h-full object-contain bg-black';
+          img.addEventListener('error', function () {
+            idx++;
+            if (idx < candidates.length) img.src = candidates[idx];
+          });
+          els.playerContainer.appendChild(img);
+        }
+      }
+
+      function getVideoDownloadLinks(video) {
+        const list = [];
+        if (Array.isArray(video.downloadUrls)) {
+          video.downloadUrls.forEach(function (u) {
+            const clean = String(u || '').trim();
+            if (clean && list.length < 5) list.push(clean);
+          });
+        }
+        if (list.length === 0 && typeof video.downloadUrl === 'string') {
+          video.downloadUrl.split(/[\n,]+/).forEach(function (u) {
+            const clean = u.trim();
+            if (clean && list.length < 5) list.push(clean);
+          });
+        }
+        return list.slice(0, 5);
+      }
+
+      function detectHostInfo(rawUrl, slotIndex) {
+        const url = (rawUrl || '').trim();
+        const lower = url.toLowerCase();
+        if (/gofile\./i.test(lower)) {
+          return { host: 'Gofile', href: url, badgeClass: 'bg-emerald-600 hover:bg-emerald-500 text-white' };
+        }
+        const doodId = extractDoodstreamId(url);
+        if (doodId || /dood/i.test(lower)) {
+          return {
+            host: 'Doodstream',
+            href: doodId ? ('https://d0000d.com/e/' + doodId) : url,
+            badgeClass: 'bg-orange-600 hover:bg-orange-500 text-white'
+          };
+        }
+        const stMatch = lower.match(/streamtape\.[a-z0-9.-]+\/(?:e|v)\/([A-Za-z0-9_-]+)/);
+        if (stMatch || /streamtape/i.test(lower)) {
+          return {
+            host: 'Streamtape',
+            href: stMatch ? ('https://streamtape.com/e/' + stMatch[1]) : url,
+            badgeClass: 'bg-sky-600 hover:bg-sky-500 text-white'
+          };
+        }
+        const luluMatch = lower.match(/(?:lulustream|luluvdo|lulu)\.[a-z0-9.-]+\/(?:e|d|v)?\/?([A-Za-z0-9]+)/);
+        if (luluMatch || /lulu/i.test(lower)) {
+          return {
+            host: 'LuluStream',
+            href: luluMatch ? ('https://lulustream.com/e/' + luluMatch[1]) : url,
+            badgeClass: 'bg-violet-600 hover:bg-violet-500 text-white'
+          };
+        }
+        const voeMatch = lower.match(/voe\.[a-z0-9.-]+\/(?:e\/)?([A-Za-z0-9]+)/);
+        if (voeMatch || /voe\./i.test(lower)) {
+          return {
+            host: 'VOE',
+            href: voeMatch ? ('https://voe.sx/e/' + voeMatch[1]) : url,
+            badgeClass: 'bg-rose-600 hover:bg-rose-500 text-white'
+          };
+        }
+        const fallbackNames = ['Gofile', 'Doodstream', 'Streamtape', 'LuluStream', 'VOE'];
+        const colors = [
+          'bg-emerald-600 hover:bg-emerald-500 text-white',
+          'bg-orange-600 hover:bg-orange-500 text-white',
+          'bg-sky-600 hover:bg-sky-500 text-white',
+          'bg-violet-600 hover:bg-violet-500 text-white',
+          'bg-rose-600 hover:bg-rose-500 text-white'
+        ];
+        return {
+          host: fallbackNames[slotIndex] || ('Server ' + (slotIndex + 1)),
+          href: url,
+          badgeClass: colors[slotIndex] || 'bg-emerald-600 hover:bg-emerald-500 text-white'
+        };
+      }
+
+      function renderGofileButtons(container, links, isOverlay) {
+        if (!container) return;
+        container.innerHTML = '';
+        if (!links || !links.length) return;
+        links.forEach(function (url, idx) {
+          const info = detectHostInfo(url, idx);
+          const a = document.createElement('a');
+          a.href = info.href;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.className = (isOverlay
+            ? 'font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition shadow-lg '
+            : 'font-semibold text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow ') + info.badgeClass;
+          a.textContent = '▶ ' + info.host;
+          container.appendChild(a);
+        });
+      }
+
+      function openPlayer(video) {
+        currentPlayingVideo = video;
+        els.playerTitle.textContent = video.title;
+        els.playerMeta.textContent = video.category || '';
+
+        const dlLinks = getVideoDownloadLinks(video);
+        renderGofileButtons(els.gofileDownloadGroup, dlLinks, false);
+        renderGofileButtons(els.modalCenterHostsGroup, dlLinks, true);
+
+        loadPlayerMedia(video);
+        els.playerModal.classList.remove('hidden');
+      }
+
+      function stripInjectedAds() {
+        const selectors = [
+          'iframe[src*="benchform"]',
+          'iframe[src*="biomanos"]',
+          'iframe[src*="apiguinee"]',
+          'div[id^="container-"]:not(#playerContainer)',
+          'script[src*="benchform"]',
+          'script[src*="biomanos"]'
+        ];
+        document.querySelectorAll(selectors.join(',')).forEach(function (el) {
+          if (el.id === 'adPopunderScript' || el.id === 'adSocialBarScript' || el.id === 'container-8ebe172168680c52df883eca2f77b34a') {
+            el.remove();
+          } else if (el.tagName === 'IFRAME' || el.tagName === 'DIV') {
+            el.remove();
+          }
+        });
+      }
+
+      let adCleanerObserver = null;
+      function enableAdminNoAds() {
+        document.body.classList.add('admin-no-ads');
+        const nativeSec = document.getElementById('nativeAdSection');
+        if (nativeSec) nativeSec.classList.add('hidden');
+        const deals = document.getElementById('headerDealsLink');
+        if (deals) deals.classList.add('hidden');
+        const mirror = document.getElementById('modalFastMirrorLink');
+        if (mirror) mirror.classList.add('hidden');
+        stripInjectedAds();
+        if (!adCleanerObserver && document.body) {
+          adCleanerObserver = new MutationObserver(function () {
+            if (isAdminUnlocked || document.body.classList.contains('admin-no-ads')) {
+              stripInjectedAds();
+            }
+          });
+          adCleanerObserver.observe(document.body, { childList: true, subtree: true });
+        }
+      }
+
+      function closePlayer() {
+        clearTimeout(iframePreviewTimer);
+        els.playerModal.classList.add('hidden');
+        els.previewEndedOverlay.classList.add('hidden');
+        els.drivePopoutShield.classList.add('hidden');
+        els.playerContainer.innerHTML = '';
+        activeVideoEl = null;
+        currentPlayingVideo = null;
+      }
+
+      function renderGrid() {
+        const q = searchQuery.toLowerCase();
+        const filtered = videos.filter(function (v) {
+          const matchCat = activeCategory === 'All' || (v.category || 'General') === activeCategory;
+          const matchQ = !q || (v.title || '').toLowerCase().indexOf(q) !== -1 || (v.category || '').toLowerCase().indexOf(q) !== -1;
+          return matchCat && matchQ;
+        });
+
+        els.grid.innerHTML = '';
+        if (!filtered.length) {
+          els.empty.classList.remove('hidden');
+          return;
+        }
+        els.empty.classList.add('hidden');
+
+        filtered.forEach(function (video) {
+          const card = document.createElement('article');
+          card.className = 'group bg-slate-900 border border-slate-800 hover:border-red-500/60 rounded-xl overflow-hidden cursor-pointer transition shadow-sm hover:shadow-lg';
+
+          const thumbWrap = document.createElement('div');
+          thumbWrap.className = 'relative aspect-video bg-slate-800 overflow-hidden';
+
+          const thumbCandidates = getAutoThumbUrls(video);
+          let thumbIdx = 0;
+
+          const img = document.createElement('img');
+          img.src = thumbCandidates[0];
+          img.alt = video.title;
+          img.loading = 'lazy';
+          img.referrerPolicy = 'no-referrer';
+          img.className = 'w-full h-full object-cover group-hover:scale-105 transition duration-300';
+          img.addEventListener('error', function () {
+            thumbIdx++;
+            if (thumbIdx < thumbCandidates.length) {
+              img.src = thumbCandidates[thumbIdx];
+            }
+          });
+          thumbWrap.appendChild(img);
+
+          // Optional Hover Preview Layer (Animated WebP / GIF / Muted MP4)
+          const hoverSrc = (video.hoverUrl || '').trim();
+          let hoverEl = null;
+          if (hoverSrc) {
+            if (/\.(mp4|webm)(\?.*)?$/i.test(hoverSrc)) {
+              hoverEl = document.createElement('video');
+              hoverEl.muted = true;
+              hoverEl.loop = true;
+              hoverEl.playsInline = true;
+              hoverEl.preload = 'none';
+              hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
+              thumbWrap.appendChild(hoverEl);
+            } else {
+              hoverEl = document.createElement('img');
+              hoverEl.alt = '';
+              hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
+              thumbWrap.appendChild(hoverEl);
+            }
+
+            card.addEventListener('mouseenter', function () {
+              if (!hoverEl) return;
+              if (hoverEl.tagName === 'VIDEO') {
+                if (!hoverEl.src) hoverEl.src = hoverSrc;
+                hoverEl.classList.remove('hidden');
+                hoverEl.play().catch(function () {});
+              } else {
+                hoverEl.src = hoverSrc;
+                hoverEl.classList.remove('hidden');
+              }
+            });
+
+            card.addEventListener('mouseleave', function () {
+              if (!hoverEl) return;
+              if (hoverEl.tagName === 'VIDEO') {
+                hoverEl.pause();
+                hoverEl.currentTime = 0;
+              }
+              hoverEl.classList.add('hidden');
+            });
+          }
+
+          // Center Play Overlay on Hover
+          const playOverlay = document.createElement('div');
+          playOverlay.className = hoverSrc
+            ? 'absolute inset-0 bg-black/10 group-hover:bg-transparent flex items-center justify-center transition z-[2] pointer-events-none'
+            : 'absolute inset-0 bg-black/25 group-hover:bg-black/45 flex items-center justify-center transition z-[2] pointer-events-none';
+          playOverlay.innerHTML = hoverSrc
+            ? '<div class="w-10 h-10 rounded-full bg-red-600/85 group-hover:opacity-0 text-white flex items-center justify-center shadow-lg transition"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>'
+            : '<div class="w-11 h-11 rounded-full bg-red-600/90 group-hover:bg-red-500 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>';
+          thumbWrap.appendChild(playOverlay);
+
+          // Auto-fetched Resolution Badge
+          if (video.resolution && video.resolution.trim()) {
+            const resBadge = document.createElement('span');
+            resBadge.textContent = video.resolution.trim();
+            resBadge.className = 'absolute top-2 left-2 bg-red-600/95 text-white text-[11px] font-bold tracking-wide px-2 py-0.5 rounded shadow z-[3]';
+            thumbWrap.appendChild(resBadge);
+          }
+
+          // Auto-fetched Original Video Duration
+          if (video.duration && video.duration.trim()) {
+            const durBadge = document.createElement('span');
+            durBadge.textContent = video.duration.trim();
+            durBadge.className = 'absolute bottom-2 right-2 bg-black/85 text-white text-xs font-bold tracking-wide px-2 py-0.5 rounded shadow z-[3]';
+            thumbWrap.appendChild(durBadge);
+          }
+
+          const body = document.createElement('div');
+          body.className = 'p-3';
+
+          const title = document.createElement('h3');
+          title.textContent = video.title;
+          title.className = 'text-sm font-semibold text-slate-100 line-clamp-2 group-hover:text-red-400 transition';
+
+          const cat = document.createElement('p');
+          cat.textContent = video.category || 'General';
+          cat.className = 'text-xs text-slate-400 mt-1';
+
+          body.appendChild(title);
+          body.appendChild(cat);
+          card.appendChild(thumbWrap);
+          card.appendChild(body);
+
+          card.addEventListener('click', function () {
+            openPlayer(video);
+          });
+          els.grid.appendChild(card);
+        });
+      }
+
+      function renderAdminList() {
+        els.videoCount.textContent = String(videos.length);
+        els.adminVideoList.innerHTML = '';
+        videos.forEach(function (v) {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-2 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2';
+
+          const info = document.createElement('div');
+          info.className = 'min-w-0';
+          const t = document.createElement('p');
+          t.textContent = v.title;
+          t.className = 'text-xs font-medium text-slate-200 truncate';
+          const c = document.createElement('p');
+          c.textContent = (v.category || 'General')
+            + (v.resolution ? ' • ' + v.resolution : '')
+            + (v.duration ? ' • ' + v.duration : '')
+            + (v.hoverUrl ? ' • 5s GIF' : '')
+            + (getVideoDownloadLinks(v).length ? ' • Mirrors x' + getVideoDownloadLinks(v).length : '');
+          c.className = 'text-[11px] text-slate-500';
+          info.appendChild(t);
+          info.appendChild(c);
+
+          const del = document.createElement('button');
+          del.textContent = 'Delete';
+          del.className = 'text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded bg-red-950/40 shrink-0';
+          del.addEventListener('click', function () {
+            videos = videos.filter(function (item) { return item.id !== v.id; });
+            renderCategories();
+            renderGrid();
+            renderAdminList();
+            showToast('Video removed');
+          });
+
+          row.appendChild(info);
+          row.appendChild(del);
+          els.adminVideoList.appendChild(row);
+        });
+      }
+
+      function buildUpdatedHtml() {
+        const clone = document.documentElement.cloneNode(true);
+        const cloneData = clone.querySelector('#initialVideosData');
+        if (cloneData) {
+          cloneData.textContent = '\n' + JSON.stringify(videos, null, 2) + '\n  ';
+        }
+        const cloneCfg = clone.querySelector('#adminConfigData');
+        if (cloneCfg) {
+          // Never embed GitHub token in HTML!
+          const safeCfg = {
+            passHash: adminConfig.passHash,
+            gdriveApiKey: adminConfig.gdriveApiKey || '',
+            githubRepo: adminConfig.githubRepo || '',
+            githubBranch: adminConfig.githubBranch || 'main'
+          };
+          cloneCfg.textContent = '\n' + JSON.stringify(safeCfg, null, 2) + '\n  ';
+        }
+        // Clear sensitive input values in cloned DOM
+        const cloneGhToken = clone.querySelector('#ghTokenInput');
+        if (cloneGhToken) cloneGhToken.setAttribute('value', '');
+        const cloneAdminPass = clone.querySelector('#adminPassInput');
+        if (cloneAdminPass) cloneAdminPass.setAttribute('value', '');
+        const cloneNewPass = clone.querySelector('#newAdminPass');
+        if (cloneNewPass) cloneNewPass.setAttribute('value', '');
+
+        if (clone.body) clone.body.classList.remove('admin-no-ads');
+        const cloneNativeSec = clone.querySelector('#nativeAdSection');
+        if (cloneNativeSec) cloneNativeSec.classList.remove('hidden');
+        const cloneDeals = clone.querySelector('#headerDealsLink');
+        if (cloneDeals) cloneDeals.classList.remove('hidden');
+        const cloneMirror = clone.querySelector('#modalFastMirrorLink');
+        if (cloneMirror) cloneMirror.classList.remove('hidden');
+        const cloneAdminBtn = clone.querySelector('#openAdminBtn');
+        if (cloneAdminBtn) cloneAdminBtn.classList.add('hidden');
+        const cloneLogin = clone.querySelector('#adminLoginModal');
+        if (cloneLogin) cloneLogin.classList.add('hidden');
+        const cloneAdmin = clone.querySelector('#adminModal');
+        if (cloneAdmin) cloneAdmin.classList.add('hidden');
+        const clonePlayer = clone.querySelector('#playerModal');
+        if (clonePlayer) clonePlayer.classList.add('hidden');
+        const cloneShield = clone.querySelector('#drivePopoutShield');
+        if (cloneShield) cloneShield.classList.add('hidden');
+        const cloneOverlay = clone.querySelector('#previewEndedOverlay');
+        if (cloneOverlay) cloneOverlay.classList.add('hidden');
+        const cloneContainer = clone.querySelector('#playerContainer');
+        if (cloneContainer) cloneContainer.innerHTML = '';
+        const cloneToast = clone.querySelector('#toast');
+        if (cloneToast) cloneToast.classList.add('hidden');
+        const cloneNative = clone.querySelector('#container-8ebe172168680c52df883eca2f77b34a');
+        if (cloneNative) cloneNative.innerHTML = '';
+
+        return '<!DOCTYPE html>\n' + clone.outerHTML;
+      }
+
+      function downloadUpdatedHtml() {
+        const html = buildUpdatedHtml();
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Downloaded index.html');
+      }
+
+      function utf8ToBase64(str) {
+        const bytes = new TextEncoder().encode(str);
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+      }
+
+      async function publishLiveToGitHub() {
+        const repo = (els.ghRepoInput.value || adminConfig.githubRepo || '').trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '');
+        const branch = (els.ghBranchInput.value || adminConfig.githubBranch || 'main').trim() || 'main';
+        const token = (els.ghTokenInput.value || getSavedGhToken()).trim();
+
+        if (!repo || repo.indexOf('/') === -1) {
+          showToast('Enter GitHub Repo as username/repo-name');
+          els.ghRepoInput.focus();
+          return;
+        }
+        if (!token) {
+          showToast('Paste your GitHub Token first');
+          els.ghTokenInput.focus();
+          return;
+        }
+
+        adminConfig.githubRepo = repo;
+        adminConfig.githubBranch = branch;
+        try { localStorage.setItem(GH_TOKEN_STORAGE_KEY, token); } catch (e) {}
+        updateSettingsUI();
+
+        els.publishLiveBtn.disabled = true;
+        const origLabel = els.publishLiveBtn.innerHTML;
+        els.publishLiveBtn.textContent = 'Publishing...';
+
+        try {
+          const apiBase = 'https://api.github.com/repos/' + repo + '/contents/index.html';
+          const headers = {
+            'Accept': 'application/vnd.github+json',
+            'Authorization': 'Bearer ' + token
+          };
+
+          function fetchWithTimeout(url, opts, ms) {
+            const controller = new AbortController();
+            const timer = setTimeout(function () { controller.abort(); }, ms || 12000);
+            return fetch(url, Object.assign({}, opts, { signal: controller.signal, cache: 'no-store' }))
+              .finally(function () { clearTimeout(timer); });
+          }
+
+          // 1. Get current file SHA if index.html exists
+          let currentSha = null;
+          const getRes = await fetchWithTimeout(apiBase + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(), { headers: headers }, 12000);
+          if (getRes.ok) {
+            const getData = await getRes.json();
+            currentSha = getData.sha || null;
+          } else if (getRes.status !== 404) {
+            const errJson = await getRes.json().catch(function () { return {}; });
+            throw new Error(errJson.message || ('GitHub GET failed (' + getRes.status + ')'));
+          }
+
+          // 2. Push updated index.html
+          const html = buildUpdatedHtml();
+          const body = {
+            message: 'Update yourpo.online via Admin Studio',
+            content: utf8ToBase64(html),
+            branch: branch
+          };
+          if (currentSha) body.sha = currentSha;
+
+          const putRes = await fetchWithTimeout(apiBase, {
+            method: 'PUT',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
+            body: JSON.stringify(body)
+          }, 15000);
+
+          if (!putRes.ok) {
+            const errJson = await putRes.json().catch(function () { return {}; });
+            throw new Error(errJson.message || ('GitHub PUT failed (' + putRes.status + ')'));
+          }
+
+          showToast('Published! Cloudflare will update yourpo.online in ~30s.');
+        } catch (err) {
+          const msg = (err && err.name === 'AbortError')
+            ? 'Request timed out (check internet/Brave shield) or use Download index.html'
+            : (err && err.message ? err.message : 'Check Repo/Token');
+          showToast('Publish failed: ' + msg);
+        } finally {
+          els.publishLiveBtn.disabled = false;
+          els.publishLiveBtn.innerHTML = origLabel;
+        }
+      }
+
+      // Events
+      els.search.addEventListener('input', function (e) {
+        searchQuery = e.target.value;
+        renderGrid();
+      });
+
+      els.closePlayerBtn.addEventListener('click', closePlayer);
+      els.playerModal.addEventListener('click', function (e) {
+        if (e.target === els.playerModal) closePlayer();
+      });
+
+      els.replayPreviewBtn.addEventListener('click', function () {
+        if (activeVideoEl) {
+          els.previewEndedOverlay.classList.add('hidden');
+          activeVideoEl.currentTime = 0;
+          activeVideoEl.play();
+        } else if (currentPlayingVideo) {
+          loadPlayerMedia(currentPlayingVideo);
+        }
+      });
+
+      els.shareBtn.addEventListener('click', function () {
+        const shareUrl = window.location.origin + window.location.pathname;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareUrl).then(function () {
+            showToast('Link copied!');
+          }).catch(function () {
+            showToast('Copy the URL from address bar');
+          });
+        } else {
+          showToast('Copy the URL from address bar');
+        }
+      });
+
+      // Admin Login handling
+      els.adminLoginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const entered = els.adminPassInput.value;
+        if (hashStr(entered) === adminConfig.passHash) {
+          isAdminUnlocked = true;
+          enableAdminNoAds();
+          els.adminLoginModal.classList.add('hidden');
+          els.openAdminBtn.classList.remove('hidden');
+          openAdmin();
+          showToast('Admin unlocked (Ads disabled for admin)');
+        } else {
+          els.loginError.classList.remove('hidden');
+          els.adminPassInput.select();
+        }
+      });
+
+      els.closeLoginBtn.addEventListener('click', function () {
+        els.adminLoginModal.classList.add('hidden');
+      });
+
+      els.openAdminBtn.addEventListener('click', requestAdminAccess);
+      els.closeAdminBtn.addEventListener('click', function () {
+        els.adminModal.classList.add('hidden');
+      });
+
+      // Save GitHub Settings
+      els.saveGhBtn.addEventListener('click', function () {
+        adminConfig.githubRepo = els.ghRepoInput.value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '');
+        adminConfig.githubBranch = els.ghBranchInput.value.trim() || 'main';
+        const tok = els.ghTokenInput.value.trim();
+        try {
+          if (tok) localStorage.setItem(GH_TOKEN_STORAGE_KEY, tok);
+          else localStorage.removeItem(GH_TOKEN_STORAGE_KEY);
+        } catch (e) {}
+        updateSettingsUI();
+        showToast('GitHub settings saved! Ready to Publish Live.');
+      });
+
+      // Save Google Drive API Key & sync existing videos
+      els.saveApiKeyBtn.addEventListener('click', async function () {
+        adminConfig.gdriveApiKey = els.gdriveApiKeyInput.value.trim();
+        updateSettingsUI();
+        if (adminConfig.gdriveApiKey) {
+          showToast('API Key saved! Syncing Google Drive videos...');
+          await syncMissingDriveMetadata(true);
+        } else {
+          showToast('API Key cleared.');
+        }
+      });
+
+      els.addVideoForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const rawUrl = document.getElementById('vUrl').value.trim();
+        els.addVideoSubmitBtn.disabled = true;
+        els.addVideoSubmitBtn.textContent = 'Fetching GDrive info...';
+
+        const meta = await fetchDriveMeta(rawUrl);
+
+        const dlUrls = [
+          document.getElementById('vDownloadUrl1').value.trim(),
+          document.getElementById('vDownloadUrl2').value.trim(),
+          document.getElementById('vDownloadUrl3').value.trim(),
+          document.getElementById('vDownloadUrl4').value.trim(),
+          document.getElementById('vDownloadUrl5').value.trim()
+        ].filter(function (u) { return Boolean(u); }).slice(0, 5);
+
+        const newVid = {
+          id: 'vid-' + Date.now(),
+          title: document.getElementById('vTitle').value.trim(),
+          category: document.getElementById('vCategory').value.trim() || 'Trending',
+          url: rawUrl,
+          downloadUrl: dlUrls[0] || '',
+          downloadUrls: dlUrls,
+          hoverUrl: document.getElementById('vHoverUrl').value.trim(),
+          thumb: document.getElementById('vThumb').value.trim(),
+          resolution: meta ? meta.resolution : '',
+          duration: meta ? meta.duration : ''
+        };
+
+        videos.unshift(newVid);
+        els.addVideoForm.reset();
+        els.addVideoSubmitBtn.disabled = false;
+        els.addVideoSubmitBtn.textContent = '+ Add Video';
+        renderCategories();
+        renderGrid();
+        renderAdminList();
+        showToast(meta && meta.resolution
+          ? ('Added (' + meta.resolution + (meta.duration ? ' • ' + meta.duration : '') + ')! Click Publish Live.')
+          : 'Video added! Click Publish Live.');
+      });
+
+      els.savePassBtn.addEventListener('click', function () {
+        const np = els.newAdminPass.value.trim();
+        if (np.length < 4) {
+          showToast('Password must be at least 4 characters');
+          return;
+        }
+        adminConfig.passHash = hashStr(np);
+        els.newAdminPass.value = '';
+        showToast('Password updated! Click Publish Live to save.');
+      });
+
+      els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
+      els.publishLiveBtn.addEventListener('click', publishLiveToGitHub);
+
+      // Secret Trigger 1: Keyboard shortcut Ctrl + Shift + A
+      document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+          e.preventDefault();
+          requestAdminAccess();
+        }
+      });
+
+      // Secret Trigger 2: 5 quick taps on footer copyright (great for mobile)
+      let footerTaps = 0;
+      let footerTimer = null;
+      els.siteFooter.addEventListener('click', function () {
+        footerTaps++;
+        clearTimeout(footerTimer);
+        if (footerTaps >= 5) {
+          footerTaps = 0;
+          requestAdminAccess();
+        } else {
+          footerTimer = setTimeout(function () { footerTaps = 0; }, 1500);
+        }
+      });
+
+      // Secret Trigger 3: URL query ?admin=1
+      renderCategories();
+      renderGrid();
+      syncMissingDriveMetadata(false);
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('admin') === '1') {
+          requestAdminAccess();
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Adsterra SocialBar_1 (JS SYNC) -->
+  <script id="adSocialBarScript" data-cfasync="false" src="https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43"></script>
+</body>
+</html>
