@@ -11,9 +11,7 @@
       theme: {
         extend: {
           colors: {
-            brand: '#ef4444',
-            surface: '#0f172a',
-            card: '#1e293b'
+            brand: { 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c' }
           }
         }
       }
@@ -22,7 +20,7 @@
   <style>
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #475569; }
     .line-clamp-2 {
       display: -webkit-box;
@@ -30,1601 +28,652 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    body.admin-no-ads #nativeAdSection,
-    body.admin-no-ads #headerDealsLink,
-    body.admin-no-ads #modalFastMirrorLink,
-    body.admin-no-ads #container-8ebe172168680c52df883eca2f77b34a,
-    body.admin-no-ads iframe[src*="benchform"],
-    body.admin-no-ads iframe[src*="biomanos"],
-    body.admin-no-ads iframe[src*="apiguinee"],
-    body.admin-no-ads iframe[src*="adsterra"],
-    body.admin-no-ads div[id^="container-"]:not(#fullPageMediaContainer) {
-      display: none !important;
-    }
   </style>
-  <script id="adPopunderScript" data-cfasync="false" src="https://benchform.org/1/4c4ca49e2e5f4745faebc1d79b918b7b"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-      <a id="brandHomeLink" href="#" class="flex items-center gap-2 text-xl font-bold tracking-tight">
-        <span class="bg-red-600 text-white px-2 py-0.5 rounded-md text-sm font-extrabold">PLAY</span>
-        <span>yourpo<span class="text-red-500">.online</span></span>
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <!-- Brand Logo -->
+      <a href="index.html" class="flex items-center gap-2 shrink-0">
+        <span class="inline-flex items-center justify-center bg-brand-600 text-white font-extrabold text-xs px-2 py-1 rounded tracking-wider">PLAY</span>
+        <span class="text-xl font-bold tracking-tight text-white">yourpo<span class="text-brand-500">.online</span></span>
       </a>
-      <div class="flex-1 max-w-md min-w-[200px]">
-        <input id="searchInput" type="text" placeholder="Search videos..." class="w-full bg-slate-900 border border-slate-700 rounded-full px-4 py-1.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-500" />
+
+      <!-- Search Input -->
+      <div class="flex-1 max-w-xl">
+        <div class="relative">
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Search videos..."
+            class="w-full bg-slate-800/90 text-slate-100 placeholder-slate-400 text-sm rounded-full pl-4 pr-10 py-2 border border-slate-700 focus:outline-none focus:border-brand-500 transition"
+          />
+          <span class="absolute right-3.5 top-2.5 text-slate-400 text-sm pointer-events-none">🔍</span>
+        </div>
       </div>
-      <div class="flex items-center gap-2">
-        <a id="headerDealsLink" href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition">Trending Deals &rarr;</a>
-        <button id="openAdminBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition">Admin Studio</button>
-      </div>
+
+      <!-- Hidden Admin Studio Button (Toggle via Ctrl+Shift+A, 5x Footer Tap, or ?admin=1) -->
+      <button
+        id="openAdminBtn"
+        type="button"
+        class="hidden bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition shrink-0"
+      >
+        Admin Studio
+      </button>
+    </div>
+
+    <!-- Category Bar -->
+    <div class="border-t border-slate-800/80 bg-slate-900/70">
+      <div id="categoryBar" class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center gap-2 overflow-x-auto"></div>
     </div>
   </header>
 
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
-    <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto pb-3 mb-4"></div>
-    <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
-    <div id="emptyState" class="hidden text-center py-16">
-      <p class="text-slate-400 text-base">No videos found.</p>
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+    <div class="flex items-center justify-between mb-4">
+      <h1 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Trending Videos</h1>
+      <span id="resultCount" class="text-xs sm:text-sm text-slate-400"></span>
     </div>
-    <div id="paginationBar" class="hidden mt-8 flex flex-wrap items-center justify-center gap-2"></div>
 
-    <section id="fullPagePlayer" class="hidden max-w-5xl w-full mx-auto py-2">
-      <div class="flex items-center justify-end mb-4">
-        <button id="fullPageShareBtn" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">
-          Copy Link
-        </button>
-      </div>
+    <!-- Video Grid -->
+    <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
 
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-        <div class="px-5 py-4 border-b border-slate-800 space-y-2.5">
-          <h1 id="fullPageTitle" class="text-lg sm:text-2xl font-bold text-white">Video Title</h1>
-          <p id="fullPageMeta" class="text-xs sm:text-sm text-slate-400"></p>
-          <div id="fullPageTagsGroup" class="flex flex-wrap items-center gap-2 pt-1"></div>
-        </div>
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-20">
+      <p class="text-slate-400 text-base mb-2">No matching videos found.</p>
+      <button id="resetFiltersBtn" type="button" class="text-sm text-brand-400 hover:underline">Reset search &amp; filters</button>
+    </div>
 
-        <div class="relative aspect-video bg-black w-full overflow-hidden">
-          <div id="fullPageMediaContainer" class="w-full h-full flex items-center justify-center"></div>
-        </div>
-
-        <div class="p-5 bg-slate-900 border-t border-slate-800 space-y-3">
-          <p class="text-xs uppercase tracking-wider font-semibold text-emerald-400">Watch / Download Full Video</p>
-          <div id="fullPageHostsGroup" class="flex flex-wrap items-center gap-2.5"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="tagResultsSection" class="hidden w-full py-2">
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div>
-          <span class="text-xs uppercase tracking-wider text-red-400 font-semibold">Related Videos by Tag</span>
-          <h1 id="activeTagHeading" class="text-xl sm:text-2xl font-bold text-white">Tag: #Trending</h1>
-        </div>
-        <span id="tagMatchCount" class="text-xs sm:text-sm text-slate-400">0 videos</span>
-      </div>
-
-      <div id="tagQuickBar" class="flex items-center gap-2 overflow-x-auto pb-3 mb-4"></div>
-      <div id="tagVideosGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
-      <div id="tagEmptyState" class="hidden text-center py-16">
-        <p class="text-slate-400 text-base">No videos found for this tag.</p>
-      </div>
-      <div id="tagPaginationBar" class="hidden mt-8 flex flex-wrap items-center justify-center gap-2"></div>
-    </section>
-
-    <section id="nativeAdSection" class="mt-10 pt-6 border-t border-slate-800">
-      <div class="flex items-center justify-between mb-3">
-        <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Sponsored</span>
-        <a href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer" class="text-xs text-amber-400 hover:underline">Explore More &rarr;</a>
-      </div>
-      <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3 min-h-[100px]">
-        <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
-        <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
-      </div>
-    </section>
+    <!-- Pagination -->
+    <div id="paginationBar" class="mt-8 flex items-center justify-center gap-2 flex-wrap"></div>
   </main>
 
-  <footer id="siteFooter" class="border-t border-slate-800 py-5 text-center text-xs text-slate-500 select-none">
-    &copy; 2026 yourpo.online &mdash; All rights reserved.
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-900/60 py-5 text-center text-xs text-slate-400">
+    <p id="secretFooterTap" class="cursor-default select-none inline-block px-2 py-1">© 2026 yourpo.online — All rights reserved.</p>
   </footer>
 
-  <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800">
-        <div>
-          <h2 class="font-bold text-lg">Admin Studio</h2>
-          <p class="text-xs text-slate-400">Fast videos.json Publish + Pagination + Bulk CSV Import</p>
+  <!-- Video Player Modal -->
+  <div id="playerModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-slate-800">
+        <div class="min-w-0 pr-4">
+          <h2 id="playerTitle" class="text-base sm:text-lg font-bold text-white truncate"></h2>
+          <p id="playerMeta" class="text-xs text-slate-400 mt-0.5"></p>
         </div>
-        <button id="closeAdminBtn" type="button" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+        <button id="closePlayerBtn" type="button" class="text-slate-400 hover:text-white text-xl leading-none px-2 py-1">✕</button>
+      </div>
+
+      <div class="p-4 sm:p-6 space-y-4">
+        <!-- Mirror Server Switcher -->
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div id="mirrorButtons" class="flex flex-wrap gap-2"></div>
+          <a id="externalWatchLink" href="#" target="_blank" rel="noopener noreferrer"
+             class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+            Open in New Tab ↗
+          </a>
+        </div>
+
+        <!-- Embed / Preview Container -->
+        <div id="embedContainer" class="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Studio Modal -->
+  <div id="adminModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full my-auto max-h-[90vh] flex flex-col shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+        <div>
+          <h2 class="text-lg font-bold text-white">Admin Studio</h2>
+          <p class="text-xs text-slate-400">Bulk CSV / JSON Import + Manage Videos + Publish Live</p>
+        </div>
+        <button id="closeAdminBtn" type="button" class="text-slate-400 hover:text-white text-xl px-2 py-1">✕</button>
       </div>
 
       <div class="p-5 overflow-y-auto space-y-6">
-        <div class="bg-slate-950/60 p-4 rounded-xl border border-emerald-700/50 space-y-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <h3 class="text-sm font-semibold text-emerald-300">GitHub 1-Click Publish (videos.json Only — Super Fast)</h3>
-            <span id="ghStatus" class="text-[11px] text-slate-400">Not connected</span>
+        <!-- Bulk CSV / JSON Import -->
+        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <h3 class="text-sm font-semibold text-white">Bulk CSV / JSON Import (Colab Output)</h3>
+            <span id="importStatus" class="text-xs text-emerald-400 font-medium"></span>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <input id="ghRepoInput" type="text" placeholder="gurug555/youronline" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
-            <input id="ghBranchInput" type="text" placeholder="main" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input id="csvFileInput" type="file" accept=".csv,.json"
+                   class="text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-500 bg-slate-900 border border-slate-700 rounded-lg p-1.5" />
+            <input id="defaultTagsInput" type="text" value="Trending, HD" placeholder="Default Tags (e.g., Trending, HD)"
+                   class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500" />
+            <button id="importFileBtn" type="button"
+                    class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg px-4 py-2 transition">
+              Import File
+            </button>
           </div>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="ghTokenInput" type="password" placeholder="GitHub Personal Access Token (ghp_... or github_pat_...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
-            <button id="saveGhBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save GitHub</button>
-          </div>
-          <p class="text-[11px] text-slate-400">Token stays strictly in your browser. Publish Live updates <strong>videos.json</strong> directly (~1 sec).</p>
+          <p class="text-[11px] text-slate-400">
+            Supports columns: <code class="text-slate-300">title</code>, <code class="text-slate-300">category</code>, <code class="text-slate-300">gofile</code>, <code class="text-slate-300">doodstream</code>, <code class="text-slate-300">streamtape</code>, <code class="text-slate-300">lulustream</code>, <code class="text-slate-300">voe</code>, <code class="text-slate-300">thumb</code>, <code class="text-slate-300">resolution</code>, <code class="text-slate-300">duration</code>. Skips duplicate titles automatically.
+          </p>
         </div>
 
-        <div class="bg-slate-950/60 p-4 rounded-xl border border-violet-700/50 space-y-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <h3 class="text-sm font-semibold text-violet-300">Bulk CSV / JSON Import (Colab Output)</h3>
-            <span id="bulkImportStatus" class="text-[11px] text-slate-400">Ready</span>
-          </div>
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <input id="bulkFileInput" type="file" accept=".csv,.json,text/csv,application/json" class="flex-1 text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-violet-700 file:text-white hover:file:bg-violet-600 bg-slate-900 border border-slate-700 rounded-lg p-1.5" />
-            <input id="bulkDefaultCategory" type="text" placeholder="Default Tags (e.g., Trending, HD)" class="sm:w-48 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs" />
-            <button id="bulkImportBtn" type="button" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Import File</button>
-          </div>
-          <p class="text-[11px] text-slate-400">Auto-detects Title/Filename, Gofile, Doodstream, Streamtape, LuluStream, VOE, Thumb, Category/Tags &amp; skips duplicates.</p>
-        </div>
-
-        <div class="bg-slate-950/60 p-4 rounded-xl border border-sky-700/50 space-y-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <h3 class="text-sm font-semibold text-sky-300">Google Drive API Key (Auto Resolution &amp; Timestamp)</h3>
-            <span id="apiKeyStatus" class="text-[11px] text-slate-400">Not set</span>
-          </div>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="gdriveApiKeyInput" type="text" placeholder="Paste Google Drive API Key (AIzaSy...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
-            <button id="saveApiKeyBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save Key &amp; Sync</button>
-          </div>
-        </div>
-
-        <form id="addVideoForm" class="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-          <h3 class="text-sm font-semibold text-slate-200">Add Single Video</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input id="vTitle" required placeholder="Video Title" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-            <input id="vCategory" placeholder="Tags / Category (e.g., Trending, HD, Collage)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-          </div>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="vUrl" placeholder="Google Drive Video URL (for Auto 3x3 Thumb + Resolution/Duration)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-            <button id="autoThumbBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg transition shrink-0">&#9889; Auto 3x3 Thumb</button>
-          </div>
-          <p id="autoThumbStatus" class="hidden text-xs text-amber-300"></p>
-          <div class="space-y-2 bg-slate-900/50 p-3 rounded-lg border border-emerald-800/50">
-            <p class="text-xs font-semibold text-emerald-300">5 Hosting / Mirror Links (Gofile, Doodstream, Streamtape, LuluStream, VOE)</p>
-            <input id="vDownloadUrl1" placeholder="Link 1 — Gofile / Mirror (e.g., https://gofile.io/d/...)" class="w-full bg-slate-900 border border-emerald-700/70 rounded-lg px-3 py-2 text-sm" />
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <input id="vDownloadUrl2" placeholder="Link 2 — Doodstream URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
-              <input id="vDownloadUrl3" placeholder="Link 3 — Streamtape URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
-              <input id="vDownloadUrl4" placeholder="Link 4 — LuluStream URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
-              <input id="vDownloadUrl5" placeholder="Link 5 — VOE URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
+        <!-- Manage Videos -->
+        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <h3 id="manageCountLabel" class="text-sm font-semibold text-white">Manage Videos (0)</h3>
+            <div class="flex items-center gap-2">
+              <input id="adminSearchInput" type="search" placeholder="Filter admin list..."
+                     class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-slate-500" />
+              <button id="clearAllBtn" type="button"
+                      class="bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-xs px-3 py-1.5 rounded-lg transition">
+                Clear All
+              </button>
             </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input id="vThumb" placeholder="3x3 Collage / Thumbnail URL (e.g., thumbs/vid1.jpg)" class="bg-slate-900 border border-sky-500 rounded-lg px-3 py-2 text-sm" />
-            <input id="vHoverUrl" placeholder="5s Preview URL (optional — .mp4 / .webm / .gif)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-          </div>
-          <button id="addVideoSubmitBtn" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">+ Add Video</button>
-        </form>
-
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <h3 class="text-sm font-semibold text-slate-200">Manage Videos (<span id="videoCount">0</span>)</h3>
-            <input id="adminSearchInput" type="text" placeholder="Filter admin list..." class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 w-44" />
-          </div>
-          <div id="adminVideoList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+          <div id="adminVideoList" class="max-h-64 overflow-y-auto divide-y divide-slate-800/80 border border-slate-800 rounded-lg bg-slate-900/50"></div>
         </div>
       </div>
 
-      <div class="px-5 py-3.5 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-2">
-        <span class="text-xs text-emerald-400">videos.json Mode</span>
-        <div class="flex flex-wrap items-center gap-2">
-          <button id="downloadJsonBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">Download videos.json</button>
-          <button id="publishLiveBtn" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg transition shadow">&#128640; Publish Live</button>
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-t border-slate-800 bg-slate-900 rounded-b-2xl flex-wrap">
+        <span class="text-xs text-slate-400">videos.json Mode</span>
+        <div class="flex items-center gap-2.5">
+          <button id="downloadJsonBtn" type="button"
+                  class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-4 py-2 rounded-lg transition">
+            Download videos.json
+          </button>
+          <button id="publishLiveBtn" type="button"
+                  class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+            🚀 Publish Live
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg"></div>
-
-  <script id="adminConfigData" type="application/json">
-{
-  "gdriveApiKey": "",
-  "githubRepo": "gurug555/youronline",
-  "githubBranch": "main"
-}
-  </script>
-
-  <script id="initialVideosData" type="application/json">
-[
-  {
-    "id": "vid-1",
-    "title": "Sample Video — 3x3 Collage Thumbnail + 5 Hosts",
-    "category": "Trending, HD",
-    "url": "",
-    "downloadUrl": "https://gofile.io/",
-    "hoverUrl": "",
-    "thumb": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80",
-    "resolution": "1080p",
-    "duration": "09:56"
-  }
-]
-  </script>
+  <!-- Toast Notification -->
+  <div id="toastBox" class="fixed bottom-5 right-5 z-[60] hidden bg-slate-800 border border-slate-600 text-white text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-xl"></div>
 
   <script>
-    (function () {
-      const VIDEOS_PER_PAGE = 24;
-      const GH_TOKEN_STORAGE_KEY = 'yourpo_gh_token';
-      const GDRIVE_KEY_STORAGE_KEY = 'yourpo_gdrive_key';
-      const THUMB_WORKFLOW_FILE = 'make-thumb.yml';
-
-      // Dynamic mirror domains: if a host changes domain later, update here once for all 1,000+ videos
-      const HOST_DOMAINS = {
-        doodstream: 'https://d0000d.com/e/',
-        streamtape: 'https://streamtape.com/e/',
-        lulustream: 'https://lulustream.com/e/',
-        voe: 'https://voe.sx/e/'
-      };
-
-      let videos = [];
-      let activeCategory = 'All';
-      let searchQuery = '';
-      let adminSearchQuery = '';
-      let currentPage = 1;
-      let currentTagPage = 1;
-      let activeTagName = '';
-      let isAdminUnlocked = false;
-      let currentPlayingVideo = null;
-      let adminConfig = {
-        gdriveApiKey: '',
-        githubRepo: 'gurug555/youronline',
-        githubBranch: 'main'
-      };
-
-      const FALLBACK_THUMB = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450"><rect width="800" height="450" fill="#0f172a"/><circle cx="400" cy="225" r="54" fill="#ef4444" fill-opacity="0.9"/><polygon points="384,198 384,252 430,225" fill="#ffffff"/></svg>'
-      );
-
-      const dataEl = document.getElementById('initialVideosData');
-      const cfgEl = document.getElementById('adminConfigData');
-      try { videos = JSON.parse(dataEl.textContent.trim()) || []; } catch (e) { videos = []; }
-      try {
-        const parsedCfg = JSON.parse(cfgEl.textContent.trim());
-        if (parsedCfg) {
-          if (typeof parsedCfg.gdriveApiKey === 'string') adminConfig.gdriveApiKey = parsedCfg.gdriveApiKey;
-          if (typeof parsedCfg.githubRepo === 'string' && parsedCfg.githubRepo.trim()) adminConfig.githubRepo = parsedCfg.githubRepo.trim();
-          if (typeof parsedCfg.githubBranch === 'string' && parsedCfg.githubBranch.trim()) adminConfig.githubBranch = parsedCfg.githubBranch.trim();
-        }
-      } catch (e) {}
-      try {
-        const savedKey = localStorage.getItem(GDRIVE_KEY_STORAGE_KEY);
-        if (savedKey) adminConfig.gdriveApiKey = savedKey;
-      } catch (e) {}
-
-      function extractDriveId(rawUrl) {
-        const url = (rawUrl || '').trim();
-        const m1 = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
-        if (m1) return m1[1];
-        const m2 = url.match(/drive\.google\.com\/open\?id=([^&#]+)/);
-        if (m2) return m2[1];
-        const m3 = url.match(/drive\.google\.com\/uc\?.*id=([^&#]+)/);
-        if (m3) return m3[1];
-        return null;
-      }
-
-      function extractDoodstreamId(rawUrl) {
-        const url = (rawUrl || '').trim();
-        const m = url.match(/(?:doodstream\.[a-z]+|dood\.[a-z]+|ds2play\.com|ds2video\.com|d0000d\.com|d000d\.com|do7go\.com|dood\.watch|dood\.pm|dood\.so|dood\.sx|dood\.sh|dood\.re|dood\.yt|dood\.li|dood\.wf|dood\.la|dood\.ws|dood\.to|dood\.cx)\/(?:e|d|v|f)\/([A-Za-z0-9]+)/i);
-        return m ? m[1] : null;
-      }
-
-      function formatResolution(width, height) {
-        const h = Number(height) || 0;
-        const w = Number(width) || 0;
-        if (!h && !w) return '';
-        const dim = Math.min(w || h, h || w);
-        const maxDim = Math.max(w, h);
-        if (maxDim >= 3800 || dim >= 2160) return '4K';
-        if (dim >= 1400) return '1440p';
-        if (dim >= 1000) return '1080p';
-        if (dim >= 700) return '720p';
-        if (dim >= 460) return '480p';
-        if (dim >= 340) return '360p';
-        return dim + 'p';
-      }
-
-      function formatDurationMs(ms) {
-        const totalSec = Math.floor((Number(ms) || 0) / 1000);
-        if (totalSec <= 0) return '';
-        const hrs = Math.floor(totalSec / 3600);
-        const mins = Math.floor((totalSec % 3600) / 60);
-        const secs = totalSec % 60;
-        const pad = function (n) { return n < 10 ? '0' + n : String(n); };
-        return hrs > 0 ? (hrs + ':' + pad(mins) + ':' + pad(secs)) : (pad(mins) + ':' + pad(secs));
-      }
-
-      async function fetchDriveMeta(rawUrl) {
-        const apiKey = (adminConfig.gdriveApiKey || '').trim();
-        const fileId = extractDriveId(rawUrl);
-        if (!apiKey || !fileId) return null;
-        try {
-          const endpoint = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId) + '?fields=videoMediaMetadata&key=' + encodeURIComponent(apiKey);
-          const res = await fetch(endpoint);
-          if (!res.ok) return null;
-          const data = await res.json();
-          const meta = data && data.videoMediaMetadata;
-          if (!meta) return null;
-          return { resolution: formatResolution(meta.width, meta.height), duration: formatDurationMs(meta.durationMillis) };
-        } catch (e) { return null; }
-      }
-
-      async function syncMissingDriveMetadata(showStatusToast) {
-        const apiKey = (adminConfig.gdriveApiKey || '').trim();
-        if (!apiKey) return;
-        let updatedCount = 0;
-        const tasks = videos.map(async function (v) {
-          if (!extractDriveId(v.url)) return;
-          if (v.resolution && v.duration) return;
-          const meta = await fetchDriveMeta(v.url);
-          if (meta) {
-            if (meta.resolution && !v.resolution) { v.resolution = meta.resolution; updatedCount++; }
-            if (meta.duration && !v.duration) { v.duration = meta.duration; }
-          }
-        });
-        await Promise.all(tasks);
-        if (updatedCount > 0) {
-          renderGrid();
-          if (isAdminUnlocked) renderAdminList();
-          if (showStatusToast) showToast('Synced resolution for ' + updatedCount + ' video(s)');
-        }
-      }
-
-      function getAutoThumbUrls(video) {
-        const custom = (video.thumb || '').trim();
-        const driveId = extractDriveId(video.url);
-        const list = [];
-        if (custom) list.push(custom);
-        if (driveId) {
-          list.push('https://drive.google.com/thumbnail?id=' + driveId + '&sz=w800');
-          list.push('https://lh3.googleusercontent.com/d/' + driveId + '=w800');
-        }
-        list.push(FALLBACK_THUMB);
-        return list;
-      }
-
-      function getVideoTags(video) {
-        const rawList = [];
-        if (Array.isArray(video.tags)) {
-          video.tags.forEach(function (t) { rawList.push(String(t || '')); });
-        } else if (typeof video.tags === 'string') {
-          video.tags.split(/[,|#]+/).forEach(function (t) { rawList.push(t); });
-        }
-        if (typeof video.category === 'string') {
-          video.category.split(/[,|#]+/).forEach(function (t) { rawList.push(t); });
-        }
-        const seen = {};
-        const tags = [];
-        rawList.forEach(function (item) {
-          const clean = item.trim();
-          if (!clean) return;
-          const key = clean.toLowerCase();
-          if (!seen[key]) {
-            seen[key] = true;
-            tags.push(clean);
-          }
-        });
-        return tags.length ? tags : ['General'];
-      }
-
-      function getAllUniqueTags() {
-        const seen = {};
-        const list = [];
-        videos.forEach(function (v) {
-          getVideoTags(v).forEach(function (tag) {
-            const key = tag.toLowerCase();
-            if (!seen[key]) {
-              seen[key] = true;
-              list.push(tag);
-            }
-          });
-        });
-        return list;
-      }
-
-      const els = {
-        grid: document.getElementById('videoGrid'),
-        empty: document.getElementById('emptyState'),
-        paginationBar: document.getElementById('paginationBar'),
-        categoryBar: document.getElementById('categoryBar'),
-        search: document.getElementById('searchInput'),
-        brandHomeLink: document.getElementById('brandHomeLink'),
-        fullPagePlayer: document.getElementById('fullPagePlayer'),
-        fullPageShareBtn: document.getElementById('fullPageShareBtn'),
-        fullPageTitle: document.getElementById('fullPageTitle'),
-        fullPageMeta: document.getElementById('fullPageMeta'),
-        fullPageTagsGroup: document.getElementById('fullPageTagsGroup'),
-        fullPageMediaContainer: document.getElementById('fullPageMediaContainer'),
-        fullPageHostsGroup: document.getElementById('fullPageHostsGroup'),
-        tagResultsSection: document.getElementById('tagResultsSection'),
-        activeTagHeading: document.getElementById('activeTagHeading'),
-        tagMatchCount: document.getElementById('tagMatchCount'),
-        tagQuickBar: document.getElementById('tagQuickBar'),
-        tagVideosGrid: document.getElementById('tagVideosGrid'),
-        tagEmptyState: document.getElementById('tagEmptyState'),
-        tagPaginationBar: document.getElementById('tagPaginationBar'),
-        adminModal: document.getElementById('adminModal'),
-        openAdminBtn: document.getElementById('openAdminBtn'),
-        closeAdminBtn: document.getElementById('closeAdminBtn'),
-        ghRepoInput: document.getElementById('ghRepoInput'),
-        ghBranchInput: document.getElementById('ghBranchInput'),
-        ghTokenInput: document.getElementById('ghTokenInput'),
-        ghStatus: document.getElementById('ghStatus'),
-        saveGhBtn: document.getElementById('saveGhBtn'),
-        bulkFileInput: document.getElementById('bulkFileInput'),
-        bulkDefaultCategory: document.getElementById('bulkDefaultCategory'),
-        bulkImportBtn: document.getElementById('bulkImportBtn'),
-        bulkImportStatus: document.getElementById('bulkImportStatus'),
-        gdriveApiKeyInput: document.getElementById('gdriveApiKeyInput'),
-        apiKeyStatus: document.getElementById('apiKeyStatus'),
-        saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
-        autoThumbBtn: document.getElementById('autoThumbBtn'),
-        autoThumbStatus: document.getElementById('autoThumbStatus'),
-        addVideoForm: document.getElementById('addVideoForm'),
-        addVideoSubmitBtn: document.getElementById('addVideoSubmitBtn'),
-        adminSearchInput: document.getElementById('adminSearchInput'),
-        adminVideoList: document.getElementById('adminVideoList'),
-        videoCount: document.getElementById('videoCount'),
-        downloadJsonBtn: document.getElementById('downloadJsonBtn'),
-        publishLiveBtn: document.getElementById('publishLiveBtn'),
-        siteFooter: document.getElementById('siteFooter'),
-        toast: document.getElementById('toast')
-      };
-
-      function showToast(msg) {
-        if (!els.toast) return;
-        els.toast.textContent = msg;
-        els.toast.classList.remove('hidden');
-        clearTimeout(window.__toastTimer);
-        window.__toastTimer = setTimeout(function () { els.toast.classList.add('hidden'); }, 3500);
-      }
-
-      function getSavedGhToken() {
-        try { return localStorage.getItem(GH_TOKEN_STORAGE_KEY) || ''; } catch (e) { return ''; }
-      }
-
-      function updateSettingsUI() {
-        const key = (adminConfig.gdriveApiKey || '').trim();
-        if (els.gdriveApiKeyInput) els.gdriveApiKeyInput.value = key;
-        if (els.apiKeyStatus) {
-          els.apiKeyStatus.textContent = key ? 'Active' : 'Not set';
-          els.apiKeyStatus.className = key ? 'text-[11px] font-semibold text-emerald-400' : 'text-[11px] text-slate-400';
-        }
-
-        const repo = (adminConfig.githubRepo || 'gurug555/youronline').trim();
-        const branch = (adminConfig.githubBranch || 'main').trim();
-        const token = getSavedGhToken().trim();
-        if (els.ghRepoInput) els.ghRepoInput.value = repo;
-        if (els.ghBranchInput) els.ghBranchInput.value = branch;
-        if (els.ghTokenInput) els.ghTokenInput.value = token;
-        if (els.ghStatus) {
-          if (repo && token) {
-            els.ghStatus.textContent = 'Ready (' + repo + ')';
-            els.ghStatus.className = 'text-[11px] font-semibold text-emerald-400';
-          } else {
-            els.ghStatus.textContent = 'Not connected';
-            els.ghStatus.className = 'text-[11px] text-slate-400';
-          }
-        }
-      }
-
-      async function triggerAuto3x3Thumb() {
-        const rawUrl = (document.getElementById('vUrl').value || '').trim();
-        const driveId = extractDriveId(rawUrl);
-        if (!rawUrl || !driveId) {
-          showToast('Valid Google Drive video link podunga!');
-          document.getElementById('vUrl').focus();
-          return;
-        }
-
-        const repo = ((els.ghRepoInput && els.ghRepoInput.value) || adminConfig.githubRepo || 'gurug555/youronline')
-          .trim()
-          .replace(/^https?:\/\/github\.com\//i, '')
-          .replace(/\.git$/i, '')
-          .replace(/^\/+|\/+$/g, '');
-        const branch = ((els.ghBranchInput && els.ghBranchInput.value) || adminConfig.githubBranch || 'main').trim() || 'main';
-        const token = ((els.ghTokenInput && els.ghTokenInput.value) || getSavedGhToken()).trim();
-
-        if (!repo || repo.indexOf('/') === -1 || !token) {
-          showToast('Top-la GitHub Repo & Token save pannunga first!');
-          if (els.ghRepoInput) els.ghRepoInput.focus();
-          return;
-        }
-
-        const thumbInput = document.getElementById('vThumb');
-        const existingVal = (thumbInput.value || '').trim();
-        let slug = 'vid_' + driveId.slice(0, 10);
-        const slugMatch = existingVal.match(/thumbs\/([a-zA-Z0-9_-]+)\.jpg$/i);
-        if (slugMatch) slug = slugMatch[1];
-
-        const thumbPath = 'thumbs/' + slug + '.jpg';
-        const headers = {
-          'Accept': 'application/vnd.github+json',
-          'Authorization': 'Bearer ' + token
-        };
-
-        els.autoThumbBtn.disabled = true;
-        els.autoThumbBtn.textContent = 'Checking...';
-        els.autoThumbStatus.classList.remove('hidden');
-        els.autoThumbStatus.textContent = 'Checking if ' + thumbPath + ' already exists...';
-
-        try {
-          const checkUrl = 'https://api.github.com/repos/' + repo + '/contents/' + encodeURIComponent(thumbPath) + '?ref=' + encodeURIComponent(branch);
-          const checkRes = await fetch(checkUrl, { headers: headers, cache: 'no-store' });
-
-          if (checkRes.ok) {
-            thumbInput.value = thumbPath;
-            els.autoThumbStatus.textContent = 'Already exists! Skipped workflow — using ' + thumbPath + ' (instant).';
-            showToast('Thumbnail already exists — skipped!');
-            return;
-          }
-
-          els.autoThumbBtn.textContent = 'Triggering...';
-          els.autoThumbStatus.textContent = 'Starting GitHub Action for 3x3 collage...';
-
-          const endpoint = 'https://api.github.com/repos/' + repo + '/actions/workflows/' + THUMB_WORKFLOW_FILE + '/dispatches';
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
-            body: JSON.stringify({
-              ref: branch,
-              inputs: {
-                gdrive_url: rawUrl,
-                thumb_name: slug
-              }
-            })
-          });
-
-          if (res.status === 204) {
-            thumbInput.value = thumbPath;
-            els.autoThumbStatus.textContent = 'Triggered! ' + thumbPath + ' (~30 sec-la GitHub repo-la ready aagidum).';
-            showToast('3x3 Collage generation started!');
-          } else {
-            const errJson = await res.json().catch(function () { return {}; });
-            throw new Error(errJson.message || ('GitHub API error ' + res.status));
-          }
-        } catch (err) {
-          els.autoThumbStatus.textContent = 'Failed: ' + (err.message || 'Check workflow file & token permissions');
-          showToast('Auto Thumb failed: ' + (err.message || 'Error'));
-        } finally {
-          els.autoThumbBtn.disabled = false;
-          els.autoThumbBtn.innerHTML = '&#9889; Auto 3x3 Thumb';
-        }
-      }
-
-      function stripInjectedAds() {
-        const selectors = [
-          'iframe[src*="benchform"]',
-          'iframe[src*="biomanos"]',
-          'iframe[src*="apiguinee"]',
-          'iframe[src*="adsterra"]'
-        ];
-        document.querySelectorAll(selectors.join(',')).forEach(function (el) {
-          el.style.display = 'none';
-        });
-      }
-
-      let adCleanerObserver = null;
-      let adCleanerInterval = null;
-      function enableAdminNoAds() {
-        document.body.classList.add('admin-no-ads');
-        ['nativeAdSection', 'headerDealsLink', 'modalFastMirrorLink'].forEach(function (id) {
-          const el = document.getElementById(id);
-          if (el) el.classList.add('hidden');
-        });
-        stripInjectedAds();
-        if (!adCleanerObserver && document.body) {
-          adCleanerObserver = new MutationObserver(function () {
-            if (isAdminUnlocked || document.body.classList.contains('admin-no-ads')) stripInjectedAds();
-          });
-          adCleanerObserver.observe(document.body, { childList: true, subtree: true });
-        }
-        if (!adCleanerInterval) {
-          adCleanerInterval = setInterval(function () {
-            if (isAdminUnlocked || document.body.classList.contains('admin-no-ads')) stripInjectedAds();
-          }, 1500);
-        }
-      }
-
-      function getVideoDownloadLinks(video) {
-        const list = [];
-        if (Array.isArray(video.downloadUrls)) {
-          video.downloadUrls.forEach(function (u) {
-            const clean = String(u || '').trim();
-            if (clean && list.length < 5) list.push(clean);
-          });
-        }
-        if (list.length === 0 && typeof video.downloadUrl === 'string') {
-          video.downloadUrl.split(/[,\n]+/).forEach(function (u) {
-            const clean = u.trim();
-            if (clean && list.length < 5) list.push(clean);
-          });
-        }
-        return list.slice(0, 5);
-      }
-
-      function detectHostInfo(rawUrl, slotIndex) {
-        const url = (rawUrl || '').trim();
-        const lower = url.toLowerCase();
-        if (/gofile\./i.test(lower)) return { host: 'Gofile', href: url, badgeClass: 'bg-emerald-600 hover:bg-emerald-500 text-white' };
-        const doodId = extractDoodstreamId(url);
-        if (doodId || /dood/i.test(lower)) return { host: 'Doodstream', href: doodId ? (HOST_DOMAINS.doodstream + doodId) : url, badgeClass: 'bg-orange-600 hover:bg-orange-500 text-white' };
-        const stMatch = lower.match(/streamtape\.[a-z0-9.-]+\/(?:e|v)\/([A-Za-z0-9_-]+)/);
-        if (stMatch || /streamtape/i.test(lower)) return { host: 'Streamtape', href: stMatch ? (HOST_DOMAINS.streamtape + stMatch[1]) : url, badgeClass: 'bg-sky-600 hover:bg-sky-500 text-white' };
-        const luluMatch = lower.match(/(?:lulustream|luluvdo|lulu)\.[a-z0-9.-]+\/(?:e|d|v)?\/?([A-Za-z0-9]+)/);
-        if (luluMatch || /lulu/i.test(lower)) return { host: 'LuluStream', href: luluMatch ? (HOST_DOMAINS.lulustream + luluMatch[1]) : url, badgeClass: 'bg-violet-600 hover:bg-violet-500 text-white' };
-        const voeMatch = lower.match(/voe\.[a-z0-9.-]+\/(?:e\/)?([A-Za-z0-9]+)/);
-        if (voeMatch || /voe\./i.test(lower)) return { host: 'VOE', href: voeMatch ? (HOST_DOMAINS.voe + voeMatch[1]) : url, badgeClass: 'bg-rose-600 hover:bg-rose-500 text-white' };
-        const fallbackNames = ['Gofile', 'Doodstream', 'Streamtape', 'LuluStream', 'VOE'];
-        const colors = [
-          'bg-emerald-600 hover:bg-emerald-500 text-white',
-          'bg-orange-600 hover:bg-orange-500 text-white',
-          'bg-sky-600 hover:bg-sky-500 text-white',
-          'bg-violet-600 hover:bg-violet-500 text-white',
-          'bg-rose-600 hover:bg-rose-500 text-white'
-        ];
-        return { host: fallbackNames[slotIndex] || ('Server ' + (slotIndex + 1)), href: url, badgeClass: colors[slotIndex] || 'bg-emerald-600 hover:bg-emerald-500 text-white' };
-      }
-
-      function renderHostButtons(container, links) {
-        if (!container) return;
-        container.innerHTML = '';
-        if (!links || !links.length) {
-          container.innerHTML = '<span class="text-xs text-slate-400">No hosting links added yet.</span>';
-          return;
-        }
-        links.forEach(function (url, idx) {
-          const info = detectHostInfo(url, idx);
-          const a = document.createElement('a');
-          a.href = info.href;
-          a.target = '_blank';
-          a.rel = 'noopener noreferrer';
-          a.className = 'font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow-lg ' + info.badgeClass;
-          a.textContent = '▶ ' + info.host;
-          container.appendChild(a);
-        });
-      }
-
-      function renderFullPageMedia(video) {
-        if (!els.fullPageMediaContainer) return;
-        els.fullPageMediaContainer.innerHTML = '';
-        const gifSrc = (video.hoverUrl || '').trim();
-        const thumbList = getAutoThumbUrls(video);
-        const mediaSrc = gifSrc || thumbList[0];
-
-        if (/\.(mp4|webm)(\?.*)?$/i.test(mediaSrc)) {
-          const vid = document.createElement('video');
-          vid.src = mediaSrc;
-          vid.autoplay = true;
-          vid.loop = true;
-          vid.muted = true;
-          vid.playsInline = true;
-          vid.className = 'w-full h-full object-contain bg-black';
-          els.fullPageMediaContainer.appendChild(vid);
-        } else {
-          const img = document.createElement('img');
-          const candidates = gifSrc ? [gifSrc].concat(thumbList) : thumbList;
-          let idx = 0;
-          img.src = candidates[0];
-          img.alt = video.title || 'Preview';
-          img.referrerPolicy = 'no-referrer';
-          img.className = 'w-full h-full object-contain bg-black';
-          img.addEventListener('error', function () {
-            idx++;
-            if (idx < candidates.length) img.src = candidates[idx];
-            else els.fullPageMediaContainer.innerHTML = '<p class="text-xs text-slate-400">Preview unavailable — use the hosting links below.</p>';
-          });
-          els.fullPageMediaContainer.appendChild(img);
-        }
-      }
-
-      function renderFullPageTags(video) {
-        if (!els.fullPageTagsGroup) return;
-        els.fullPageTagsGroup.innerHTML = '';
-        const tags = getVideoTags(video);
-        tags.forEach(function (tag) {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.textContent = '#' + tag;
-          btn.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 hover:bg-red-600 text-slate-200 hover:text-white border border-slate-700 hover:border-red-500 transition cursor-pointer';
-          btn.addEventListener('click', function () {
-            openTagPage(tag, true);
-          });
-          els.fullPageTagsGroup.appendChild(btn);
-        });
-      }
-
-      function renderPagination(container, totalItems, page, onPageChange) {
-        if (!container) return;
-        const totalPages = Math.ceil(totalItems / VIDEOS_PER_PAGE);
-        container.innerHTML = '';
-        if (totalPages <= 1) {
-          container.classList.add('hidden');
-          return;
-        }
-        container.classList.remove('hidden');
-
-        function makeBtn(label, targetPage, disabled, active) {
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.textContent = label;
-          b.disabled = disabled;
-          if (active) {
-            b.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold bg-red-600 text-white shadow';
-          } else if (disabled) {
-            b.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 border border-slate-800 text-slate-600 cursor-not-allowed';
-          } else {
-            b.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 transition';
-            b.addEventListener('click', function () {
-              onPageChange(targetPage);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-          }
-          return b;
-        }
-
-        container.appendChild(makeBtn('← Prev', page - 1, page <= 1, false));
-
-        const start = Math.max(1, page - 2);
-        const end = Math.min(totalPages, page + 2);
-        if (start > 1) {
-          container.appendChild(makeBtn('1', 1, false, page === 1));
-          if (start > 2) {
-            const dots = document.createElement('span');
-            dots.textContent = '…';
-            dots.className = 'px-1 text-slate-500 text-xs';
-            container.appendChild(dots);
-          }
-        }
-        for (let p = start; p <= end; p++) {
-          container.appendChild(makeBtn(String(p), p, false, p === page));
-        }
-        if (end < totalPages) {
-          if (end < totalPages - 1) {
-            const dots2 = document.createElement('span');
-            dots2.textContent = '…';
-            dots2.className = 'px-1 text-slate-500 text-xs';
-            container.appendChild(dots2);
-          }
-          container.appendChild(makeBtn(String(totalPages), totalPages, false, page === totalPages));
-        }
-
-        container.appendChild(makeBtn('Next →', page + 1, page >= totalPages, false));
-
-        const info = document.createElement('span');
-        info.textContent = 'Page ' + page + ' / ' + totalPages + ' (' + totalItems + ' videos)';
-        info.className = 'text-xs text-slate-400 ml-2';
-        container.appendChild(info);
-      }
-
-      function showHomeGrid(updateHistory) {
-        currentPlayingVideo = null;
-        if (els.fullPagePlayer) els.fullPagePlayer.classList.add('hidden');
-        if (els.tagResultsSection) els.tagResultsSection.classList.add('hidden');
-        if (els.fullPageMediaContainer) els.fullPageMediaContainer.innerHTML = '';
-        if (els.categoryBar) els.categoryBar.classList.remove('hidden');
-        if (els.grid) els.grid.classList.remove('hidden');
-        renderGrid();
-        if (updateHistory) {
-          try { history.pushState({ view: 'home' }, '', window.location.pathname + window.location.search); } catch (e) {}
-        }
-      }
-
-      function openFullPageVideo(video, pushState) {
-        if (!video) return;
-        currentPlayingVideo = video;
-        if (els.fullPageTitle) els.fullPageTitle.textContent = video.title || 'Untitled Video';
-
-        const metaParts = [];
-        if (video.resolution) metaParts.push(video.resolution);
-        if (video.duration) metaParts.push(video.duration);
-        if (els.fullPageMeta) els.fullPageMeta.textContent = metaParts.join(' • ');
-
-        renderFullPageTags(video);
-        renderFullPageMedia(video);
-        renderHostButtons(els.fullPageHostsGroup, getVideoDownloadLinks(video));
-
-        if (els.categoryBar) els.categoryBar.classList.add('hidden');
-        if (els.grid) els.grid.classList.add('hidden');
-        if (els.empty) els.empty.classList.add('hidden');
-        if (els.paginationBar) els.paginationBar.classList.add('hidden');
-        if (els.tagResultsSection) els.tagResultsSection.classList.add('hidden');
-        if (els.fullPagePlayer) els.fullPagePlayer.classList.remove('hidden');
-
-        if (pushState) {
-          try { history.pushState({ view: 'watch', id: video.id }, '', '#watch=' + encodeURIComponent(video.id)); } catch (e) {}
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      function renderTagQuickChips(currentTag) {
-        if (!els.tagQuickBar) return;
-        els.tagQuickBar.innerHTML = '';
-        getAllUniqueTags().forEach(function (tag) {
-          const isActive = tag.toLowerCase() === String(currentTag || '').toLowerCase();
-          const chip = document.createElement('button');
-          chip.type = 'button';
-          chip.textContent = '#' + tag;
-          chip.className = isActive
-            ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap'
-            : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap';
-          chip.addEventListener('click', function () { openTagPage(tag, true); });
-          els.tagQuickBar.appendChild(chip);
-        });
-      }
-
-      function buildVideoCard(video) {
-        const card = document.createElement('article');
-        card.className = 'group bg-slate-900 border border-slate-800 hover:border-red-500/60 rounded-xl overflow-hidden cursor-pointer transition shadow-sm hover:shadow-lg';
-
-        const thumbWrap = document.createElement('div');
-        thumbWrap.className = 'relative aspect-video bg-slate-800 overflow-hidden';
-
-        const thumbCandidates = getAutoThumbUrls(video);
-        let thumbIdx = 0;
-        const img = document.createElement('img');
-        img.src = thumbCandidates[0];
-        img.alt = video.title;
-        img.loading = 'lazy';
-        img.referrerPolicy = 'no-referrer';
-        img.className = 'w-full h-full object-cover group-hover:scale-105 transition duration-300';
-        img.addEventListener('error', function () {
-          thumbIdx++;
-          if (thumbIdx < thumbCandidates.length) img.src = thumbCandidates[thumbIdx];
-        });
-        thumbWrap.appendChild(img);
-
-        const hoverSrc = (video.hoverUrl || '').trim();
-        let hoverEl = null;
-        if (hoverSrc) {
-          if (/\.(mp4|webm)(\?.*)?$/i.test(hoverSrc)) {
-            hoverEl = document.createElement('video');
-            hoverEl.muted = true;
-            hoverEl.loop = true;
-            hoverEl.playsInline = true;
-            hoverEl.preload = 'none';
-            hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
-            thumbWrap.appendChild(hoverEl);
-          } else {
-            hoverEl = document.createElement('img');
-            hoverEl.alt = '';
-            hoverEl.referrerPolicy = 'no-referrer';
-            hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
-            hoverEl.addEventListener('error', function () { hoverEl.classList.add('hidden'); });
-            thumbWrap.appendChild(hoverEl);
-          }
-
-          card.addEventListener('mouseenter', function () {
-            if (!hoverEl) return;
-            if (hoverEl.tagName === 'VIDEO') {
-              if (!hoverEl.src) hoverEl.src = hoverSrc;
-              hoverEl.classList.remove('hidden');
-              hoverEl.play().catch(function () {});
-            } else {
-              const sep = hoverSrc.indexOf('?') === -1 ? '?' : '&';
-              hoverEl.src = hoverSrc + sep + '_gif=' + Date.now();
-              hoverEl.classList.remove('hidden');
-            }
-          });
-
-          card.addEventListener('mouseleave', function () {
-            if (!hoverEl) return;
-            if (hoverEl.tagName === 'VIDEO') { hoverEl.pause(); hoverEl.currentTime = 0; }
-            else hoverEl.removeAttribute('src');
-            hoverEl.classList.add('hidden');
-          });
-        }
-
-        const playOverlay = document.createElement('div');
-        playOverlay.className = 'absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center transition z-[2] pointer-events-none';
-        playOverlay.innerHTML = '<div class="w-10 h-10 rounded-full bg-red-600/85 text-white flex items-center justify-center shadow-lg"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>';
-        thumbWrap.appendChild(playOverlay);
-
-        if (video.resolution && video.resolution.trim()) {
-          const resBadge = document.createElement('span');
-          resBadge.textContent = video.resolution.trim();
-          resBadge.className = 'absolute top-2 left-2 bg-red-600/95 text-white text-[11px] font-bold tracking-wide px-2 py-0.5 rounded shadow z-[3]';
-          thumbWrap.appendChild(resBadge);
-        }
-
-        if (video.duration && video.duration.trim()) {
-          const durBadge = document.createElement('span');
-          durBadge.textContent = video.duration.trim();
-          durBadge.className = 'absolute bottom-2 right-2 bg-black/85 text-white text-xs font-bold tracking-wide px-2 py-0.5 rounded shadow z-[3]';
-          thumbWrap.appendChild(durBadge);
-        }
-
-        const body = document.createElement('div');
-        body.className = 'p-3';
-        const title = document.createElement('h3');
-        title.textContent = video.title;
-        title.className = 'text-sm font-semibold text-slate-100 line-clamp-2 group-hover:text-red-400 transition';
-        const tagsLine = document.createElement('p');
-        tagsLine.textContent = getVideoTags(video).map(function (t) { return '#' + t; }).join(' ');
-        tagsLine.className = 'text-xs text-slate-400 mt-1 truncate';
-
-        body.appendChild(title);
-        body.appendChild(tagsLine);
-        card.appendChild(thumbWrap);
-        card.appendChild(body);
-        card.addEventListener('click', function () { openFullPageVideo(video, true); });
-        return card;
-      }
-
-      function renderTagPageList() {
-        const targetLower = activeTagName.toLowerCase();
-        const matched = videos.filter(function (v) {
-          return getVideoTags(v).some(function (t) { return t.toLowerCase() === targetLower; });
-        });
-
-        const totalPages = Math.max(1, Math.ceil(matched.length / VIDEOS_PER_PAGE));
-        if (currentTagPage > totalPages) currentTagPage = totalPages;
-        const startIdx = (currentTagPage - 1) * VIDEOS_PER_PAGE;
-        const pageItems = matched.slice(startIdx, startIdx + VIDEOS_PER_PAGE);
-
-        if (els.activeTagHeading) els.activeTagHeading.textContent = 'Tag: #' + activeTagName;
-        if (els.tagMatchCount) els.tagMatchCount.textContent = matched.length + (matched.length === 1 ? ' video' : ' videos');
-        renderTagQuickChips(activeTagName);
-
-        if (els.tagVideosGrid) {
-          els.tagVideosGrid.innerHTML = '';
-          if (!matched.length) {
-            if (els.tagEmptyState) els.tagEmptyState.classList.remove('hidden');
-          } else {
-            if (els.tagEmptyState) els.tagEmptyState.classList.add('hidden');
-            pageItems.forEach(function (video) {
-              els.tagVideosGrid.appendChild(buildVideoCard(video));
-            });
-          }
-        }
-
-        renderPagination(els.tagPaginationBar, matched.length, currentTagPage, function (newPage) {
-          currentTagPage = newPage;
-          renderTagPageList();
-        });
-      }
-
-      function openTagPage(tagName, pushState) {
-        activeTagName = String(tagName || '').trim() || 'General';
-        currentTagPage = 1;
-
-        if (els.fullPagePlayer) els.fullPagePlayer.classList.add('hidden');
-        if (els.fullPageMediaContainer) els.fullPageMediaContainer.innerHTML = '';
-        if (els.categoryBar) els.categoryBar.classList.add('hidden');
-        if (els.grid) els.grid.classList.add('hidden');
-        if (els.empty) els.empty.classList.add('hidden');
-        if (els.paginationBar) els.paginationBar.classList.add('hidden');
-
-        renderTagPageList();
-
-        if (els.tagResultsSection) els.tagResultsSection.classList.remove('hidden');
-        if (pushState) {
-          try { history.pushState({ view: 'tag', tag: activeTagName }, '', '#tag=' + encodeURIComponent(activeTagName)); } catch (e) {}
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      function renderCategories() {
-        if (!els.categoryBar) return;
-        const cats = ['All'];
-        videos.forEach(function (v) {
-          getVideoTags(v).forEach(function (c) {
-            if (c && cats.indexOf(c) === -1) cats.push(c);
-          });
-        });
-        els.categoryBar.innerHTML = '';
-        cats.forEach(function (cat) {
-          const btn = document.createElement('button');
-          btn.textContent = cat;
-          btn.className = cat === activeCategory
-            ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white whitespace-nowrap'
-            : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap';
-          btn.addEventListener('click', function () {
-            activeCategory = cat;
-            currentPage = 1;
-            renderCategories();
-            renderGrid();
-          });
-          els.categoryBar.appendChild(btn);
-        });
-      }
-
-      function renderGrid() {
-        if (!els.grid) return;
-        const q = searchQuery.toLowerCase();
-        const filtered = videos.filter(function (v) {
-          const tags = getVideoTags(v);
-          const matchCat = activeCategory === 'All' || tags.some(function (t) { return t.toLowerCase() === activeCategory.toLowerCase(); });
-          const matchQ = !q
-            || (v.title || '').toLowerCase().indexOf(q) !== -1
-            || tags.join(' ').toLowerCase().indexOf(q) !== -1;
-          return matchCat && matchQ;
-        });
-
-        els.grid.innerHTML = '';
-        if (!filtered.length) {
-          if (els.empty) els.empty.classList.remove('hidden');
-          if (els.paginationBar) els.paginationBar.classList.add('hidden');
-          return;
-        }
-        if (els.empty) els.empty.classList.add('hidden');
-
-        const totalPages = Math.max(1, Math.ceil(filtered.length / VIDEOS_PER_PAGE));
-        if (currentPage > totalPages) currentPage = totalPages;
-        const startIdx = (currentPage - 1) * VIDEOS_PER_PAGE;
-        const pageItems = filtered.slice(startIdx, startIdx + VIDEOS_PER_PAGE);
-
-        pageItems.forEach(function (video) {
-          els.grid.appendChild(buildVideoCard(video));
-        });
-
-        renderPagination(els.paginationBar, filtered.length, currentPage, function (newPage) {
-          currentPage = newPage;
-          renderGrid();
-        });
-      }
-
-      function renderAdminList() {
-        if (els.videoCount) els.videoCount.textContent = String(videos.length);
-        if (!els.adminVideoList) return;
-        els.adminVideoList.innerHTML = '';
-
-        const q = adminSearchQuery.toLowerCase().trim();
-        const list = q
-          ? videos.filter(function (v) { return (v.title || '').toLowerCase().indexOf(q) !== -1; })
-          : videos;
-
-        // Render up to 100 items in Admin list at once to keep modal super fast even with 1,000+ videos
-        const visibleList = list.slice(0, 100);
-        visibleList.forEach(function (v) {
-          const row = document.createElement('div');
-          row.className = 'flex items-center justify-between gap-2 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2';
-          const info = document.createElement('div');
-          info.className = 'min-w-0';
-          const t = document.createElement('p');
-          t.textContent = v.title;
-          t.className = 'text-xs font-medium text-slate-200 truncate';
-          const c = document.createElement('p');
-          c.textContent = getVideoTags(v).map(function (tg) { return '#' + tg; }).join(' ')
-            + (v.resolution ? ' • ' + v.resolution : '')
-            + (v.duration ? ' • ' + v.duration : '')
-            + (v.thumb ? ' • Thumb' : '')
-            + (v.hoverUrl ? ' • Preview' : '')
-            + (getVideoDownloadLinks(v).length ? ' • Mirrors x' + getVideoDownloadLinks(v).length : '');
-          c.className = 'text-[11px] text-slate-500 truncate';
-          info.appendChild(t);
-          info.appendChild(c);
-          const del = document.createElement('button');
-          del.textContent = 'Delete';
-          del.className = 'text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded bg-red-950/40 shrink-0';
-          del.addEventListener('click', function () {
-            videos = videos.filter(function (item) { return item.id !== v.id; });
-            renderCategories(); renderGrid(); renderAdminList();
-            showToast('Video removed — click Publish Live');
-          });
-          row.appendChild(info);
-          row.appendChild(del);
-          els.adminVideoList.appendChild(row);
-        });
-
-        if (list.length > 100) {
-          const note = document.createElement('p');
-          note.textContent = 'Showing first 100 of ' + list.length + ' videos. Use the filter box above to find older videos.';
-          note.className = 'text-[11px] text-slate-400 text-center py-1';
-          els.adminVideoList.appendChild(note);
-        }
-      }
-
-      // RFC-4180 compliant CSV parser for Colab bulk output
-      function parseCsvText(text) {
-        const rows = [];
-        let row = [];
-        let field = '';
-        let inQuotes = false;
-        for (let i = 0; i < text.length; i++) {
-          const ch = text[i];
-          const next = text[i + 1];
-          if (inQuotes) {
-            if (ch === '"' && next === '"') {
-              field += '"';
-              i++;
-            } else if (ch === '"') {
-              inQuotes = false;
-            } else {
-              field += ch;
-            }
-          } else {
-            if (ch === '"') {
-              inQuotes = true;
-            } else if (ch === ',') {
-              row.push(field.trim());
-              field = '';
-            } else if (ch === '\r' && next === '\n') {
-              row.push(field.trim());
-              rows.push(row);
-              row = [];
-              field = '';
-              i++;
-            } else if (ch === '\n' || ch === '\r') {
-              row.push(field.trim());
-              rows.push(row);
-              row = [];
-              field = '';
-            } else {
-              field += ch;
-            }
-          }
-        }
-        if (field.length || row.length) {
-          row.push(field.trim());
-          rows.push(row);
-        }
-        return rows.filter(function (r) { return r.some(function (cell) { return cell !== ''; }); });
-      }
-
-      function handleBulkImport() {
-        const file = els.bulkFileInput && els.bulkFileInput.files && els.bulkFileInput.files[0];
-        if (!file) {
-          showToast('Select a .csv or .json file first!');
-          return;
-        }
-        const defaultCat = ((els.bulkDefaultCategory && els.bulkDefaultCategory.value) || '').trim() || 'Trending';
-        const reader = new FileReader();
-        reader.onload = function (ev) {
-          try {
-            const raw = String(ev.target.result || '').trim();
-            if (!raw) throw new Error('Empty file');
-
-            const existingTitles = {};
-            videos.forEach(function (v) {
-              if (v && v.title) existingTitles[v.title.trim().toLowerCase()] = true;
-            });
-
-            let imported = [];
-            if (file.name.toLowerCase().endsWith('.json') || raw.startsWith('[') || raw.startsWith('{')) {
-              const parsed = JSON.parse(raw);
-              const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.videos) ? parsed.videos : []);
-              imported = arr.map(function (item, idx) {
-                const links = getVideoDownloadLinks(item);
-                return {
-                  id: item.id || ('vid-' + Date.now() + '-' + idx),
-                  title: String(item.title || item.name || item.filename || ('Video ' + (idx + 1))).replace(/\.(mp4|mkv|avi|mov|webm)$/i, '').trim(),
-                  category: String(item.category || item.tags || defaultCat).trim(),
-                  url: String(item.url || item.gdrive || '').trim(),
-                  downloadUrl: links[0] || '',
-                  downloadUrls: links,
-                  hoverUrl: String(item.hoverUrl || item.preview || '').trim(),
-                  thumb: String(item.thumb || item.thumbnail || '').trim(),
-                  resolution: String(item.resolution || '').trim(),
-                  duration: String(item.duration || '').trim()
-                };
-              });
-            } else {
-              const rows = parseCsvText(raw);
-              if (rows.length < 2) throw new Error('CSV needs a header row + at least 1 data row');
-              const headers = rows[0].map(function (h) { return h.toLowerCase().replace(/[^a-z0-9]/g, ''); });
-
-              function findCol(names) {
-                for (let i = 0; i < headers.length; i++) {
-                  for (let j = 0; j < names.length; j++) {
-                    if (headers[i] === names[j] || headers[i].indexOf(names[j]) !== -1) return i;
-                  }
-                }
-                return -1;
-              }
-
-              const cTitle = findCol(['title', 'filename', 'file', 'name', 'video']);
-              const cCat = findCol(['category', 'tags', 'tag']);
-              const cGdrive = findCol(['gdrive', 'driveurl', 'drive', 'url']);
-              const cThumb = findCol(['thumb', 'thumbnail', 'collage', 'image']);
-              const cHover = findCol(['hover', 'preview', 'gif']);
-              const cRes = findCol(['resolution', 'quality', 'res']);
-              const cDur = findCol(['duration', 'length', 'time']);
-              const cGofile = findCol(['gofile']);
-              const cDood = findCol(['doodstream', 'dood']);
-              const cStreamtape = findCol(['streamtape', 'tape']);
-              const cLulu = findCol(['lulustream', 'lulu']);
-              const cVoe = findCol(['voe']);
-
-              for (let r = 1; r < rows.length; r++) {
-                const cols = rows[r];
-                const rawTitle = (cTitle >= 0 ? cols[cTitle] : cols[0]) || '';
-                const cleanTitle = rawTitle.replace(/\.(mp4|mkv|avi|mov|webm)$/i, '').trim();
-                if (!cleanTitle) continue;
-
-                const links = [];
-                [cGofile, cDood, cStreamtape, cLulu, cVoe].forEach(function (ci) {
-                  if (ci >= 0 && cols[ci] && /^https?:\/\//i.test(cols[ci])) links.push(cols[ci].trim());
-                });
-                if (links.length === 0) {
-                  cols.forEach(function (val) {
-                    if (/^https?:\/\/(?!drive\.google\.com)/i.test(val) && links.length < 5) links.push(val.trim());
-                  });
-                }
-
-                imported.push({
-                  id: 'vid-' + Date.now() + '-' + r,
-                  title: cleanTitle,
-                  category: (cCat >= 0 && cols[cCat]) ? cols[cCat] : defaultCat,
-                  url: (cGdrive >= 0 && cols[cGdrive]) ? cols[cGdrive] : '',
-                  downloadUrl: links[0] || '',
-                  downloadUrls: links.slice(0, 5),
-                  hoverUrl: (cHover >= 0 && cols[cHover]) ? cols[cHover] : '',
-                  thumb: (cThumb >= 0 && cols[cThumb]) ? cols[cThumb] : '',
-                  resolution: (cRes >= 0 && cols[cRes]) ? cols[cRes] : '',
-                  duration: (cDur >= 0 && cols[cDur]) ? cols[cDur] : ''
-                });
-              }
-            }
-
-            let added = 0;
-            let skipped = 0;
-            imported.reverse().forEach(function (item) {
-              const key = item.title.toLowerCase();
-              if (existingTitles[key]) {
-                skipped++;
-              } else {
-                existingTitles[key] = true;
-                videos.unshift(item);
-                added++;
-              }
-            });
-
-            renderCategories();
-            renderGrid();
-            renderAdminList();
-            if (els.bulkImportStatus) {
-              els.bulkImportStatus.textContent = 'Added ' + added + (skipped ? ', skipped ' + skipped + ' dupes' : '');
-              els.bulkImportStatus.className = 'text-[11px] font-semibold text-emerald-400';
-            }
-            showToast('Imported ' + added + ' videos! Click Publish Live.');
-          } catch (err) {
-            showToast('Import error: ' + (err.message || 'Invalid file'));
-          }
-        };
-        reader.readAsText(file);
-      }
-
-      function downloadVideosJson() {
-        const jsonStr = JSON.stringify(videos, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'videos.json';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        showToast('Downloaded videos.json');
-      }
-
-      function utf8ToBase64(str) {
-        const bytes = new TextEncoder().encode(str);
-        let binary = '';
-        const chunkSize = 8192;
-        for (let i = 0; i < bytes.length; i += chunkSize) {
-          const slice = bytes.subarray(i, i + chunkSize);
-          binary += String.fromCharCode.apply(null, slice);
-        }
-        return btoa(binary);
-      }
-
-      // Phase 1 Upgrade: Publish Live updates ONLY videos.json (fast even for 1,000+ videos)
-      async function publishLiveToGitHub() {
-        const repo = ((els.ghRepoInput && els.ghRepoInput.value) || adminConfig.githubRepo || 'gurug555/youronline')
-          .trim()
-          .replace(/^https?:\/\/github\.com\//i, '')
-          .replace(/\.git$/i, '')
-          .replace(/^\/+|\/+$/g, '');
-        const branch = ((els.ghBranchInput && els.ghBranchInput.value) || adminConfig.githubBranch || 'main').trim() || 'main';
-        const token = ((els.ghTokenInput && els.ghTokenInput.value) || getSavedGhToken()).trim();
-
-        if (!repo || repo.indexOf('/') === -1) {
-          showToast('Enter GitHub Repo as gurug555/youronline');
-          if (els.ghRepoInput) els.ghRepoInput.focus();
-          return;
-        }
-        if (!token) {
-          showToast('Paste your GitHub Token first');
-          if (els.ghTokenInput) els.ghTokenInput.focus();
-          return;
-        }
-
-        adminConfig.githubRepo = repo;
-        adminConfig.githubBranch = branch;
-        try { localStorage.setItem(GH_TOKEN_STORAGE_KEY, token); } catch (e) {}
-        updateSettingsUI();
-
-        const origHtml = els.publishLiveBtn ? els.publishLiveBtn.innerHTML : 'Publish Live';
-        if (els.publishLiveBtn) {
-          els.publishLiveBtn.disabled = true;
-          els.publishLiveBtn.textContent = 'Publishing...';
-        }
-
-        const forceUnlockTimer = setTimeout(function () {
-          if (els.publishLiveBtn) {
-            els.publishLiveBtn.disabled = false;
-            els.publishLiveBtn.innerHTML = origHtml;
-          }
-        }, 15000);
-
-        try {
-          const apiUrl = 'https://api.github.com/repos/' + repo + '/contents/videos.json';
-          const headers = {
-            'Accept': 'application/vnd.github+json',
-            'Authorization': 'Bearer ' + token
-          };
-
-          let sha = null;
-          const getRes = await fetch(apiUrl + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(), {
-            headers: headers,
-            cache: 'no-store'
-          });
-          if (getRes.ok) {
-            const info = await getRes.json();
-            sha = info.sha || null;
-          } else if (getRes.status !== 404) {
-            const errJson = await getRes.json().catch(function () { return {}; });
-            throw new Error(errJson.message || ('GET failed (' + getRes.status + ')'));
-          }
-
-          const body = {
-            message: 'Update videos.json (' + videos.length + ' videos)',
-            content: utf8ToBase64(JSON.stringify(videos, null, 2)),
-            branch: branch
-          };
-          if (sha) body.sha = sha;
-
-          const putRes = await fetch(apiUrl, {
-            method: 'PUT',
-            headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
-            body: JSON.stringify(body)
-          });
-          if (!putRes.ok) {
-            const err = await putRes.json().catch(function () { return {}; });
-            throw new Error(err.message || ('PUT failed (' + putRes.status + ')'));
-          }
-
-          showToast('Published videos.json! Live in ~20s.');
-        } catch (err) {
-          showToast('Publish failed: ' + (err && err.message ? err.message : 'Check Repo/Token'));
-        } finally {
-          clearTimeout(forceUnlockTimer);
-          if (els.publishLiveBtn) {
-            els.publishLiveBtn.disabled = false;
-            els.publishLiveBtn.innerHTML = origHtml;
-          }
-        }
-      }
-
-      function openAdminDirect() {
-        try {
-          isAdminUnlocked = true;
-          enableAdminNoAds();
-          updateSettingsUI();
-          renderAdminList();
-          const modal = document.getElementById('adminModal');
-          if (modal) {
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
-          }
-        } catch (err) {
-          console.error('Admin Studio open error:', err);
-          const modal = document.getElementById('adminModal');
-          if (modal) {
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
-          }
-        }
-      }
-
-      function closeAdminDirect() {
-        const modal = document.getElementById('adminModal');
-        if (modal) {
-          modal.classList.add('hidden');
-          modal.style.display = '';
-        }
-      }
-
-      function syncRouteFromLocation() {
-        const h = window.location.hash || '';
-        const watchMatch = h.match(/^#watch=(.+)$/);
-        const tagMatch = h.match(/^#tag=(.+)$/);
-        if (watchMatch) {
-          const vidId = decodeURIComponent(watchMatch[1]);
-          const found = videos.find(function (v) { return String(v.id) === vidId; });
-          if (found) { openFullPageVideo(found, false); return; }
-        } else if (tagMatch) {
-          openTagPage(decodeURIComponent(tagMatch[1]), false);
-          return;
-        }
-        showHomeGrid(false);
-      }
-
-      try {
-        history.replaceState({ view: 'home' }, '', window.location.pathname + window.location.search);
-      } catch (e) {}
-
-      window.addEventListener('popstate', function (event) {
-        const st = event.state;
-        if (st && st.view === 'watch' && st.id) {
-          const found = videos.find(function (v) { return String(v.id) === String(st.id); });
-          if (found) { openFullPageVideo(found, false); return; }
-        }
-        if (st && st.view === 'tag' && st.tag) {
-          openTagPage(st.tag, false);
-          return;
-        }
-        syncRouteFromLocation();
+    const STATE = {
+      videos: [],
+      search: '',
+      category: 'Trending',
+      page: 1,
+      perPage: 16
+    };
+
+    const FALLBACK_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+        <rect width="640" height="360" fill="#0f172a"/>
+        <circle cx="320" cy="180" r="44" fill="#dc2626"/>
+        <polygon points="308,158 308,202 346,180" fill="#ffffff"/>
+      </svg>
+    `);
+
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      box.textContent = msg;
+      box.classList.remove('hidden');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => box.classList.add('hidden'), 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function normalizeKey(str) {
+      return String(str ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+    }
+
+    function parseTags(raw, fallback = 'Trending, HD') {
+      const source = raw && String(raw).trim() ? String(raw) : fallback;
+      const parts = source.split(/[,|;/]+/).map(s => s.trim()).filter(Boolean);
+      return parts.length ? parts : ['General'];
+    }
+
+    function normalizeVideoItem(item, defaultTags = 'Trending, HD') {
+      const mirrors = {};
+      const keys = ['gofile', 'doodstream', 'streamtape', 'lulustream', 'voe'];
+      keys.forEach(k => {
+        if (item[k] && String(item[k]).trim()) mirrors[k] = String(item[k]).trim();
       });
-
-      window.addEventListener('hashchange', syncRouteFromLocation);
-
-      if (els.search) {
-        els.search.addEventListener('input', function (e) {
-          searchQuery = e.target.value;
-          currentPage = 1;
-          if ((els.fullPagePlayer && !els.fullPagePlayer.classList.contains('hidden')) ||
-              (els.tagResultsSection && !els.tagResultsSection.classList.contains('hidden'))) {
-            showHomeGrid(true);
-          } else {
-            renderGrid();
-          }
+      if (item.mirrors && typeof item.mirrors === 'object') {
+        Object.entries(item.mirrors).forEach(([k, v]) => {
+          if (v && String(v).trim()) mirrors[k.toLowerCase()] = String(v).trim();
         });
       }
 
-      if (els.adminSearchInput) {
-        els.adminSearchInput.addEventListener('input', function (e) {
-          adminSearchQuery = e.target.value;
-          renderAdminList();
-        });
-      }
+      const tags = Array.isArray(item.tags)
+        ? item.tags.map(t => String(t).trim()).filter(Boolean)
+        : parseTags(item.category || item.tags, defaultTags);
 
-      if (els.brandHomeLink) {
-        els.brandHomeLink.addEventListener('click', function (e) {
-          e.preventDefault();
-          activeCategory = 'All';
-          searchQuery = '';
-          currentPage = 1;
-          if (els.search) els.search.value = '';
+      return {
+        id: item.id || ('vid_' + Math.random().toString(36).slice(2, 10)),
+        title: String(item.title || item.name || item.filename || 'Untitled Video').trim(),
+        tags: tags.length ? tags : ['General'],
+        thumb: String(item.thumb || item.thumbnail || '').trim(),
+        resolution: String(item.resolution || '').trim(),
+        duration: String(item.duration || '').trim(),
+        mirrors
+      };
+    }
+
+    async function loadInitialVideos() {
+      try {
+        const res = await fetch('videos.json?t=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          const list = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : []);
+          STATE.videos = list.map(v => normalizeVideoItem(v));
+          renderAll();
+          return;
+        }
+      } catch (e) {
+        console.warn('videos.json not found yet, starting empty:', e);
+      }
+      STATE.videos = [];
+      renderAll();
+    }
+
+    function getCategories() {
+      const set = new Set(['All', 'Trending', 'HD', 'General']);
+      STATE.videos.forEach(v => (v.tags || []).forEach(t => set.add(t)));
+      return Array.from(set);
+    }
+
+    function renderCategories() {
+      const bar = document.getElementById('categoryBar');
+      const cats = getCategories();
+      bar.innerHTML = cats.map(cat => {
+        const active = STATE.category.toLowerCase() === cat.toLowerCase();
+        const cls = active
+          ? 'bg-brand-600 text-white border-brand-500'
+          : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white';
+        return `<button type="button" data-cat="${escapeHtml(cat)}" class="cat-btn text-xs sm:text-sm px-3.5 py-1.5 rounded-full border transition shrink-0 ${cls}">${escapeHtml(cat)}</button>`;
+      }).join('');
+
+      bar.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          STATE.category = btn.dataset.cat;
+          STATE.page = 1;
+          renderGrid();
           renderCategories();
-          showHomeGrid(true);
         });
+      });
+    }
+
+    function getFilteredVideos() {
+      const q = STATE.search.trim().toLowerCase();
+      return STATE.videos.filter(v => {
+        const matchesCat =
+          STATE.category === 'All' ||
+          (v.tags || []).some(t => t.toLowerCase() === STATE.category.toLowerCase());
+        if (!matchesCat) return false;
+        if (!q) return true;
+        const inTitle = (v.title || '').toLowerCase().includes(q);
+        const inTags = (v.tags || []).some(t => t.toLowerCase().includes(q));
+        return inTitle || inTags;
+      });
+    }
+
+    function renderGrid() {
+      const filtered = getFilteredVideos();
+      const total = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(total / STATE.perPage));
+      if (STATE.page > totalPages) STATE.page = totalPages;
+
+      const start = (STATE.page - 1) * STATE.perPage;
+      const pageItems = filtered.slice(start, start + STATE.perPage);
+
+      document.getElementById('sectionTitle').textContent =
+        STATE.category === 'All' ? 'All Videos' : `${STATE.category} Videos`;
+      document.getElementById('resultCount').textContent =
+        `${total} ${total === 1 ? 'video' : 'videos'}`;
+
+      const grid = document.getElementById('videoGrid');
+      const empty = document.getElementById('emptyState');
+
+      if (!pageItems.length) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        document.getElementById('paginationBar').innerHTML = '';
+        return;
       }
 
-      if (els.fullPageShareBtn) {
-        els.fullPageShareBtn.addEventListener('click', function () {
-          const shareUrl = window.location.href;
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(shareUrl).then(function () { showToast('Link copied!'); }).catch(function () { showToast('Copy URL from address bar'); });
-          } else {
-            showToast('Copy URL from address bar');
-          }
+      empty.classList.add('hidden');
+      grid.innerHTML = pageItems.map(v => {
+        const thumbSrc = v.thumb ? escapeHtml(v.thumb) : FALLBACK_SVG;
+        const badges = [];
+        if (v.resolution) badges.push(`<span class="bg-black/75 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded">${escapeHtml(v.resolution)}</span>`);
+        if (v.duration) badges.push(`<span class="bg-black/75 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">${escapeHtml(v.duration)}</span>`);
+        const tagsHtml = (v.tags || []).slice(0, 3).map(t => `<span class="text-[11px] text-slate-400">#${escapeHtml(t)}</span>`).join(' ');
+
+        return `
+          <article data-id="${escapeHtml(v.id)}" class="video-card group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-xl overflow-hidden cursor-pointer transition flex flex-col">
+            <div class="relative aspect-video bg-slate-950 overflow-hidden">
+              <img src="${thumbSrc}" alt="${escapeHtml(v.title)}" loading="lazy"
+                   onerror="this.onerror=null;this.src='${FALLBACK_SVG}';"
+                   class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              ${badges.length ? `<div class="absolute bottom-2 right-2 flex items-center gap-1">${badges.join('')}</div>` : ''}
+            </div>
+            <div class="p-3.5 flex-1 flex flex-col justify-between gap-2">
+              <h2 class="text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h2>
+              <div class="flex flex-wrap gap-2">${tagsHtml}</div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('.video-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const vid = STATE.videos.find(item => item.id === card.dataset.id);
+          if (vid) openPlayer(vid);
         });
-      }
-
-      if (els.openAdminBtn) els.openAdminBtn.addEventListener('click', openAdminDirect);
-      if (els.closeAdminBtn) els.closeAdminBtn.addEventListener('click', closeAdminDirect);
-      if (els.bulkImportBtn) els.bulkImportBtn.addEventListener('click', handleBulkImport);
-
-      if (els.saveGhBtn) {
-        els.saveGhBtn.addEventListener('click', function () {
-          adminConfig.githubRepo = ((els.ghRepoInput && els.ghRepoInput.value) || '').trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '') || 'gurug555/youronline';
-          adminConfig.githubBranch = ((els.ghBranchInput && els.ghBranchInput.value) || '').trim() || 'main';
-          const tok = ((els.ghTokenInput && els.ghTokenInput.value) || '').trim();
-          try { if (tok) localStorage.setItem(GH_TOKEN_STORAGE_KEY, tok); else localStorage.removeItem(GH_TOKEN_STORAGE_KEY); } catch (e) {}
-          updateSettingsUI();
-          showToast('GitHub settings saved! Ready to Publish Live.');
-        });
-      }
-
-      if (els.saveApiKeyBtn) {
-        els.saveApiKeyBtn.addEventListener('click', async function () {
-          adminConfig.gdriveApiKey = ((els.gdriveApiKeyInput && els.gdriveApiKeyInput.value) || '').trim();
-          try {
-            if (adminConfig.gdriveApiKey) localStorage.setItem(GDRIVE_KEY_STORAGE_KEY, adminConfig.gdriveApiKey);
-            else localStorage.removeItem(GDRIVE_KEY_STORAGE_KEY);
-          } catch (e) {}
-          updateSettingsUI();
-          if (adminConfig.gdriveApiKey) { showToast('API Key saved! Syncing Google Drive videos...'); await syncMissingDriveMetadata(true); }
-          else showToast('API Key cleared.');
-        });
-      }
-
-      if (els.autoThumbBtn) els.autoThumbBtn.addEventListener('click', triggerAuto3x3Thumb);
-
-      if (els.addVideoForm) {
-        els.addVideoForm.addEventListener('submit', async function (e) {
-          e.preventDefault();
-          const rawUrl = (document.getElementById('vUrl').value || '').trim();
-          els.addVideoSubmitBtn.disabled = true;
-          els.addVideoSubmitBtn.textContent = 'Fetching GDrive info...';
-          const meta = await fetchDriveMeta(rawUrl);
-          const dlUrls = [
-            document.getElementById('vDownloadUrl1').value.trim(),
-            document.getElementById('vDownloadUrl2').value.trim(),
-            document.getElementById('vDownloadUrl3').value.trim(),
-            document.getElementById('vDownloadUrl4').value.trim(),
-            document.getElementById('vDownloadUrl5').value.trim()
-          ].filter(Boolean).slice(0, 5);
-
-          videos.unshift({
-            id: 'vid-' + Date.now(),
-            title: document.getElementById('vTitle').value.trim(),
-            category: document.getElementById('vCategory').value.trim() || 'Trending',
-            url: rawUrl,
-            downloadUrl: dlUrls[0] || '',
-            downloadUrls: dlUrls,
-            hoverUrl: document.getElementById('vHoverUrl').value.trim(),
-            thumb: document.getElementById('vThumb').value.trim(),
-            resolution: meta ? meta.resolution : '',
-            duration: meta ? meta.duration : ''
-          });
-          els.addVideoForm.reset();
-          if (els.autoThumbStatus) els.autoThumbStatus.classList.add('hidden');
-          els.addVideoSubmitBtn.disabled = false;
-          els.addVideoSubmitBtn.textContent = '+ Add Video';
-          currentPage = 1;
-          renderCategories(); renderGrid(); renderAdminList();
-          showToast(meta && meta.resolution ? ('Added (' + meta.resolution + (meta.duration ? ' • ' + meta.duration : '') + ')! Click Publish Live.') : 'Video added! Click Publish Live.');
-        });
-      }
-
-      if (els.downloadJsonBtn) els.downloadJsonBtn.addEventListener('click', downloadVideosJson);
-      if (els.publishLiveBtn) els.publishLiveBtn.addEventListener('click', publishLiveToGitHub);
-
-      document.addEventListener('keydown', function (e) {
-        if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) { e.preventDefault(); openAdminDirect(); }
       });
 
-      let footerTaps = 0, footerTimer = null;
-      if (els.siteFooter) {
-        els.siteFooter.addEventListener('click', function () {
-          footerTaps++;
-          clearTimeout(footerTimer);
-          if (footerTaps >= 5) { footerTaps = 0; openAdminDirect(); }
-          else footerTimer = setTimeout(function () { footerTaps = 0; }, 1500);
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      const bar = document.getElementById('paginationBar');
+      if (totalPages <= 1) {
+        bar.innerHTML = '';
+        return;
+      }
+      let html = '';
+      for (let p = 1; p <= totalPages; p++) {
+        const active = p === STATE.page;
+        html += `<button type="button" data-page="${p}" class="page-btn px-3 py-1.5 rounded-lg text-xs font-semibold border ${active ? 'bg-brand-600 text-white border-brand-500' : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'}">${p}</button>`;
+      }
+      bar.innerHTML = html;
+      bar.querySelectorAll('.page-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          STATE.page = Number(btn.dataset.page);
+          renderGrid();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+      });
+    }
+
+    function buildEmbedUrl(url) {
+      if (!url) return '';
+      try {
+        const u = new URL(url);
+        if (u.hostname.includes('dood') && !u.pathname.includes('/e/')) {
+          const code = u.pathname.split('/').filter(Boolean).pop();
+          if (code) return `${u.origin}/e/${code}`;
+        }
+        if (u.hostname.includes('streamtape') && !u.pathname.includes('/e/')) {
+          const parts = u.pathname.split('/').filter(Boolean);
+          if (parts[0] === 'v' && parts[1]) return `${u.origin}/e/${parts[1]}`;
+        }
+      } catch (_) {}
+      return url;
+    }
+
+    function openPlayer(video) {
+      const modal = document.getElementById('playerModal');
+      document.getElementById('playerTitle').textContent = video.title;
+      document.getElementById('playerMeta').textContent =
+        [video.resolution, video.duration, ...(video.tags || [])].filter(Boolean).join(' • ');
+
+      const entries = Object.entries(video.mirrors || {}).filter(([, url]) => Boolean(url));
+      const btnBox = document.getElementById('mirrorButtons');
+      const extLink = document.getElementById('externalWatchLink');
+      const embedBox = document.getElementById('embedContainer');
+
+      if (!entries.length) {
+        btnBox.innerHTML = '<span class="text-xs text-slate-400">No mirror links attached yet.</span>';
+        extLink.href = '#';
+        embedBox.innerHTML = '<p class="text-sm text-slate-400">Mirror links not available for this video.</p>';
+        modal.classList.remove('hidden');
+        return;
       }
 
-      async function loadExistingVideosJson() {
-        try {
-          const res = await fetch('videos.json?_t=' + Date.now(), { cache: 'no-store' });
-          if (!res.ok) return;
-          const data = await res.json();
-          const list = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : null);
-          if (list && list.length) {
-            videos = list;
-            renderCategories();
-            renderGrid();
-            syncRouteFromLocation();
+      const selectServer = (serverName, rawUrl, idx) => {
+        btnBox.querySelectorAll('.srv-btn').forEach((b, i) => {
+          b.className = i === idx
+            ? 'srv-btn bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg'
+            : 'srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700';
+        });
+        extLink.href = rawUrl;
+        const embedUrl = buildEmbedUrl(rawUrl);
+        if (/\.(mp4|webm|ogg)(\?|$)/i.test(embedUrl)) {
+          embedBox.innerHTML = `<video src="${escapeHtml(embedUrl)}" controls autoplay class="w-full h-full"></video>`;
+        } else {
+          embedBox.innerHTML = `<iframe src="${escapeHtml(embedUrl)}" allowfullscreen scrolling="no" class="w-full h-full border-0"></iframe>`;
+        }
+      };
+
+      btnBox.innerHTML = entries.map(([srv], i) =>
+        `<button type="button" data-idx="${i}" class="srv-btn bg-slate-800 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase">${escapeHtml(srv)}</button>`
+      ).join('');
+
+      btnBox.querySelectorAll('.srv-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const i = Number(btn.dataset.idx);
+          selectServer(entries[i][0], entries[i][1], i);
+        });
+      });
+
+      selectServer(entries[0][0], entries[0][1], 0);
+      modal.classList.remove('hidden');
+    }
+
+    function closePlayer() {
+      document.getElementById('playerModal').classList.add('hidden');
+      document.getElementById('embedContainer').innerHTML = '';
+    }
+
+    // Admin Studio Controls
+    function openAdmin() {
+      renderAdminList();
+      document.getElementById('adminModal').classList.remove('hidden');
+    }
+
+    function closeAdmin() {
+      document.getElementById('adminModal').classList.add('hidden');
+    }
+
+    function parseCsvLine(line) {
+      const result = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
           }
-        } catch (e) {}
+        } else if (ch === ',' && !inQuotes) {
+          result.push(cur);
+          cur = '';
+        } else {
+          cur += ch;
+        }
+      }
+      result.push(cur);
+      return result;
+    }
+
+    function parseCsvText(text) {
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      if (lines.length < 2) return [];
+      const headers = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const vals = parseCsvLine(lines[i]);
+        const obj = {};
+        headers.forEach((h, idx) => {
+          obj[h] = (vals[idx] ?? '').trim();
+        });
+        rows.push(obj);
+      }
+      return rows;
+    }
+
+    async function handleImportFile() {
+      const fileInput = document.getElementById('csvFileInput');
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) {
+        showToast('Please select a CSV or JSON file first.');
+        return;
       }
 
+      const defaultTags = document.getElementById('defaultTagsInput').value || 'Trending, HD';
+      const rawText = await file.text();
+      let items = [];
+
+      if (file.name.toLowerCase().endsWith('.json')) {
+        const parsed = JSON.parse(rawText);
+        items = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.videos) ? parsed.videos : []);
+      } else {
+        items = parseCsvText(rawText);
+      }
+
+      const existingKeys = new Set(STATE.videos.map(v => normalizeKey(v.title)));
+      let added = 0;
+      let skipped = 0;
+
+      items.forEach(raw => {
+        const norm = normalizeVideoItem(raw, defaultTags);
+        const key = normalizeKey(norm.title);
+        if (!key || existingKeys.has(key)) {
+          skipped++;
+          return;
+        }
+        existingKeys.add(key);
+        STATE.videos.unshift(norm);
+        added++;
+      });
+
+      document.getElementById('importStatus').textContent = `Added ${added}, skipped ${skipped} dupes`;
+      renderAll();
+      renderAdminList();
+      showToast(`Imported ${added} videos! Click Publish Live.`);
+    }
+
+    function renderAdminList() {
+      const q = (document.getElementById('adminSearchInput').value || '').trim().toLowerCase();
+      const listEl = document.getElementById('adminVideoList');
+      document.getElementById('manageCountLabel').textContent = `Manage Videos (${STATE.videos.length})`;
+
+      const matches = STATE.videos.filter(v => !q || v.title.toLowerCase().includes(q));
+      if (!matches.length) {
+        listEl.innerHTML = '<p class="p-4 text-xs text-slate-400 text-center">No videos in list.</p>';
+        return;
+      }
+
+      listEl.innerHTML = matches.map(v => `
+        <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 text-xs">
+          <div class="min-w-0 flex-1">
+            <p class="font-medium text-slate-100 truncate">${escapeHtml(v.title)}</p>
+            <p class="text-[11px] text-slate-400 truncate">${[v.resolution, v.duration, v.thumb].filter(Boolean).join(' • ')}</p>
+          </div>
+          <button type="button" data-del="${escapeHtml(v.id)}"
+                  class="del-vid-btn bg-rose-900/60 hover:bg-rose-700 text-rose-200 px-2.5 py-1 rounded-md shrink-0 transition">
+            Delete
+          </button>
+        </div>
+      `).join('');
+
+      listEl.querySelectorAll('.del-vid-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          STATE.videos = STATE.videos.filter(item => item.id !== btn.dataset.del);
+          renderAll();
+          renderAdminList();
+        });
+      });
+    }
+
+    function downloadVideosJson() {
+      const blob = new Blob([JSON.stringify(STATE.videos, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'videos.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Downloaded videos.json');
+    }
+
+    function renderAll() {
       renderCategories();
       renderGrid();
-      syncMissingDriveMetadata(false);
-      syncRouteFromLocation();
-      loadExistingVideosJson();
+    }
 
-      try {
-        if (new URLSearchParams(window.location.search).get('admin') === '1') openAdminDirect();
-      } catch (e) {}
-    })();
+    // Event Listeners
+    document.getElementById('searchInput').addEventListener('input', e => {
+      STATE.search = e.target.value;
+      STATE.page = 1;
+      renderGrid();
+    });
+
+    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+      STATE.search = '';
+      STATE.category = 'Trending';
+      STATE.page = 1;
+      document.getElementById('searchInput').value = '';
+      renderAll();
+    });
+
+    document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
+    document.getElementById('playerModal').addEventListener('click', e => {
+      if (e.target.id === 'playerModal') closePlayer();
+    });
+
+    document.getElementById('openAdminBtn').addEventListener('click', openAdmin);
+    document.getElementById('closeAdminBtn').addEventListener('click', closeAdmin);
+    document.getElementById('adminModal').addEventListener('click', e => {
+      if (e.target.id === 'adminModal') closeAdmin();
+    });
+
+    document.getElementById('importFileBtn').addEventListener('click', handleImportFile);
+    document.getElementById('adminSearchInput').addEventListener('input', renderAdminList);
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+      if (!confirm('Remove all videos from current list?')) return;
+      STATE.videos = [];
+      renderAll();
+      renderAdminList();
+    });
+
+    document.getElementById('downloadJsonBtn').addEventListener('click', downloadVideosJson);
+    document.getElementById('publishLiveBtn').addEventListener('click', () => {
+      downloadVideosJson();
+      showToast('Upload videos.json to GitHub repo root to go live!');
+    });
+
+    // Secret Admin Access: Ctrl+Shift+A, 5x Footer Tap, or ?admin=1
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        openAdmin();
+      }
+    });
+
+    let footerTaps = 0;
+    document.getElementById('secretFooterTap').addEventListener('click', () => {
+      footerTaps++;
+      clearTimeout(document.getElementById('secretFooterTap')._t);
+      document.getElementById('secretFooterTap')._t = setTimeout(() => { footerTaps = 0; }, 1500);
+      if (footerTaps >= 5) {
+        footerTaps = 0;
+        openAdmin();
+      }
+    });
+
+    if (new URLSearchParams(window.location.search).get('admin') === '1') {
+      openAdmin();
+    }
+
+    loadInitialVideos();
   </script>
-
-  <script id="adSocialBarScript" data-cfasync="false" src="https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43"></script>
 </body>
 </html>
