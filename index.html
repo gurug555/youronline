@@ -68,6 +68,7 @@
     <div id="emptyState" class="hidden text-center py-16">
       <p class="text-slate-400 text-base">No videos found.</p>
     </div>
+    <div id="paginationBar" class="hidden mt-8 flex flex-wrap items-center justify-center gap-2"></div>
 
     <section id="fullPagePlayer" class="hidden max-w-5xl w-full mx-auto py-2">
       <div class="flex items-center justify-end mb-4">
@@ -108,6 +109,7 @@
       <div id="tagEmptyState" class="hidden text-center py-16">
         <p class="text-slate-400 text-base">No videos found for this tag.</p>
       </div>
+      <div id="tagPaginationBar" class="hidden mt-8 flex flex-wrap items-center justify-center gap-2"></div>
     </section>
 
     <section id="nativeAdSection" class="mt-10 pt-6 border-t border-slate-800">
@@ -131,7 +133,7 @@
       <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800">
         <div>
           <h2 class="font-bold text-lg">Admin Studio</h2>
-          <p class="text-xs text-slate-400">1-Click GitHub Publish + Auto 3x3 Collage &amp; GDrive Metadata</p>
+          <p class="text-xs text-slate-400">Fast videos.json Publish + Pagination + Bulk CSV Import</p>
         </div>
         <button id="closeAdminBtn" type="button" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
       </div>
@@ -139,7 +141,7 @@
       <div class="p-5 overflow-y-auto space-y-6">
         <div class="bg-slate-950/60 p-4 rounded-xl border border-emerald-700/50 space-y-2.5">
           <div class="flex items-center justify-between gap-2">
-            <h3 class="text-sm font-semibold text-emerald-300">GitHub 1-Click Publish (Auto-Deploy)</h3>
+            <h3 class="text-sm font-semibold text-emerald-300">GitHub 1-Click Publish (videos.json Only — Super Fast)</h3>
             <span id="ghStatus" class="text-[11px] text-slate-400">Not connected</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -150,7 +152,20 @@
             <input id="ghTokenInput" type="password" placeholder="GitHub Personal Access Token (ghp_... or github_pat_...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
             <button id="saveGhBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save GitHub</button>
           </div>
-          <p class="text-[11px] text-slate-400">Token stays strictly in your browser (needs <strong>Contents: Read &amp; write</strong> + <strong>Actions: Read &amp; write</strong>).</p>
+          <p class="text-[11px] text-slate-400">Token stays strictly in your browser. Publish Live updates <strong>videos.json</strong> directly (~1 sec).</p>
+        </div>
+
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-violet-700/50 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-sm font-semibold text-violet-300">Bulk CSV / JSON Import (Colab Output)</h3>
+            <span id="bulkImportStatus" class="text-[11px] text-slate-400">Ready</span>
+          </div>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <input id="bulkFileInput" type="file" accept=".csv,.json,text/csv,application/json" class="flex-1 text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-violet-700 file:text-white hover:file:bg-violet-600 bg-slate-900 border border-slate-700 rounded-lg p-1.5" />
+            <input id="bulkDefaultCategory" type="text" placeholder="Default Tags (e.g., Trending, HD)" class="sm:w-48 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs" />
+            <button id="bulkImportBtn" type="button" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Import File</button>
+          </div>
+          <p class="text-[11px] text-slate-400">Auto-detects Title/Filename, Gofile, Doodstream, Streamtape, LuluStream, VOE, Thumb, Category/Tags &amp; skips duplicates.</p>
         </div>
 
         <div class="bg-slate-950/60 p-4 rounded-xl border border-sky-700/50 space-y-2.5">
@@ -162,11 +177,10 @@
             <input id="gdriveApiKeyInput" type="text" placeholder="Paste Google Drive API Key (AIzaSy...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
             <button id="saveApiKeyBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save Key &amp; Sync</button>
           </div>
-          <p class="text-[11px] text-slate-400">Automatically fetches exact video resolution (720p, 1080p, 4K) &amp; original duration from Google Drive.</p>
         </div>
 
         <form id="addVideoForm" class="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-          <h3 class="text-sm font-semibold text-slate-200">Add New Video</h3>
+          <h3 class="text-sm font-semibold text-slate-200">Add Single Video</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input id="vTitle" required placeholder="Video Title" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
             <input id="vCategory" placeholder="Tags / Category (e.g., Trending, HD, Collage)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
@@ -188,21 +202,24 @@
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input id="vThumb" placeholder="3x3 Collage / Thumbnail URL (e.g., thumbs/vid1.jpg)" class="bg-slate-900 border border-sky-500 rounded-lg px-3 py-2 text-sm" />
-            <input id="vHoverUrl" placeholder="5s GIF Preview URL (optional — e.g., previews/vid1.gif)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            <input id="vHoverUrl" placeholder="5s Preview URL (optional — .mp4 / .webm / .gif)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
           </div>
           <button id="addVideoSubmitBtn" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">+ Add Video</button>
         </form>
 
         <div>
-          <h3 class="text-sm font-semibold text-slate-200 mb-2">Manage Videos (<span id="videoCount">0</span>)</h3>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <h3 class="text-sm font-semibold text-slate-200">Manage Videos (<span id="videoCount">0</span>)</h3>
+            <input id="adminSearchInput" type="text" placeholder="Filter admin list..." class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 w-44" />
+          </div>
           <div id="adminVideoList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
       <div class="px-5 py-3.5 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-2">
-        <span class="text-xs text-emerald-400">Adsterra Active</span>
+        <span class="text-xs text-emerald-400">videos.json Mode</span>
         <div class="flex flex-wrap items-center gap-2">
-          <button id="downloadHtmlBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">Download index.html</button>
+          <button id="downloadJsonBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">Download videos.json</button>
           <button id="publishLiveBtn" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg transition shadow">&#128640; Publish Live</button>
         </div>
       </div>
@@ -237,11 +254,26 @@
 
   <script>
     (function () {
+      const VIDEOS_PER_PAGE = 24;
       const GH_TOKEN_STORAGE_KEY = 'yourpo_gh_token';
+      const GDRIVE_KEY_STORAGE_KEY = 'yourpo_gdrive_key';
       const THUMB_WORKFLOW_FILE = 'make-thumb.yml';
+
+      // Dynamic mirror domains: if a host changes domain later, update here once for all 1,000+ videos
+      const HOST_DOMAINS = {
+        doodstream: 'https://d0000d.com/e/',
+        streamtape: 'https://streamtape.com/e/',
+        lulustream: 'https://lulustream.com/e/',
+        voe: 'https://voe.sx/e/'
+      };
+
       let videos = [];
       let activeCategory = 'All';
       let searchQuery = '';
+      let adminSearchQuery = '';
+      let currentPage = 1;
+      let currentTagPage = 1;
+      let activeTagName = '';
       let isAdminUnlocked = false;
       let currentPlayingVideo = null;
       let adminConfig = {
@@ -264,6 +296,10 @@
           if (typeof parsedCfg.githubRepo === 'string' && parsedCfg.githubRepo.trim()) adminConfig.githubRepo = parsedCfg.githubRepo.trim();
           if (typeof parsedCfg.githubBranch === 'string' && parsedCfg.githubBranch.trim()) adminConfig.githubBranch = parsedCfg.githubBranch.trim();
         }
+      } catch (e) {}
+      try {
+        const savedKey = localStorage.getItem(GDRIVE_KEY_STORAGE_KEY);
+        if (savedKey) adminConfig.gdriveApiKey = savedKey;
       } catch (e) {}
 
       function extractDriveId(rawUrl) {
@@ -399,6 +435,7 @@
       const els = {
         grid: document.getElementById('videoGrid'),
         empty: document.getElementById('emptyState'),
+        paginationBar: document.getElementById('paginationBar'),
         categoryBar: document.getElementById('categoryBar'),
         search: document.getElementById('searchInput'),
         brandHomeLink: document.getElementById('brandHomeLink'),
@@ -415,6 +452,7 @@
         tagQuickBar: document.getElementById('tagQuickBar'),
         tagVideosGrid: document.getElementById('tagVideosGrid'),
         tagEmptyState: document.getElementById('tagEmptyState'),
+        tagPaginationBar: document.getElementById('tagPaginationBar'),
         adminModal: document.getElementById('adminModal'),
         openAdminBtn: document.getElementById('openAdminBtn'),
         closeAdminBtn: document.getElementById('closeAdminBtn'),
@@ -423,6 +461,10 @@
         ghTokenInput: document.getElementById('ghTokenInput'),
         ghStatus: document.getElementById('ghStatus'),
         saveGhBtn: document.getElementById('saveGhBtn'),
+        bulkFileInput: document.getElementById('bulkFileInput'),
+        bulkDefaultCategory: document.getElementById('bulkDefaultCategory'),
+        bulkImportBtn: document.getElementById('bulkImportBtn'),
+        bulkImportStatus: document.getElementById('bulkImportStatus'),
         gdriveApiKeyInput: document.getElementById('gdriveApiKeyInput'),
         apiKeyStatus: document.getElementById('apiKeyStatus'),
         saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
@@ -430,9 +472,10 @@
         autoThumbStatus: document.getElementById('autoThumbStatus'),
         addVideoForm: document.getElementById('addVideoForm'),
         addVideoSubmitBtn: document.getElementById('addVideoSubmitBtn'),
+        adminSearchInput: document.getElementById('adminSearchInput'),
         adminVideoList: document.getElementById('adminVideoList'),
         videoCount: document.getElementById('videoCount'),
-        downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
+        downloadJsonBtn: document.getElementById('downloadJsonBtn'),
         publishLiveBtn: document.getElementById('publishLiveBtn'),
         siteFooter: document.getElementById('siteFooter'),
         toast: document.getElementById('toast')
@@ -615,13 +658,13 @@
         const lower = url.toLowerCase();
         if (/gofile\./i.test(lower)) return { host: 'Gofile', href: url, badgeClass: 'bg-emerald-600 hover:bg-emerald-500 text-white' };
         const doodId = extractDoodstreamId(url);
-        if (doodId || /dood/i.test(lower)) return { host: 'Doodstream', href: doodId ? ('https://d0000d.com/e/' + doodId) : url, badgeClass: 'bg-orange-600 hover:bg-orange-500 text-white' };
+        if (doodId || /dood/i.test(lower)) return { host: 'Doodstream', href: doodId ? (HOST_DOMAINS.doodstream + doodId) : url, badgeClass: 'bg-orange-600 hover:bg-orange-500 text-white' };
         const stMatch = lower.match(/streamtape\.[a-z0-9.-]+\/(?:e|v)\/([A-Za-z0-9_-]+)/);
-        if (stMatch || /streamtape/i.test(lower)) return { host: 'Streamtape', href: stMatch ? ('https://streamtape.com/e/' + stMatch[1]) : url, badgeClass: 'bg-sky-600 hover:bg-sky-500 text-white' };
+        if (stMatch || /streamtape/i.test(lower)) return { host: 'Streamtape', href: stMatch ? (HOST_DOMAINS.streamtape + stMatch[1]) : url, badgeClass: 'bg-sky-600 hover:bg-sky-500 text-white' };
         const luluMatch = lower.match(/(?:lulustream|luluvdo|lulu)\.[a-z0-9.-]+\/(?:e|d|v)?\/?([A-Za-z0-9]+)/);
-        if (luluMatch || /lulu/i.test(lower)) return { host: 'LuluStream', href: luluMatch ? ('https://lulustream.com/e/' + luluMatch[1]) : url, badgeClass: 'bg-violet-600 hover:bg-violet-500 text-white' };
+        if (luluMatch || /lulu/i.test(lower)) return { host: 'LuluStream', href: luluMatch ? (HOST_DOMAINS.lulustream + luluMatch[1]) : url, badgeClass: 'bg-violet-600 hover:bg-violet-500 text-white' };
         const voeMatch = lower.match(/voe\.[a-z0-9.-]+\/(?:e\/)?([A-Za-z0-9]+)/);
-        if (voeMatch || /voe\./i.test(lower)) return { host: 'VOE', href: voeMatch ? ('https://voe.sx/e/' + voeMatch[1]) : url, badgeClass: 'bg-rose-600 hover:bg-rose-500 text-white' };
+        if (voeMatch || /voe\./i.test(lower)) return { host: 'VOE', href: voeMatch ? (HOST_DOMAINS.voe + voeMatch[1]) : url, badgeClass: 'bg-rose-600 hover:bg-rose-500 text-white' };
         const fallbackNames = ['Gofile', 'Doodstream', 'Streamtape', 'LuluStream', 'VOE'];
         const colors = [
           'bg-emerald-600 hover:bg-emerald-500 text-white',
@@ -701,6 +744,69 @@
         });
       }
 
+      function renderPagination(container, totalItems, page, onPageChange) {
+        if (!container) return;
+        const totalPages = Math.ceil(totalItems / VIDEOS_PER_PAGE);
+        container.innerHTML = '';
+        if (totalPages <= 1) {
+          container.classList.add('hidden');
+          return;
+        }
+        container.classList.remove('hidden');
+
+        function makeBtn(label, targetPage, disabled, active) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = label;
+          b.disabled = disabled;
+          if (active) {
+            b.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold bg-red-600 text-white shadow';
+          } else if (disabled) {
+            b.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 border border-slate-800 text-slate-600 cursor-not-allowed';
+          } else {
+            b.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 transition';
+            b.addEventListener('click', function () {
+              onPageChange(targetPage);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+          }
+          return b;
+        }
+
+        container.appendChild(makeBtn('← Prev', page - 1, page <= 1, false));
+
+        const start = Math.max(1, page - 2);
+        const end = Math.min(totalPages, page + 2);
+        if (start > 1) {
+          container.appendChild(makeBtn('1', 1, false, page === 1));
+          if (start > 2) {
+            const dots = document.createElement('span');
+            dots.textContent = '…';
+            dots.className = 'px-1 text-slate-500 text-xs';
+            container.appendChild(dots);
+          }
+        }
+        for (let p = start; p <= end; p++) {
+          container.appendChild(makeBtn(String(p), p, false, p === page));
+        }
+        if (end < totalPages) {
+          if (end < totalPages - 1) {
+            const dots2 = document.createElement('span');
+            dots2.textContent = '…';
+            dots2.className = 'px-1 text-slate-500 text-xs';
+            container.appendChild(dots2);
+          }
+          container.appendChild(makeBtn(String(totalPages), totalPages, false, page === totalPages));
+        }
+
+        container.appendChild(makeBtn('Next →', page + 1, page >= totalPages, false));
+
+        const info = document.createElement('span');
+        info.textContent = 'Page ' + page + ' / ' + totalPages + ' (' + totalItems + ' videos)';
+        info.className = 'text-xs text-slate-400 ml-2';
+        container.appendChild(info);
+      }
+
       function showHomeGrid(updateHistory) {
         currentPlayingVideo = null;
         if (els.fullPagePlayer) els.fullPagePlayer.classList.add('hidden');
@@ -731,6 +837,7 @@
         if (els.categoryBar) els.categoryBar.classList.add('hidden');
         if (els.grid) els.grid.classList.add('hidden');
         if (els.empty) els.empty.classList.add('hidden');
+        if (els.paginationBar) els.paginationBar.classList.add('hidden');
         if (els.tagResultsSection) els.tagResultsSection.classList.add('hidden');
         if (els.fullPagePlayer) els.fullPagePlayer.classList.remove('hidden');
 
@@ -785,7 +892,7 @@
             hoverEl.muted = true;
             hoverEl.loop = true;
             hoverEl.playsInline = true;
-            hoverEl.preload = 'auto';
+            hoverEl.preload = 'none';
             hoverEl.className = 'hidden absolute inset-0 w-full h-full object-cover z-[1]';
             thumbWrap.appendChild(hoverEl);
           } else {
@@ -854,23 +961,20 @@
         return card;
       }
 
-      function openTagPage(tagName, pushState) {
-        const cleanTag = String(tagName || '').trim() || 'General';
-        const targetLower = cleanTag.toLowerCase();
-
+      function renderTagPageList() {
+        const targetLower = activeTagName.toLowerCase();
         const matched = videos.filter(function (v) {
           return getVideoTags(v).some(function (t) { return t.toLowerCase() === targetLower; });
         });
 
-        if (els.fullPagePlayer) els.fullPagePlayer.classList.add('hidden');
-        if (els.fullPageMediaContainer) els.fullPageMediaContainer.innerHTML = '';
-        if (els.categoryBar) els.categoryBar.classList.add('hidden');
-        if (els.grid) els.grid.classList.add('hidden');
-        if (els.empty) els.empty.classList.add('hidden');
+        const totalPages = Math.max(1, Math.ceil(matched.length / VIDEOS_PER_PAGE));
+        if (currentTagPage > totalPages) currentTagPage = totalPages;
+        const startIdx = (currentTagPage - 1) * VIDEOS_PER_PAGE;
+        const pageItems = matched.slice(startIdx, startIdx + VIDEOS_PER_PAGE);
 
-        if (els.activeTagHeading) els.activeTagHeading.textContent = 'Tag: #' + cleanTag;
+        if (els.activeTagHeading) els.activeTagHeading.textContent = 'Tag: #' + activeTagName;
         if (els.tagMatchCount) els.tagMatchCount.textContent = matched.length + (matched.length === 1 ? ' video' : ' videos');
-        renderTagQuickChips(cleanTag);
+        renderTagQuickChips(activeTagName);
 
         if (els.tagVideosGrid) {
           els.tagVideosGrid.innerHTML = '';
@@ -878,15 +982,34 @@
             if (els.tagEmptyState) els.tagEmptyState.classList.remove('hidden');
           } else {
             if (els.tagEmptyState) els.tagEmptyState.classList.add('hidden');
-            matched.forEach(function (video) {
+            pageItems.forEach(function (video) {
               els.tagVideosGrid.appendChild(buildVideoCard(video));
             });
           }
         }
 
+        renderPagination(els.tagPaginationBar, matched.length, currentTagPage, function (newPage) {
+          currentTagPage = newPage;
+          renderTagPageList();
+        });
+      }
+
+      function openTagPage(tagName, pushState) {
+        activeTagName = String(tagName || '').trim() || 'General';
+        currentTagPage = 1;
+
+        if (els.fullPagePlayer) els.fullPagePlayer.classList.add('hidden');
+        if (els.fullPageMediaContainer) els.fullPageMediaContainer.innerHTML = '';
+        if (els.categoryBar) els.categoryBar.classList.add('hidden');
+        if (els.grid) els.grid.classList.add('hidden');
+        if (els.empty) els.empty.classList.add('hidden');
+        if (els.paginationBar) els.paginationBar.classList.add('hidden');
+
+        renderTagPageList();
+
         if (els.tagResultsSection) els.tagResultsSection.classList.remove('hidden');
         if (pushState) {
-          try { history.pushState({ view: 'tag', tag: cleanTag }, '', '#tag=' + encodeURIComponent(cleanTag)); } catch (e) {}
+          try { history.pushState({ view: 'tag', tag: activeTagName }, '', '#tag=' + encodeURIComponent(activeTagName)); } catch (e) {}
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -908,6 +1031,7 @@
             : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 whitespace-nowrap';
           btn.addEventListener('click', function () {
             activeCategory = cat;
+            currentPage = 1;
             renderCategories();
             renderGrid();
           });
@@ -930,12 +1054,23 @@
         els.grid.innerHTML = '';
         if (!filtered.length) {
           if (els.empty) els.empty.classList.remove('hidden');
+          if (els.paginationBar) els.paginationBar.classList.add('hidden');
           return;
         }
         if (els.empty) els.empty.classList.add('hidden');
 
-        filtered.forEach(function (video) {
+        const totalPages = Math.max(1, Math.ceil(filtered.length / VIDEOS_PER_PAGE));
+        if (currentPage > totalPages) currentPage = totalPages;
+        const startIdx = (currentPage - 1) * VIDEOS_PER_PAGE;
+        const pageItems = filtered.slice(startIdx, startIdx + VIDEOS_PER_PAGE);
+
+        pageItems.forEach(function (video) {
           els.grid.appendChild(buildVideoCard(video));
+        });
+
+        renderPagination(els.paginationBar, filtered.length, currentPage, function (newPage) {
+          currentPage = newPage;
+          renderGrid();
         });
       }
 
@@ -943,7 +1078,15 @@
         if (els.videoCount) els.videoCount.textContent = String(videos.length);
         if (!els.adminVideoList) return;
         els.adminVideoList.innerHTML = '';
-        videos.forEach(function (v) {
+
+        const q = adminSearchQuery.toLowerCase().trim();
+        const list = q
+          ? videos.filter(function (v) { return (v.title || '').toLowerCase().indexOf(q) !== -1; })
+          : videos;
+
+        // Render up to 100 items in Admin list at once to keep modal super fast even with 1,000+ videos
+        const visibleList = list.slice(0, 100);
+        visibleList.forEach(function (v) {
           const row = document.createElement('div');
           row.className = 'flex items-center justify-between gap-2 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2';
           const info = document.createElement('div');
@@ -956,7 +1099,7 @@
             + (v.resolution ? ' • ' + v.resolution : '')
             + (v.duration ? ' • ' + v.duration : '')
             + (v.thumb ? ' • Thumb' : '')
-            + (v.hoverUrl ? ' • GIF' : '')
+            + (v.hoverUrl ? ' • Preview' : '')
             + (getVideoDownloadLinks(v).length ? ' • Mirrors x' + getVideoDownloadLinks(v).length : '');
           c.className = 'text-[11px] text-slate-500 truncate';
           info.appendChild(t);
@@ -967,56 +1110,203 @@
           del.addEventListener('click', function () {
             videos = videos.filter(function (item) { return item.id !== v.id; });
             renderCategories(); renderGrid(); renderAdminList();
-            showToast('Video removed');
+            showToast('Video removed — click Publish Live');
           });
           row.appendChild(info);
           row.appendChild(del);
           els.adminVideoList.appendChild(row);
         });
-      }
 
-      function buildUpdatedHtml() {
-        const clone = document.documentElement.cloneNode(true);
-        const cloneData = clone.querySelector('#initialVideosData');
-        if (cloneData) cloneData.textContent = '\n' + JSON.stringify(videos, null, 2) + '\n  ';
-        const cloneCfg = clone.querySelector('#adminConfigData');
-        if (cloneCfg) {
-          cloneCfg.textContent = '\n' + JSON.stringify({
-            gdriveApiKey: adminConfig.gdriveApiKey || '',
-            githubRepo: adminConfig.githubRepo || 'gurug555/youronline',
-            githubBranch: adminConfig.githubBranch || 'main'
-          }, null, 2) + '\n  ';
+        if (list.length > 100) {
+          const note = document.createElement('p');
+          note.textContent = 'Showing first 100 of ' + list.length + ' videos. Use the filter box above to find older videos.';
+          note.className = 'text-[11px] text-slate-400 text-center py-1';
+          els.adminVideoList.appendChild(note);
         }
-        const cloneTok = clone.querySelector('#ghTokenInput');
-        if (cloneTok) cloneTok.setAttribute('value', '');
-        if (clone.body) clone.body.classList.remove('admin-no-ads');
-        ['#nativeAdSection', '#headerDealsLink', '#categoryBar', '#videoGrid'].forEach(function (sel) {
-          const el = clone.querySelector(sel);
-          if (el) el.classList.remove('hidden');
-        });
-        ['#adminModal', '#fullPagePlayer', '#tagResultsSection', '#autoThumbStatus', '#toast'].forEach(function (sel) {
-          const el = clone.querySelector(sel);
-          if (el) el.classList.add('hidden');
-        });
-        const cloneMedia = clone.querySelector('#fullPageMediaContainer');
-        if (cloneMedia) cloneMedia.innerHTML = '';
-        const cloneNative = clone.querySelector('#container-8ebe172168680c52df883eca2f77b34a');
-        if (cloneNative) cloneNative.innerHTML = '';
-        return '<!DOCTYPE html>\n' + clone.outerHTML;
       }
 
-      function downloadUpdatedHtml() {
-        const html = buildUpdatedHtml();
-        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      // RFC-4180 compliant CSV parser for Colab bulk output
+      function parseCsvText(text) {
+        const rows = [];
+        let row = [];
+        let field = '';
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          const next = text[i + 1];
+          if (inQuotes) {
+            if (ch === '"' && next === '"') {
+              field += '"';
+              i++;
+            } else if (ch === '"') {
+              inQuotes = false;
+            } else {
+              field += ch;
+            }
+          } else {
+            if (ch === '"') {
+              inQuotes = true;
+            } else if (ch === ',') {
+              row.push(field.trim());
+              field = '';
+            } else if (ch === '\r' && next === '\n') {
+              row.push(field.trim());
+              rows.push(row);
+              row = [];
+              field = '';
+              i++;
+            } else if (ch === '\n' || ch === '\r') {
+              row.push(field.trim());
+              rows.push(row);
+              row = [];
+              field = '';
+            } else {
+              field += ch;
+            }
+          }
+        }
+        if (field.length || row.length) {
+          row.push(field.trim());
+          rows.push(row);
+        }
+        return rows.filter(function (r) { return r.some(function (cell) { return cell !== ''; }); });
+      }
+
+      function handleBulkImport() {
+        const file = els.bulkFileInput && els.bulkFileInput.files && els.bulkFileInput.files[0];
+        if (!file) {
+          showToast('Select a .csv or .json file first!');
+          return;
+        }
+        const defaultCat = ((els.bulkDefaultCategory && els.bulkDefaultCategory.value) || '').trim() || 'Trending';
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          try {
+            const raw = String(ev.target.result || '').trim();
+            if (!raw) throw new Error('Empty file');
+
+            const existingTitles = {};
+            videos.forEach(function (v) {
+              if (v && v.title) existingTitles[v.title.trim().toLowerCase()] = true;
+            });
+
+            let imported = [];
+            if (file.name.toLowerCase().endsWith('.json') || raw.startsWith('[') || raw.startsWith('{')) {
+              const parsed = JSON.parse(raw);
+              const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.videos) ? parsed.videos : []);
+              imported = arr.map(function (item, idx) {
+                const links = getVideoDownloadLinks(item);
+                return {
+                  id: item.id || ('vid-' + Date.now() + '-' + idx),
+                  title: String(item.title || item.name || item.filename || ('Video ' + (idx + 1))).replace(/\.(mp4|mkv|avi|mov|webm)$/i, '').trim(),
+                  category: String(item.category || item.tags || defaultCat).trim(),
+                  url: String(item.url || item.gdrive || '').trim(),
+                  downloadUrl: links[0] || '',
+                  downloadUrls: links,
+                  hoverUrl: String(item.hoverUrl || item.preview || '').trim(),
+                  thumb: String(item.thumb || item.thumbnail || '').trim(),
+                  resolution: String(item.resolution || '').trim(),
+                  duration: String(item.duration || '').trim()
+                };
+              });
+            } else {
+              const rows = parseCsvText(raw);
+              if (rows.length < 2) throw new Error('CSV needs a header row + at least 1 data row');
+              const headers = rows[0].map(function (h) { return h.toLowerCase().replace(/[^a-z0-9]/g, ''); });
+
+              function findCol(names) {
+                for (let i = 0; i < headers.length; i++) {
+                  for (let j = 0; j < names.length; j++) {
+                    if (headers[i] === names[j] || headers[i].indexOf(names[j]) !== -1) return i;
+                  }
+                }
+                return -1;
+              }
+
+              const cTitle = findCol(['title', 'filename', 'file', 'name', 'video']);
+              const cCat = findCol(['category', 'tags', 'tag']);
+              const cGdrive = findCol(['gdrive', 'driveurl', 'drive', 'url']);
+              const cThumb = findCol(['thumb', 'thumbnail', 'collage', 'image']);
+              const cHover = findCol(['hover', 'preview', 'gif']);
+              const cRes = findCol(['resolution', 'quality', 'res']);
+              const cDur = findCol(['duration', 'length', 'time']);
+              const cGofile = findCol(['gofile']);
+              const cDood = findCol(['doodstream', 'dood']);
+              const cStreamtape = findCol(['streamtape', 'tape']);
+              const cLulu = findCol(['lulustream', 'lulu']);
+              const cVoe = findCol(['voe']);
+
+              for (let r = 1; r < rows.length; r++) {
+                const cols = rows[r];
+                const rawTitle = (cTitle >= 0 ? cols[cTitle] : cols[0]) || '';
+                const cleanTitle = rawTitle.replace(/\.(mp4|mkv|avi|mov|webm)$/i, '').trim();
+                if (!cleanTitle) continue;
+
+                const links = [];
+                [cGofile, cDood, cStreamtape, cLulu, cVoe].forEach(function (ci) {
+                  if (ci >= 0 && cols[ci] && /^https?:\/\//i.test(cols[ci])) links.push(cols[ci].trim());
+                });
+                if (links.length === 0) {
+                  cols.forEach(function (val) {
+                    if (/^https?:\/\/(?!drive\.google\.com)/i.test(val) && links.length < 5) links.push(val.trim());
+                  });
+                }
+
+                imported.push({
+                  id: 'vid-' + Date.now() + '-' + r,
+                  title: cleanTitle,
+                  category: (cCat >= 0 && cols[cCat]) ? cols[cCat] : defaultCat,
+                  url: (cGdrive >= 0 && cols[cGdrive]) ? cols[cGdrive] : '',
+                  downloadUrl: links[0] || '',
+                  downloadUrls: links.slice(0, 5),
+                  hoverUrl: (cHover >= 0 && cols[cHover]) ? cols[cHover] : '',
+                  thumb: (cThumb >= 0 && cols[cThumb]) ? cols[cThumb] : '',
+                  resolution: (cRes >= 0 && cols[cRes]) ? cols[cRes] : '',
+                  duration: (cDur >= 0 && cols[cDur]) ? cols[cDur] : ''
+                });
+              }
+            }
+
+            let added = 0;
+            let skipped = 0;
+            imported.reverse().forEach(function (item) {
+              const key = item.title.toLowerCase();
+              if (existingTitles[key]) {
+                skipped++;
+              } else {
+                existingTitles[key] = true;
+                videos.unshift(item);
+                added++;
+              }
+            });
+
+            renderCategories();
+            renderGrid();
+            renderAdminList();
+            if (els.bulkImportStatus) {
+              els.bulkImportStatus.textContent = 'Added ' + added + (skipped ? ', skipped ' + skipped + ' dupes' : '');
+              els.bulkImportStatus.className = 'text-[11px] font-semibold text-emerald-400';
+            }
+            showToast('Imported ' + added + ' videos! Click Publish Live.');
+          } catch (err) {
+            showToast('Import error: ' + (err.message || 'Invalid file'));
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function downloadVideosJson() {
+        const jsonStr = JSON.stringify(videos, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'index.html';
+        a.download = 'videos.json';
         document.body.appendChild(a);
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        showToast('Downloaded index.html');
+        showToast('Downloaded videos.json');
       }
 
       function utf8ToBase64(str) {
@@ -1030,38 +1320,7 @@
         return btoa(binary);
       }
 
-      async function syncVideosJsonToRepo(repo, branch, token) {
-        const apiUrl = 'https://api.github.com/repos/' + repo + '/contents/videos.json';
-        const headers = {
-          'Accept': 'application/vnd.github+json',
-          'Authorization': 'Bearer ' + token
-        };
-        let sha = null;
-        const getRes = await fetch(apiUrl + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(), {
-          headers: headers,
-          cache: 'no-store'
-        });
-        if (getRes.ok) {
-          const info = await getRes.json();
-          sha = info.sha || null;
-        }
-        const body = {
-          message: 'Update videos.json via Admin Studio',
-          content: utf8ToBase64(JSON.stringify(videos, null, 2)),
-          branch: branch
-        };
-        if (sha) body.sha = sha;
-        const putRes = await fetch(apiUrl, {
-          method: 'PUT',
-          headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
-          body: JSON.stringify(body)
-        });
-        if (!putRes.ok) {
-          const err = await putRes.json().catch(function () { return {}; });
-          throw new Error(err.message || 'Failed updating videos.json');
-        }
-      }
-
+      // Phase 1 Upgrade: Publish Live updates ONLY videos.json (fast even for 1,000+ videos)
       async function publishLiveToGitHub() {
         const repo = ((els.ghRepoInput && els.ghRepoInput.value) || adminConfig.githubRepo || 'gurug555/youronline')
           .trim()
@@ -1100,63 +1359,46 @@
           }
         }, 15000);
 
-        function fetchWithTimeout(url, opts, ms) {
-          const controller = new AbortController();
-          const timer = setTimeout(function () { controller.abort(); }, ms || 10000);
-          return fetch(url, Object.assign({}, opts, {
-            signal: controller.signal,
-            cache: 'no-store'
-          })).finally(function () { clearTimeout(timer); });
-        }
-
         try {
-          const apiBase = 'https://api.github.com/repos/' + repo + '/contents/index.html';
+          const apiUrl = 'https://api.github.com/repos/' + repo + '/contents/videos.json';
           const headers = {
             'Accept': 'application/vnd.github+json',
             'Authorization': 'Bearer ' + token
           };
 
-          let currentSha = null;
-          const getRes = await fetchWithTimeout(
-            apiBase + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(),
-            { headers: headers },
-            10000
-          );
-
+          let sha = null;
+          const getRes = await fetch(apiUrl + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(), {
+            headers: headers,
+            cache: 'no-store'
+          });
           if (getRes.ok) {
-            const getData = await getRes.json();
-            currentSha = getData.sha || null;
+            const info = await getRes.json();
+            sha = info.sha || null;
           } else if (getRes.status !== 404) {
             const errJson = await getRes.json().catch(function () { return {}; });
             throw new Error(errJson.message || ('GET failed (' + getRes.status + ')'));
           }
 
-          const updatedHtml = buildUpdatedHtml();
-          const payload = {
-            message: 'Update yourpo.online via Admin Studio',
-            content: utf8ToBase64(updatedHtml),
+          const body = {
+            message: 'Update videos.json (' + videos.length + ' videos)',
+            content: utf8ToBase64(JSON.stringify(videos, null, 2)),
             branch: branch
           };
-          if (currentSha) payload.sha = currentSha;
+          if (sha) body.sha = sha;
 
-          const putRes = await fetchWithTimeout(apiBase, {
+          const putRes = await fetch(apiUrl, {
             method: 'PUT',
             headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
-            body: JSON.stringify(payload)
-          }, 12000);
-
+            body: JSON.stringify(body)
+          });
           if (!putRes.ok) {
-            const errJson = await putRes.json().catch(function () { return {}; });
-            throw new Error(errJson.message || ('PUT failed (' + putRes.status + ')'));
+            const err = await putRes.json().catch(function () { return {}; });
+            throw new Error(err.message || ('PUT failed (' + putRes.status + ')'));
           }
 
-          await syncVideosJsonToRepo(repo, branch, token);
-          showToast('Published! Site will update in ~30s.');
+          showToast('Published videos.json! Live in ~20s.');
         } catch (err) {
-          const msg = (err && err.name === 'AbortError')
-            ? 'Request timed out — use Download index.html'
-            : (err && err.message ? err.message : 'Check Repo/Token');
-          showToast('Publish failed: ' + msg);
+          showToast('Publish failed: ' + (err && err.message ? err.message : 'Check Repo/Token'));
         } finally {
           clearTimeout(forceUnlockTimer);
           if (els.publishLiveBtn) {
@@ -1232,6 +1474,7 @@
       if (els.search) {
         els.search.addEventListener('input', function (e) {
           searchQuery = e.target.value;
+          currentPage = 1;
           if ((els.fullPagePlayer && !els.fullPagePlayer.classList.contains('hidden')) ||
               (els.tagResultsSection && !els.tagResultsSection.classList.contains('hidden'))) {
             showHomeGrid(true);
@@ -1241,11 +1484,19 @@
         });
       }
 
+      if (els.adminSearchInput) {
+        els.adminSearchInput.addEventListener('input', function (e) {
+          adminSearchQuery = e.target.value;
+          renderAdminList();
+        });
+      }
+
       if (els.brandHomeLink) {
         els.brandHomeLink.addEventListener('click', function (e) {
           e.preventDefault();
           activeCategory = 'All';
           searchQuery = '';
+          currentPage = 1;
           if (els.search) els.search.value = '';
           renderCategories();
           showHomeGrid(true);
@@ -1265,6 +1516,7 @@
 
       if (els.openAdminBtn) els.openAdminBtn.addEventListener('click', openAdminDirect);
       if (els.closeAdminBtn) els.closeAdminBtn.addEventListener('click', closeAdminDirect);
+      if (els.bulkImportBtn) els.bulkImportBtn.addEventListener('click', handleBulkImport);
 
       if (els.saveGhBtn) {
         els.saveGhBtn.addEventListener('click', function () {
@@ -1280,6 +1532,10 @@
       if (els.saveApiKeyBtn) {
         els.saveApiKeyBtn.addEventListener('click', async function () {
           adminConfig.gdriveApiKey = ((els.gdriveApiKeyInput && els.gdriveApiKeyInput.value) || '').trim();
+          try {
+            if (adminConfig.gdriveApiKey) localStorage.setItem(GDRIVE_KEY_STORAGE_KEY, adminConfig.gdriveApiKey);
+            else localStorage.removeItem(GDRIVE_KEY_STORAGE_KEY);
+          } catch (e) {}
           updateSettingsUI();
           if (adminConfig.gdriveApiKey) { showToast('API Key saved! Syncing Google Drive videos...'); await syncMissingDriveMetadata(true); }
           else showToast('API Key cleared.');
@@ -1319,12 +1575,13 @@
           if (els.autoThumbStatus) els.autoThumbStatus.classList.add('hidden');
           els.addVideoSubmitBtn.disabled = false;
           els.addVideoSubmitBtn.textContent = '+ Add Video';
+          currentPage = 1;
           renderCategories(); renderGrid(); renderAdminList();
           showToast(meta && meta.resolution ? ('Added (' + meta.resolution + (meta.duration ? ' • ' + meta.duration : '') + ')! Click Publish Live.') : 'Video added! Click Publish Live.');
         });
       }
 
-      if (els.downloadHtmlBtn) els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
+      if (els.downloadJsonBtn) els.downloadJsonBtn.addEventListener('click', downloadVideosJson);
       if (els.publishLiveBtn) els.publishLiveBtn.addEventListener('click', publishLiveToGitHub);
 
       document.addEventListener('keydown', function (e) {
