@@ -1,0 +1,84 @@
+name: Auto 3x3 Thumbnail from GDrive
+
+on:
+  workflow_dispatch:
+    inputs:
+      gdrive_url:
+        description: "Google Drive video share URL"
+        required: true
+        type: string
+      thumb_name:
+        description: "Output filename without extension (e.g., vid1)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  generate-collage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg, gdown & Pillow
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip install -q gdown pillow
+
+      - name: Download video from Google Drive & build 3x3 collage
+        env:
+          GDRIVE_URL: ${{ inputs.gdrive_url }}
+          THUMB_NAME: ${{ inputs.thumb_name }}
+        run: |
+          python3 - << 'EOF'
+          import os, re, subprocess
+          from PIL import Image
+
+          url = os.environ["GDRIVE_URL"].strip()
+          name = os.environ["THUMB_NAME"].strip()
+
+          m = re.search(r"/d/([a-zA-Z0-9_-]+)", url)
+          download_target = f"https://drive.google.com/uc?id={m.group(1)}" if m else url
+
+          video_file = "input_video.mp4"
+          subprocess.run(["gdown", "--fuzzy", download_target, "-O", video_file], check=True)
+
+          probe = subprocess.check_output([
+              "ffprobe", "-v", "error", "-show_entries", "format=duration",
+              "-of", "default=noprint_wrappers=1:nokey=1", video_file
+          ]).decode().strip()
+          duration = float(probe)
+
+          start_t = max(1.0, duration * 0.08)
+          end_t = max(start_t + 1.0, duration * 0.92)
+          step = (end_t - start_t) / 8.0
+
+          os.makedirs("frames", exist_ok=True)
+          tiles = []
+          for i in range(9):
+              ts = start_t + i * step
+              f_path = f"frames/f_{i}.jpg"
+              subprocess.run([
+                  "ffmpeg", "-y", "-ss", f"{ts:.2f}", "-i", video_file,
+                  "-frames:v", "1", "-q:v", "3", f_path
+              ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+              tiles.append(Image.open(f_path).convert("RGB").resize((320, 180)))
+
+          collage = Image.new("RGB", (960, 540), (0, 0, 0))
+          for idx, tile in enumerate(tiles):
+              collage.paste(tile, ((idx % 3) * 320, (idx // 3) * 180))
+
+          os.makedirs("thumbs", exist_ok=True)
+          out_path = f"thumbs/{name}.jpg"
+          collage.save(out_path, "JPEG", quality=85, optimize=True)
+          print("Generated:", out_path)
+          EOF
+
+      - name: Commit and push thumbnail
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add thumbs/
+          git diff --staged --quiet || (git commit -m "Add thumbnail for ${{ inputs.thumb_name }}" && git push)
