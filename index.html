@@ -100,8 +100,8 @@
           <div id="overlayDownloadGroup" class="hidden"></div>
           <button id="replayPreviewBtn" type="button" class="hidden">Replay</button>
         </div>
-        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-4 sm:p-5 flex flex-col items-center text-center z-10">
-          <span class="text-[11px] uppercase tracking-wider font-semibold text-emerald-400 bg-emerald-950/80 border border-emerald-700/50 px-2.5 py-0.5 rounded-full mb-2">5s Preview • Watch / Download Full Video Below</span>
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent p-4 sm:p-5 flex flex-col items-center text-center z-10">
+          <span class="text-[11px] uppercase tracking-wider font-semibold text-emerald-400 bg-emerald-950/80 border border-emerald-700/50 px-2.5 py-0.5 rounded-full mb-2">Watch / Download Full Video Below</span>
           <div id="modalCenterHostsGroup" class="flex flex-wrap items-center justify-center gap-2"></div>
         </div>
       </div>
@@ -139,7 +139,7 @@
       <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800">
         <div>
           <h2 class="font-bold text-lg">Admin Studio</h2>
-          <p class="text-xs text-slate-400">1-Click GitHub Publish + Auto GDrive Resolution &amp; Duration</p>
+          <p class="text-xs text-slate-400">1-Click GitHub Publish + Auto 3x3 Collage &amp; GDrive Metadata</p>
         </div>
         <button id="closeAdminBtn" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
       </div>
@@ -158,7 +158,7 @@
             <input id="ghTokenInput" type="password" placeholder="GitHub Personal Access Token (ghp_... or github_pat_...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
             <button id="saveGhBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save GitHub</button>
           </div>
-          <p class="text-[11px] text-slate-400">Token stays strictly in your browser (never saved inside index.html). Click <strong>Publish Live</strong> below to update yourpo.online automatically.</p>
+          <p class="text-[11px] text-slate-400">Token stays strictly in your browser (needs <strong>repo</strong> + <strong>workflow</strong> permissions for Auto 3x3 Thumb &amp; Publish Live).</p>
         </div>
 
         <div class="bg-slate-950/60 p-4 rounded-xl border border-sky-700/50 space-y-2.5">
@@ -179,7 +179,11 @@
             <input id="vTitle" required placeholder="Video Title" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
             <input id="vCategory" placeholder="Category (e.g., Trending, HD)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
           </div>
-          <input id="vUrl" placeholder="Google Drive Video URL (optional — only for auto resolution/duration)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="vUrl" placeholder="Google Drive Video URL (for Auto 3x3 Thumb + Resolution/Duration)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            <button id="autoThumbBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg transition shrink-0">&#9889; Auto 3x3 Thumb</button>
+          </div>
+          <p id="autoThumbStatus" class="hidden text-xs text-amber-300"></p>
           <div class="space-y-2 bg-slate-900/50 p-3 rounded-lg border border-emerald-800/50">
             <p class="text-xs font-semibold text-emerald-300">5 Hosting / Mirror Links (Gofile, Doodstream, Streamtape, LuluStream, VOE)</p>
             <input id="vDownloadUrl1" placeholder="Link 1 — Gofile / Mirror (e.g., https://gofile.io/d/...)" class="w-full bg-slate-900 border border-emerald-700/70 rounded-lg px-3 py-2 text-sm" />
@@ -191,8 +195,8 @@
             </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input id="vHoverUrl" required placeholder="5s GIF Preview URL (e.g., previews/vid1.gif)" class="bg-slate-900 border border-sky-500 rounded-lg px-3 py-2 text-sm" />
-            <input id="vThumb" placeholder="Static Thumbnail URL (e.g., thumbs/vid1.jpg)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            <input id="vThumb" placeholder="3x3 Collage / Thumbnail URL (e.g., thumbs/vid1.jpg)" class="bg-slate-900 border border-sky-500 rounded-lg px-3 py-2 text-sm" />
+            <input id="vHoverUrl" placeholder="5s GIF Preview URL (optional — e.g., previews/vid1.gif)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
           </div>
           <button id="addVideoSubmitBtn" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">+ Add Video</button>
         </form>
@@ -237,7 +241,7 @@
 [
   {
     "id": "vid-1",
-    "title": "Sample Video — 5s GIF Preview + 5 Hosts",
+    "title": "Sample Video — 3x3 Collage Thumbnail + 5 Hosts",
     "category": "Trending",
     "url": "",
     "downloadUrl": "https://gofile.io/",
@@ -253,6 +257,7 @@
     (function () {
       const PREVIEW_LIMIT_SEC = 10;
       const GH_TOKEN_STORAGE_KEY = 'yourpo_gh_token';
+      const THUMB_WORKFLOW_FILE = 'make-thumb.yml';
       let videos = [];
       let activeCategory = 'All';
       let searchQuery = '';
@@ -408,6 +413,8 @@
         gdriveApiKeyInput: document.getElementById('gdriveApiKeyInput'),
         apiKeyStatus: document.getElementById('apiKeyStatus'),
         saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
+        autoThumbBtn: document.getElementById('autoThumbBtn'),
+        autoThumbStatus: document.getElementById('autoThumbStatus'),
         addVideoForm: document.getElementById('addVideoForm'),
         addVideoSubmitBtn: document.getElementById('addVideoSubmitBtn'),
         adminVideoList: document.getElementById('adminVideoList'),
@@ -449,6 +456,72 @@
         } else {
           els.ghStatus.textContent = 'Not connected';
           els.ghStatus.className = 'text-[11px] text-slate-400';
+        }
+      }
+
+      async function triggerAuto3x3Thumb() {
+        const rawUrl = document.getElementById('vUrl').value.trim();
+        const driveId = extractDriveId(rawUrl);
+        if (!rawUrl || !driveId) {
+          showToast('Valid Google Drive video link podunga!');
+          document.getElementById('vUrl').focus();
+          return;
+        }
+
+        const repo = (els.ghRepoInput.value || adminConfig.githubRepo || '').trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '');
+        const branch = (els.ghBranchInput.value || adminConfig.githubBranch || 'main').trim() || 'main';
+        const token = (els.ghTokenInput.value || getSavedGhToken()).trim();
+
+        if (!repo || repo.indexOf('/') === -1 || !token) {
+          showToast('Top-la GitHub Repo & Token save pannunga first!');
+          els.ghRepoInput.focus();
+          return;
+        }
+
+        const thumbInput = document.getElementById('vThumb');
+        const existingVal = thumbInput.value.trim();
+        let slug = 'vid_' + driveId.slice(0, 10);
+        const slugMatch = existingVal.match(/thumbs\/([a-zA-Z0-9_-]+)\.jpg$/i);
+        if (slugMatch) slug = slugMatch[1];
+
+        els.autoThumbBtn.disabled = true;
+        els.autoThumbBtn.textContent = 'Triggering...';
+        els.autoThumbStatus.classList.remove('hidden');
+        els.autoThumbStatus.textContent = 'Starting GitHub Action for 3x3 collage...';
+
+        try {
+          const endpoint = 'https://api.github.com/repos/' + repo + '/actions/workflows/' + THUMB_WORKFLOW_FILE + '/dispatches';
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/vnd.github+json',
+              'Authorization': 'Bearer ' + token,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              ref: branch,
+              inputs: {
+                gdrive_url: rawUrl,
+                thumb_name: slug
+              }
+            })
+          });
+
+          if (res.status === 204) {
+            const thumbPath = 'thumbs/' + slug + '.jpg';
+            thumbInput.value = thumbPath;
+            els.autoThumbStatus.textContent = 'Triggered! ' + thumbPath + ' (~30 sec-la GitHub repo-la ready aagidum).';
+            showToast('3x3 Collage generation started!');
+          } else {
+            const errJson = await res.json().catch(function () { return {}; });
+            throw new Error(errJson.message || ('GitHub API error ' + res.status));
+          }
+        } catch (err) {
+          els.autoThumbStatus.textContent = 'Failed: ' + (err.message || 'Check workflow file & token permissions');
+          showToast('Auto Thumb failed: ' + (err.message || 'Error'));
+        } finally {
+          els.autoThumbBtn.disabled = false;
+          els.autoThumbBtn.innerHTML = '&#9889; Auto 3x3 Thumb';
         }
       }
 
@@ -526,7 +599,7 @@
           img.addEventListener('error', function () {
             idx++;
             if (idx < candidates.length) img.src = candidates[idx];
-            else els.playerContainer.innerHTML = '<p class="text-xs text-slate-400">Preview GIF unavailable — use the hosting buttons below.</p>';
+            else els.playerContainer.innerHTML = '<p class="text-xs text-slate-400">Preview unavailable — use the hosting buttons below.</p>';
           });
           img.src = candidates[0];
           els.playerContainer.appendChild(img);
@@ -768,7 +841,8 @@
           c.textContent = (v.category || 'General')
             + (v.resolution ? ' • ' + v.resolution : '')
             + (v.duration ? ' • ' + v.duration : '')
-            + (v.hoverUrl ? ' • 5s GIF' : '')
+            + (v.thumb ? ' • Thumb' : '')
+            + (v.hoverUrl ? ' • GIF' : '')
             + (getVideoDownloadLinks(v).length ? ' • Mirrors x' + getVideoDownloadLinks(v).length : '');
           c.className = 'text-[11px] text-slate-500';
           info.appendChild(t);
@@ -809,7 +883,7 @@
           const el = clone.querySelector(sel);
           if (el) el.classList.remove('hidden');
         });
-        ['#openAdminBtn', '#adminLoginModal', '#adminModal', '#playerModal', '#drivePopoutShield', '#previewEndedOverlay', '#toast'].forEach(function (sel) {
+        ['#openAdminBtn', '#adminLoginModal', '#adminModal', '#playerModal', '#drivePopoutShield', '#previewEndedOverlay', '#autoThumbStatus', '#toast'].forEach(function (sel) {
           const el = clone.querySelector(sel);
           if (el) el.classList.add('hidden');
         });
@@ -949,6 +1023,8 @@
         else showToast('API Key cleared.');
       });
 
+      els.autoThumbBtn.addEventListener('click', triggerAuto3x3Thumb);
+
       els.addVideoForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const rawUrl = document.getElementById('vUrl').value.trim();
@@ -976,6 +1052,7 @@
           duration: meta ? meta.duration : ''
         });
         els.addVideoForm.reset();
+        els.autoThumbStatus.classList.add('hidden');
         els.addVideoSubmitBtn.disabled = false;
         els.addVideoSubmitBtn.textContent = '+ Add Video';
         renderCategories(); renderGrid(); renderAdminList();
