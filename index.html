@@ -1104,7 +1104,7 @@
             const errJson = await putRes.json().catch(function () { return {}; });
             throw new Error(errJson.message || ('PUT failed (' + putRes.status + ')'));
           }
-
+          await syncVideosJsonToRepo(repo, branch, token);
           showToast('Published! Site will update in ~30s.');
         } catch (err) {
           const msg = (err && err.name === 'AbortError')
@@ -1115,6 +1115,37 @@
           clearTimeout(forceUnlockTimer);
           els.publishLiveBtn.disabled = false;
           els.publishLiveBtn.innerHTML = origHtml;
+        }
+      }
+      async function syncVideosJsonToRepo(repo, branch, token) {
+        const apiUrl = 'https://api.github.com/repos/' + repo + '/contents/videos.json';
+        const headers = {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': 'Bearer ' + token
+        };
+        let sha = null;
+        const getRes = await fetch(apiUrl + '?ref=' + encodeURIComponent(branch) + '&_t=' + Date.now(), {
+          headers: headers,
+          cache: 'no-store'
+        });
+        if (getRes.ok) {
+          const info = await getRes.json();
+          sha = info.sha || null;
+        }
+        const body = {
+          message: 'Update videos.json via Admin Studio',
+          content: utf8ToBase64(JSON.stringify(videos, null, 2)),
+          branch: branch
+        };
+        if (sha) body.sha = sha;
+        const putRes = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
+          body: JSON.stringify(body)
+        });
+        if (!putRes.ok) {
+          const err = await putRes.json().catch(function () { return {}; });
+          throw new Error(err.message || 'Failed updating videos.json');
         }
       }
 
@@ -1229,7 +1260,22 @@
       renderCategories();
       renderGrid();
       syncMissingDriveMetadata(false);
-
+      async function loadExistingVideosJson() {
+  try {
+    const res = await fetch('videos.json?_t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : null);
+    if (list && list.length) {
+      videos = list;
+      renderCategories();
+      renderGrid();
+      syncRouteFromLocation();
+    }
+  } catch (e) {}
+}
+loadExistingVideosJson();
+  
       try {
         const h = window.location.hash || '';
         const watchMatch = h.match(/^#watch=(.+)$/);
