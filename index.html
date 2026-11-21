@@ -38,7 +38,7 @@
     body.admin-no-ads iframe[src*="biomanos"],
     body.admin-no-ads iframe[src*="apiguinee"],
     body.admin-no-ads iframe[src*="adsterra"],
-    body.admin-no-ads div[id^="container-"]:not(#playerContainer):not(#fullPageMediaContainer) {
+    body.admin-no-ads div[id^="container-"]:not(#fullPageMediaContainer) {
       display: none !important;
     }
   </style>
@@ -57,7 +57,7 @@
       </div>
       <div class="flex items-center gap-2">
         <a id="headerDealsLink" href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition">Trending Deals &rarr;</a>
-        <button id="openAdminBtn" class="hidden bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition">Admin Studio</button>
+        <button id="openAdminBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition">Admin Studio</button>
       </div>
     </div>
   </header>
@@ -69,7 +69,6 @@
       <p class="text-slate-400 text-base">No videos found.</p>
     </div>
 
-    <!-- Full Page Video Player View -->
     <section id="fullPagePlayer" class="hidden max-w-5xl w-full mx-auto py-2">
       <div class="flex items-center justify-between gap-3 mb-4">
         <button id="backToHomeBtn" type="button" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition">
@@ -98,7 +97,6 @@
       </div>
     </section>
 
-    <!-- Related Tag Videos Page -->
     <section id="tagResultsSection" class="hidden w-full py-2">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div class="flex items-center gap-3">
@@ -136,324 +134,5 @@
     &copy; 2026 yourpo.online &mdash; All rights reserved.
   </footer>
 
-  <!-- Kept hidden as fallback container -->
-  <div id="playerModal" class="hidden">
-    <div id="playerContainer"></div>
-    <div id="drivePopoutShield" class="hidden"></div>
-    <div id="previewEndedOverlay" class="hidden">
-      <div id="overlayDownloadGroup" class="hidden"></div>
-      <button id="replayPreviewBtn" type="button" class="hidden">Replay</button>
-    </div>
-    <span id="modalFastMirrorLink" class="hidden"></span>
-  </div>
-
-  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="font-bold text-base text-white">Admin Access</h2>
-        <button id="closeLoginBtn" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
-      </div>
-      <p class="text-xs text-slate-400 mb-4">Enter your admin password to open Admin Studio.</p>
-      <form id="adminLoginForm" class="space-y-3">
-        <input id="adminPassInput" type="password" required autocomplete="current-password" placeholder="Admin Password" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500" />
-        <p id="loginError" class="hidden text-xs text-red-400">Incorrect password. Try again.</p>
-        <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">Unlock Admin Studio</button>
-      </form>
-    </div>
-  </div>
-
   <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800">
-        <div>
-          <h2 class="font-bold text-lg">Admin Studio</h2>
-          <p class="text-xs text-slate-400">1-Click GitHub Publish + Auto 3x3 Collage &amp; GDrive Metadata</p>
-        </div>
-        <button id="closeAdminBtn" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
-      </div>
-
-      <div class="p-5 overflow-y-auto space-y-6">
-        <div class="bg-slate-950/60 p-4 rounded-xl border border-emerald-700/50 space-y-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <h3 class="text-sm font-semibold text-emerald-300">GitHub 1-Click Publish (Auto-Deploy)</h3>
-            <span id="ghStatus" class="text-[11px] text-slate-400">Not connected</span>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <input id="ghRepoInput" type="text" placeholder="gurug555/youronline" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
-            <input id="ghBranchInput" type="text" placeholder="main" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
-          </div>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="ghTokenInput" type="password" placeholder="GitHub Personal Access Token (ghp_... or github_pat_...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
-            <button id="saveGhBtn" type="button" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save GitHub</button>
-          </div>
-          <p class="text-[11px] text-slate-400">Token stays strictly in your browser (needs <strong>Contents: Read &amp; write</strong> + <strong>Actions: Read &amp; write</strong>).</p>
-        </div>
-
-        <div class="bg-slate-950/60 p-4 rounded-xl border border-sky-700/50 space-y-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <h3 class="text-sm font-semibold text-sky-300">Google Drive API Key (Auto Resolution &amp; Timestamp)</h3>
-            <span id="apiKeyStatus" class="text-[11px] text-slate-400">Not set</span>
-          </div>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="gdriveApiKeyInput" type="text" placeholder="Paste Google Drive API Key (AIzaSy...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono" />
-            <button id="saveApiKeyBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0">Save Key &amp; Sync</button>
-          </div>
-          <p class="text-[11px] text-slate-400">Automatically fetches exact video resolution (720p, 1080p, 4K) &amp; original duration from Google Drive.</p>
-        </div>
-
-        <form id="addVideoForm" class="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-          <h3 class="text-sm font-semibold text-slate-200">Add New Video</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input id="vTitle" required placeholder="Video Title" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-            <input id="vCategory" placeholder="Tags / Category (e.g., Trending, HD, Collage)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-          </div>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="vUrl" placeholder="Google Drive Video URL (for Auto 3x3 Thumb + Resolution/Duration)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-            <button id="autoThumbBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg transition shrink-0">&#9889; Auto 3x3 Thumb</button>
-          </div>
-          <p id="autoThumbStatus" class="hidden text-xs text-amber-300"></p>
-          <div class="space-y-2 bg-slate-900/50 p-3 rounded-lg border border-emerald-800/50">
-            <p class="text-xs font-semibold text-emerald-300">5 Hosting / Mirror Links (Gofile, Doodstream, Streamtape, LuluStream, VOE)</p>
-            <input id="vDownloadUrl1" placeholder="Link 1 — Gofile / Mirror (e.g., https://gofile.io/d/...)" class="w-full bg-slate-900 border border-emerald-700/70 rounded-lg px-3 py-2 text-sm" />
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <input id="vDownloadUrl2" placeholder="Link 2 — Doodstream URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
-              <input id="vDownloadUrl3" placeholder="Link 3 — Streamtape URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
-              <input id="vDownloadUrl4" placeholder="Link 4 — LuluStream URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
-              <input id="vDownloadUrl5" placeholder="Link 5 — VOE URL (optional)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs" />
-            </div>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input id="vThumb" placeholder="3x3 Collage / Thumbnail URL (e.g., thumbs/vid1.jpg)" class="bg-slate-900 border border-sky-500 rounded-lg px-3 py-2 text-sm" />
-            <input id="vHoverUrl" placeholder="5s GIF Preview URL (optional — e.g., previews/vid1.gif)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-          </div>
-          <button id="addVideoSubmitBtn" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold text-sm py-2 rounded-lg transition">+ Add Video</button>
-        </form>
-
-        <div>
-          <h3 class="text-sm font-semibold text-slate-200 mb-2">Manage Videos (<span id="videoCount">0</span>)</h3>
-          <div id="adminVideoList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
-        </div>
-
-        <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-2.5">
-          <h3 class="text-sm font-semibold text-slate-200">Change Admin Password</h3>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="newAdminPass" type="password" placeholder="Enter new password (min 4 chars)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
-            <button id="savePassBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 text-xs font-semibold px-4 py-2 rounded-lg transition">Update Password</button>
-          </div>
-          <p class="text-[11px] text-slate-500">After changing settings or videos, click <strong>Publish Live</strong> (or Download index.html) to save permanently.</p>
-        </div>
-      </div>
-
-      <div class="px-5 py-3.5 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-2">
-        <span class="text-xs text-emerald-400">Adsterra Active</span>
-        <div class="flex flex-wrap items-center gap-2">
-          <button id="downloadHtmlBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">Download index.html</button>
-          <button id="publishLiveBtn" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg transition shadow">&#128640; Publish Live</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg"></div>
-
-  <script id="adminConfigData" type="application/json">
-{
-  "passHash": "7c78c98f",
-  "gdriveApiKey": "",
-  "githubRepo": "gurug555/youronline",
-  "githubBranch": "main"
-}
-  </script>
-
-  <script id="initialVideosData" type="application/json">
-[
-  {
-    "id": "vid-1",
-    "title": "Sample Video — 3x3 Collage Thumbnail + 5 Hosts",
-    "category": "Trending, HD",
-    "url": "",
-    "downloadUrl": "https://gofile.io/",
-    "hoverUrl": "",
-    "thumb": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80",
-    "resolution": "1080p",
-    "duration": "09:56"
-  }
-]
-  </script>
-
-  <script>
-    (function () {
-      const GH_TOKEN_STORAGE_KEY = 'yourpo_gh_token';
-      const THUMB_WORKFLOW_FILE = 'make-thumb.yml';
-      let videos = [];
-      let activeCategory = 'All';
-      let searchQuery = '';
-      let isAdminUnlocked = false;
-      let currentPlayingVideo = null;
-      let adminConfig = {
-        passHash: '7c78c98f',
-        gdriveApiKey: '',
-        githubRepo: 'gurug555/youronline',
-        githubBranch: 'main'
-      };
-
-      const FALLBACK_THUMB = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450"><rect width="800" height="450" fill="#0f172a"/><circle cx="400" cy="225" r="54" fill="#ef4444" fill-opacity="0.9"/><polygon points="384,198 384,252 430,225" fill="#ffffff"/></svg>'
-      );
-
-      const dataEl = document.getElementById('initialVideosData');
-      const cfgEl = document.getElementById('adminConfigData');
-      try { videos = JSON.parse(dataEl.textContent.trim()) || []; } catch (e) { videos = []; }
-      try {
-        const parsedCfg = JSON.parse(cfgEl.textContent.trim());
-        if (parsedCfg) {
-          if (parsedCfg.passHash) adminConfig.passHash = parsedCfg.passHash;
-          if (typeof parsedCfg.gdriveApiKey === 'string') adminConfig.gdriveApiKey = parsedCfg.gdriveApiKey;
-          if (typeof parsedCfg.githubRepo === 'string' && parsedCfg.githubRepo.trim()) adminConfig.githubRepo = parsedCfg.githubRepo.trim();
-          if (typeof parsedCfg.githubBranch === 'string' && parsedCfg.githubBranch.trim()) adminConfig.githubBranch = parsedCfg.githubBranch.trim();
-        }
-      } catch (e) {}
-
-      function hashStr(str) {
-        let h = 5381;
-        for (let i = 0; i < str.length; i++) h = (((h << 5) + h) + str.charCodeAt(i)) >>> 0;
-        return h.toString(16);
-      }
-
-      function extractDriveId(rawUrl) {
-        const url = (rawUrl || '').trim();
-        const m1 = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
-        if (m1) return m1[1];
-        const m2 = url.match(/drive\.google\.com\/open\?id=([^&#]+)/);
-        if (m2) return m2[1];
-        const m3 = url.match(/drive\.google\.com\/uc\?.*id=([^&#]+)/);
-        if (m3) return m3[1];
-        return null;
-      }
-
-      function extractDoodstreamId(rawUrl) {
-        const url = (rawUrl || '').trim();
-        const m = url.match(/(?:doodstream\.[a-z]+|dood\.[a-z]+|ds2play\.com|ds2video\.com|d0000d\.com|d000d\.com|do7go\.com|dood\.watch|dood\.pm|dood\.so|dood\.sx|dood\.sh|dood\.re|dood\.yt|dood\.li|dood\.wf|dood\.la|dood\.ws|dood\.to|dood\.cx)\/(?:e|d|v|f)\/([A-Za-z0-9]+)/i);
-        return m ? m[1] : null;
-      }
-
-      function formatResolution(width, height) {
-        const h = Number(height) || 0;
-        const w = Number(width) || 0;
-        if (!h && !w) return '';
-        const dim = Math.min(w || h, h || w);
-        const maxDim = Math.max(w, h);
-        if (maxDim >= 3800 || dim >= 2160) return '4K';
-        if (dim >= 1400) return '1440p';
-        if (dim >= 1000) return '1080p';
-        if (dim >= 700) return '720p';
-        if (dim >= 460) return '480p';
-        if (dim >= 340) return '360p';
-        return dim + 'p';
-      }
-
-      function formatDurationMs(ms) {
-        const totalSec = Math.floor((Number(ms) || 0) / 1000);
-        if (totalSec <= 0) return '';
-        const hrs = Math.floor(totalSec / 3600);
-        const mins = Math.floor((totalSec % 3600) / 60);
-        const secs = totalSec % 60;
-        const pad = function (n) { return n < 10 ? '0' + n : String(n); };
-        return hrs > 0 ? (hrs + ':' + pad(mins) + ':' + pad(secs)) : (pad(mins) + ':' + pad(secs));
-      }
-
-      async function fetchDriveMeta(rawUrl) {
-        const apiKey = (adminConfig.gdriveApiKey || '').trim();
-        const fileId = extractDriveId(rawUrl);
-        if (!apiKey || !fileId) return null;
-        try {
-          const endpoint = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId) + '?fields=videoMediaMetadata&key=' + encodeURIComponent(apiKey);
-          const res = await fetch(endpoint);
-          if (!res.ok) return null;
-          const data = await res.json();
-          const meta = data && data.videoMediaMetadata;
-          if (!meta) return null;
-          return { resolution: formatResolution(meta.width, meta.height), duration: formatDurationMs(meta.durationMillis) };
-        } catch (e) { return null; }
-      }
-
-      async function syncMissingDriveMetadata(showStatusToast) {
-        const apiKey = (adminConfig.gdriveApiKey || '').trim();
-        if (!apiKey) return;
-        let updatedCount = 0;
-        const tasks = videos.map(async function (v) {
-          if (!extractDriveId(v.url)) return;
-          if (v.resolution && v.duration) return;
-          const meta = await fetchDriveMeta(v.url);
-          if (meta) {
-            if (meta.resolution && !v.resolution) { v.resolution = meta.resolution; updatedCount++; }
-            if (meta.duration && !v.duration) { v.duration = meta.duration; }
-          }
-        });
-        await Promise.all(tasks);
-        if (updatedCount > 0) {
-          renderGrid();
-          if (isAdminUnlocked) renderAdminList();
-          if (showStatusToast) showToast('Synced resolution for ' + updatedCount + ' video(s)');
-        }
-      }
-
-      function getAutoThumbUrls(video) {
-        const custom = (video.thumb || '').trim();
-        const driveId = extractDriveId(video.url);
-        const list = [];
-        if (custom) list.push(custom);
-        if (driveId) {
-          list.push('https://drive.google.com/thumbnail?id=' + driveId + '&sz=w800');
-          list.push('https://lh3.googleusercontent.com/d/' + driveId + '=w800');
-        }
-        list.push(FALLBACK_THUMB);
-        return list;
-      }
-
-      function getVideoTags(video) {
-        const rawList = [];
-        if (Array.isArray(video.tags)) {
-          video.tags.forEach(function (t) { rawList.push(String(t || '')); });
-        } else if (typeof video.tags === 'string') {
-          video.tags.split(/[,|#]+/).forEach(function (t) { rawList.push(t); });
-        }
-        if (typeof video.category === 'string') {
-          video.category.split(/[,|#]+/).forEach(function (t) { rawList.push(t); });
-        }
-        const seen = {};
-        const tags = [];
-        rawList.forEach(function (item) {
-          const clean = item.trim();
-          if (!clean) return;
-          const key = clean.toLowerCase();
-          if (!seen[key]) {
-            seen[key] = true;
-            tags.push(clean);
-          }
-        });
-        return tags.length ? tags : ['General'];
-      }
-
-      function getAllUniqueTags() {
-        const seen = {};
-        const list = [];
-        videos.forEach(function (v) {
-          getVideoTags(v).forEach(function (tag) {
-            const key = tag.toLowerCase();
-            if (!seen[key]) {
-              seen[key] = true;
-              list.push(tag);
-            }
-          });
-        });
-        return list;
-      }
-
-      const els = {
-        grid: document.getElementById('videoGrid'),
-        empty: document.getElementById('emptyState'),
-        categoryBar: document.getElementById('categoryBar'),
-        search: document.getElementById('searchInput'),
-        brandHomeLink: document.getElementById('brandHomeLink'),
-        fullPagePlayer: document.getElementById
+    <div class="bg-slate-900 border border-slate
