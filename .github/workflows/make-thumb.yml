@@ -79,8 +79,9 @@ jobs:
                   "-frames:v", "1", "-q:v", "3", f_path
               ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
               img = Image.open(f_path).convert("RGB")
-              fitted = ImageOps.fit(img, (320, 180), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
-              tiles.append(fitted)
+              # Full frame cut aagama 320x180-kulla fit panrom (with black padding)
+              padded = ImageOps.pad(img, (320, 180), method=Image.Resampling.LANCZOS, color=(0, 0, 0), centering=(0.5, 0.5))
+              tiles.append(padded)
 
           collage = Image.new("RGB", (960, 540), (0, 0, 0))
           for idx, tile in enumerate(tiles):
