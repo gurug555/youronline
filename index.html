@@ -45,18 +45,18 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- Top Header (z-50 + isolate so nothing inside main can ever render above header/category bar) -->
+  <!-- Top Header (z-50 + isolate so nothing inside main can ever render above header) -->
   <header class="sticky top-0 z-50 isolate bg-slate-900 border-b border-slate-800 shadow-lg">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <!-- Brand Logo -->
       <a href="index.html" id="brandHomeLink" class="flex items-center gap-2 shrink-0">
         <span class="inline-flex items-center justify-center bg-brand-600 text-white font-extrabold text-xs px-2 py-1 rounded tracking-wider">PLAY</span>
         <span class="text-xl font-bold tracking-tight text-white">yourpo<span class="text-brand-500">.online</span></span>
       </a>
 
-      <!-- Search Input -->
-      <div class="flex-1 max-w-xl">
-        <div class="relative">
+      <!-- Search Input + Top Nav (Home, Categories, Tags) -->
+      <div class="flex-1 flex items-center gap-2 sm:gap-3 max-w-3xl">
+        <div class="relative flex-1 min-w-0">
           <input
             id="searchInput"
             type="search"
@@ -65,6 +65,31 @@
           />
           <span class="absolute right-3.5 top-2.5 text-slate-400 text-sm pointer-events-none">🔍</span>
         </div>
+
+        <!-- Primary Navigation next to Search Bar -->
+        <nav class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <button
+            id="navHomeBtn"
+            type="button"
+            class="nav-tab-btn bg-brand-600 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full transition"
+          >
+            Home
+          </button>
+          <button
+            id="navCategoriesBtn"
+            type="button"
+            class="nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition"
+          >
+            Categories
+          </button>
+          <button
+            id="navTagsBtn"
+            type="button"
+            class="nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition"
+          >
+            Tags
+          </button>
+        </nav>
       </div>
 
       <!-- Hidden Admin Studio Button (Ctrl+Shift+A, 5x Footer Tap, or ?admin=1) -->
@@ -77,16 +102,44 @@
       </button>
     </div>
 
-    <!-- Category Bar -->
-    <div class="border-t border-slate-800/80 bg-slate-900">
-      <div id="categoryBar" class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center gap-2 overflow-x-auto"></div>
+    <!-- Expandable Sub-Panel for Categories / Tags Drawer -->
+    <div id="navSubDrawer" class="hidden border-t border-slate-800/80 bg-slate-900/95">
+      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 overflow-x-auto" id="navDrawerList"></div>
+    </div>
+
+    <!-- Sort By Filter Bar (Directly below Search / Nav Header) -->
+    <div class="border-t border-slate-800/80 bg-slate-950/90">
+      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-2 overflow-x-auto">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 shrink-0">Sort by:</span>
+          <button type="button" data-sort="date"
+                  class="sort-btn bg-brand-600 text-white border border-brand-500 text-xs font-semibold px-3 py-1 rounded-full transition shrink-0">
+            Date Added
+          </button>
+          <button type="button" data-sort="views"
+                  class="sort-btn bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium px-3 py-1 rounded-full transition shrink-0">
+            Most Views
+          </button>
+          <button type="button" data-sort="duration"
+                  class="sort-btn bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium px-3 py-1 rounded-full transition shrink-0">
+            Duration
+          </button>
+        </div>
+
+        <!-- Active Filter Pill -->
+        <div id="activeFilterBadge" class="hidden items-center gap-2 text-xs">
+          <span class="text-slate-400">Filter:</span>
+          <span id="activeFilterLabel" class="bg-slate-800 text-brand-400 font-semibold px-2.5 py-0.5 rounded-full border border-slate-700"></span>
+          <button id="clearActiveFilterBtn" type="button" class="text-slate-400 hover:text-white">✕</button>
+        </div>
+      </div>
     </div>
   </header>
 
   <!-- Main Content (z-0 + isolate traps all child z-indexes below sticky header z-50) -->
-  <main class="relative z-0 isolate flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+  <main class="relative z-0 isolate flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-6">
 
-    <!-- Zone 1: JuicyAds 800x100 Top Banner (Responsive container, auto-hides in Watch Page & stays strictly under header when scrolling) -->
+    <!-- Zone 1: JuicyAds 800x100 Top Banner (Auto-hides in Watch Page & stays strictly under header when scrolling) -->
     <div id="topAdWrapper" class="mb-6 flex justify-center">
       <div class="ad-box-isolated bg-slate-900/70 border border-slate-800 rounded-xl p-1.5 overflow-x-auto overflow-y-hidden w-full max-w-[816px] min-h-[116px] flex items-center justify-center">
         <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
@@ -144,12 +197,12 @@
 
         <!-- Video Grid Header -->
         <div class="flex items-center justify-between mb-4">
-          <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Trending Videos</h2>
+          <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>
           <span id="resultCount" class="text-xs sm:text-sm text-slate-400"></span>
         </div>
 
-        <!-- Video Grid -->
-        <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5"></div>
+        <!-- 4-Column Responsive Video Grid (1 col mobile -> 2 col sm -> 3 col md -> 4 col lg/xl) -->
+        <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
 
         <!-- Empty State -->
         <div id="emptyState" class="hidden text-center py-20">
@@ -217,7 +270,7 @@
             </button>
           </div>
           <p class="text-[11px] text-slate-400">
-            Supports columns: <code class="text-slate-300">title</code>, <code class="text-slate-300">category</code>, <code class="text-slate-300">gofile</code>, <code class="text-slate-300">doodstream</code>, <code class="text-slate-300">streamtape</code>, <code class="text-slate-300">lulustream</code>, <code class="text-slate-300">voe</code>, <code class="text-slate-300">thumb</code>, <code class="text-slate-300">resolution</code>, <code class="text-slate-300">duration</code>. Skips duplicate titles automatically.
+            Supports columns: <code class="text-slate-300">title</code>, <code class="text-slate-300">category</code>, <code class="text-slate-300">tags</code>, <code class="text-slate-300">views</code>, <code class="text-slate-300">date</code>, <code class="text-slate-300">gofile</code>, <code class="text-slate-300">doodstream</code>, <code class="text-slate-300">streamtape</code>, <code class="text-slate-300">lulustream</code>, <code class="text-slate-300">voe</code>, <code class="text-slate-300">thumb</code>, <code class="text-slate-300">resolution</code>, <code class="text-slate-300">duration</code>.
           </p>
         </div>
 
@@ -263,9 +316,12 @@
       videos: [],
       activeVideoId: null,
       search: '',
-      category: 'Trending',
+      navTab: 'home',         // 'home' | 'categories' | 'tags'
+      filterType: 'all',      // 'all' | 'category' | 'tag'
+      filterValue: 'All',
+      sortBy: 'date',         // 'date' | 'views' | 'duration'
       page: 1,
-      perPage: 15
+      perPage: 16             // 4 columns x 4 rows per page
     };
 
     const FALLBACK_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
@@ -302,7 +358,24 @@
       return parts.length ? parts : ['General'];
     }
 
-    function normalizeVideoItem(item, defaultTags = 'Trending, HD') {
+    function parseDurationSeconds(dur) {
+      if (!dur) return 0;
+      if (typeof dur === 'number') return dur;
+      const parts = String(dur).trim().split(':').map(Number).filter(n => !Number.isNaN(n));
+      if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+      if (parts.length === 2) return parts[0] * 60 + parts[1];
+      if (parts.length === 1) return parts[0];
+      return 0;
+    }
+
+    function formatViews(v) {
+      const n = Number(v) || 0;
+      if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+      return String(n);
+    }
+
+    function normalizeVideoItem(item, index = 0, defaultTags = 'Trending, HD') {
       const mirrors = {};
       const keys = ['gofile', 'doodstream', 'streamtape', 'lulustream', 'voe'];
       keys.forEach(k => {
@@ -316,15 +389,23 @@
 
       const tags = Array.isArray(item.tags)
         ? item.tags.map(t => String(t).trim()).filter(Boolean)
-        : parseTags(item.category || item.tags, defaultTags);
+        : parseTags(item.tags || item.category, defaultTags);
+
+      const category = String(item.category || (tags[0] || 'General')).trim();
+      const rawViews = Number(item.views);
+      const views = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : (120 + ((index * 73) % 4800));
+      const addedAt = item.addedAt || item.date || item.created_at || (Date.now() - index * 60000);
 
       return {
         id: item.id || ('vid_' + Math.random().toString(36).slice(2, 10)),
         title: String(item.title || item.name || item.filename || 'Untitled Video').trim(),
+        category,
         tags: tags.length ? tags : ['General'],
         thumb: String(item.thumb || item.thumbnail || '').trim(),
         resolution: String(item.resolution || '').trim(),
         duration: String(item.duration || '').trim(),
+        views,
+        addedAt,
         mirrors
       };
     }
@@ -335,7 +416,7 @@
         if (res.ok) {
           const data = await res.json();
           const list = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : []);
-          STATE.videos = list.map(v => normalizeVideoItem(v));
+          STATE.videos = list.map((v, idx) => normalizeVideoItem(v, idx));
           renderAll();
           checkUrlVideoParam();
           return;
@@ -355,66 +436,180 @@
       }
     }
 
-    function getCategories() {
+    function getAllCategories() {
       const set = new Set(['All', 'Trending', 'HD', 'General']);
-      STATE.videos.forEach(v => (v.tags || []).forEach(t => set.add(t)));
+      STATE.videos.forEach(v => {
+        if (v.category) set.add(v.category);
+        (v.tags || []).forEach(t => set.add(t));
+      });
       return Array.from(set);
     }
 
-    function renderCategories() {
-      const bar = document.getElementById('categoryBar');
-      const cats = getCategories();
-      bar.innerHTML = cats.map(cat => {
-        const active = STATE.category.toLowerCase() === cat.toLowerCase();
-        const cls = active
-          ? 'bg-brand-600 text-white border-brand-500'
-          : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white';
-        return `<button type="button" data-cat="${escapeHtml(cat)}" class="cat-btn text-xs sm:text-sm px-3.5 py-1.5 rounded-full border transition shrink-0 ${cls}">${escapeHtml(cat)}</button>`;
-      }).join('');
-
-      bar.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          STATE.category = btn.dataset.cat;
-          STATE.page = 1;
-          closeWatchPage(false);
-          renderGrid();
-          renderCategories();
+    function getAllTags() {
+      const counts = new Map();
+      STATE.videos.forEach(v => {
+        (v.tags || []).forEach(t => {
+          counts.set(t, (counts.get(t) || 0) + 1);
         });
+      });
+      if (!counts.size) return ['Trending', 'HD', 'General'];
+      return Array.from(counts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([tag]) => tag);
+    }
+
+    function updateNavButtons() {
+      const map = {
+        home: document.getElementById('navHomeBtn'),
+        categories: document.getElementById('navCategoriesBtn'),
+        tags: document.getElementById('navTagsBtn')
+      };
+      Object.entries(map).forEach(([key, btn]) => {
+        if (!btn) return;
+        const active = STATE.navTab === key;
+        btn.className = active
+          ? 'nav-tab-btn bg-brand-600 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full transition'
+          : 'nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition';
       });
     }
 
-    function getFilteredVideos() {
+    function renderNavDrawer() {
+      const drawer = document.getElementById('navSubDrawer');
+      const listEl = document.getElementById('navDrawerList');
+
+      if (STATE.navTab === 'home') {
+        drawer.classList.add('hidden');
+        listEl.innerHTML = '';
+        return;
+      }
+
+      drawer.classList.remove('hidden');
+
+      if (STATE.navTab === 'categories') {
+        const cats = getAllCategories();
+        listEl.innerHTML = cats.map(cat => {
+          const active = STATE.filterType === 'category' && STATE.filterValue.toLowerCase() === cat.toLowerCase();
+          const cls = active
+            ? 'bg-brand-600 text-white border-brand-500'
+            : 'bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white';
+          return `<button type="button" data-cat="${escapeHtml(cat)}" class="drawer-cat-btn text-xs px-3 py-1.5 rounded-full border transition shrink-0 ${cls}">${escapeHtml(cat)}</button>`;
+        }).join('');
+
+        listEl.querySelectorAll('.drawer-cat-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const val = btn.dataset.cat;
+            if (val === 'All') {
+              STATE.filterType = 'all';
+              STATE.filterValue = 'All';
+            } else {
+              STATE.filterType = 'category';
+              STATE.filterValue = val;
+            }
+            STATE.page = 1;
+            closeWatchPage(false);
+            renderNavDrawer();
+            renderGrid();
+          });
+        });
+      } else if (STATE.navTab === 'tags') {
+        const tags = getAllTags();
+        listEl.innerHTML = tags.map(tag => {
+          const active = STATE.filterType === 'tag' && STATE.filterValue.toLowerCase() === tag.toLowerCase();
+          const cls = active
+            ? 'bg-brand-600 text-white border-brand-500'
+            : 'bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white';
+          return `<button type="button" data-tag="${escapeHtml(tag)}" class="drawer-tag-btn text-xs px-3 py-1.5 rounded-full border transition shrink-0 ${cls}">#${escapeHtml(tag)}</button>`;
+        }).join('');
+
+        listEl.querySelectorAll('.drawer-tag-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            STATE.filterType = 'tag';
+            STATE.filterValue = btn.dataset.tag;
+            STATE.page = 1;
+            closeWatchPage(false);
+            renderNavDrawer();
+            renderGrid();
+          });
+        });
+      }
+    }
+
+    function updateSortButtons() {
+      document.querySelectorAll('.sort-btn').forEach(btn => {
+        const active = btn.dataset.sort === STATE.sortBy;
+        btn.className = active
+          ? 'sort-btn bg-brand-600 text-white border border-brand-500 text-xs font-semibold px-3 py-1 rounded-full transition shrink-0'
+          : 'sort-btn bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium px-3 py-1 rounded-full transition shrink-0';
+      });
+    }
+
+    function updateFilterBadge() {
+      const badge = document.getElementById('activeFilterBadge');
+      const label = document.getElementById('activeFilterLabel');
+      if (STATE.filterType === 'all') {
+        badge.classList.add('hidden');
+        badge.classList.remove('flex');
+      } else {
+        label.textContent = STATE.filterType === 'tag' ? `#${STATE.filterValue}` : STATE.filterValue;
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
+      }
+    }
+
+    function getFilteredAndSortedVideos() {
       const q = STATE.search.trim().toLowerCase();
-      return STATE.videos.filter(v => {
+      const filtered = STATE.videos.filter(v => {
         if (STATE.activeVideoId && v.id === STATE.activeVideoId) return false;
-        const matchesCat =
-          STATE.category === 'All' ||
-          (v.tags || []).some(t => t.toLowerCase() === STATE.category.toLowerCase());
-        if (!matchesCat) return false;
+
+        if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
+          const target = STATE.filterValue.toLowerCase();
+          const inCat = (v.category || '').toLowerCase() === target;
+          const inTags = (v.tags || []).some(t => t.toLowerCase() === target);
+          if (!inCat && !inTags) return false;
+        } else if (STATE.filterType === 'tag') {
+          const target = STATE.filterValue.toLowerCase();
+          const inTags = (v.tags || []).some(t => t.toLowerCase() === target);
+          if (!inTags) return false;
+        }
+
         if (!q) return true;
         const inTitle = (v.title || '').toLowerCase().includes(q);
         const inTags = (v.tags || []).some(t => t.toLowerCase().includes(q));
         return inTitle || inTags;
       });
+
+      const sorted = [...filtered];
+      if (STATE.sortBy === 'views') {
+        sorted.sort((a, b) => (Number(b.views) || 0) - (Number(a.views) || 0));
+      } else if (STATE.sortBy === 'duration') {
+        sorted.sort((a, b) => parseDurationSeconds(b.duration) - parseDurationSeconds(a.duration));
+      } else {
+        sorted.sort((a, b) => Number(new Date(b.addedAt || 0)) - Number(new Date(a.addedAt || 0)));
+      }
+      return sorted;
     }
 
     function renderGrid() {
-      const filtered = getFilteredVideos();
-      const total = filtered.length;
+      updateFilterBadge();
+      const items = getFilteredAndSortedVideos();
+      const total = items.length;
       const totalPages = Math.max(1, Math.ceil(total / STATE.perPage));
       if (STATE.page > totalPages) STATE.page = totalPages;
 
       const start = (STATE.page - 1) * STATE.perPage;
-      const pageItems = filtered.slice(start, start + STATE.perPage);
+      const pageItems = items.slice(start, start + STATE.perPage);
 
       if (STATE.activeVideoId) {
         document.getElementById('sectionTitle').textContent = 'More Videos';
+      } else if (STATE.filterType === 'tag') {
+        document.getElementById('sectionTitle').textContent = `#${STATE.filterValue} Videos`;
+      } else if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
+        document.getElementById('sectionTitle').textContent = `${STATE.filterValue} Videos`;
       } else {
-        document.getElementById('sectionTitle').textContent =
-          STATE.category === 'All' ? 'All Videos' : `${STATE.category} Videos`;
+        const sortNames = { date: 'Latest Videos', views: 'Most Viewed Videos', duration: 'Longest Videos' };
+        document.getElementById('sectionTitle').textContent = sortNames[STATE.sortBy] || 'All Videos';
       }
-      document.getElementById('resultCount').textContent =
-        `${total} ${total === 1 ? 'video' : 'videos'}`;
+      document.getElementById('resultCount').textContent = `${total} ${total === 1 ? 'video' : 'videos'}`;
 
       const grid = document.getElementById('videoGrid');
       const empty = document.getElementById('emptyState');
@@ -430,8 +625,8 @@
       grid.innerHTML = pageItems.map(v => {
         const thumbSrc = v.thumb ? escapeHtml(v.thumb) : FALLBACK_SVG;
         const badges = [];
-        if (v.resolution) badges.push(`<span class="bg-black/75 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded">${escapeHtml(v.resolution)}</span>`);
-        if (v.duration) badges.push(`<span class="bg-black/75 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">${escapeHtml(v.duration)}</span>`);
+        if (v.resolution) badges.push(`<span class="bg-black/80 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded">${escapeHtml(v.resolution)}</span>`);
+        if (v.duration) badges.push(`<span class="bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">${escapeHtml(v.duration)}</span>`);
         const tagsHtml = (v.tags || []).slice(0, 3).map(t => `<span class="text-[11px] text-slate-400">#${escapeHtml(t)}</span>`).join(' ');
 
         return `
@@ -442,9 +637,12 @@
                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
               ${badges.length ? `<div class="absolute bottom-2 right-2 flex items-center gap-1">${badges.join('')}</div>` : ''}
             </div>
-            <div class="p-3.5 flex-1 flex flex-col justify-between gap-2">
-              <h3 class="text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h3>
-              <div class="flex flex-wrap gap-2">${tagsHtml}</div>
+            <div class="p-3 flex-1 flex flex-col justify-between gap-2">
+              <h3 class="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h3>
+              <div class="flex items-center justify-between gap-2 text-[11px] text-slate-400">
+                <div class="flex flex-wrap gap-1.5 truncate">${tagsHtml}</div>
+                <span class="shrink-0 text-slate-400">👁 ${formatViews(v.views)}</span>
+              </div>
             </div>
           </article>
         `;
@@ -519,9 +717,9 @@
 
     function openWatchPage(video, pushHistory = true) {
       STATE.activeVideoId = video.id;
+      video.views = (Number(video.views) || 0) + 1;
       document.title = `${video.title} — yourpo.online`;
 
-      // Hide top JuicyAds banner while watching video so no ad sits above player
       const topAd = document.getElementById('topAdWrapper');
       if (topAd) topAd.classList.add('hidden');
 
@@ -533,7 +731,7 @@
 
       document.getElementById('watchTitle').textContent = video.title;
       document.getElementById('watchMetaBadge').textContent =
-        [video.resolution, video.duration].filter(Boolean).join(' • ');
+        [video.resolution, video.duration, `${formatViews(video.views)} views`].filter(Boolean).join(' • ');
       document.getElementById('watchTags').innerHTML = (video.tags || [])
         .map(t => `<span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">#${escapeHtml(t)}</span>`)
         .join('');
@@ -600,7 +798,6 @@
       document.getElementById('watchSection').classList.add('hidden');
       document.getElementById('embedContainer').innerHTML = '';
 
-      // Restore top JuicyAds banner on home grid
       const topAd = document.getElementById('topAdWrapper');
       if (topAd) topAd.classList.remove('hidden');
 
@@ -696,8 +893,8 @@
       let added = 0;
       let skipped = 0;
 
-      items.forEach(raw => {
-        const norm = normalizeVideoItem(raw, defaultTags);
+      items.forEach((raw, idx) => {
+        const norm = normalizeVideoItem(raw, idx, defaultTags);
         const key = normalizeKey(norm.title);
         if (!key || existingKeys.has(key)) {
           skipped++;
@@ -729,7 +926,7 @@
         <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 text-xs">
           <div class="min-w-0 flex-1">
             <p class="font-medium text-slate-100 truncate">${escapeHtml(v.title)}</p>
-            <p class="text-[11px] text-slate-400 truncate">${[v.resolution, v.duration, v.thumb].filter(Boolean).join(' • ')}</p>
+            <p class="text-[11px] text-slate-400 truncate">${[v.resolution, v.duration, `${formatViews(v.views)} views`].filter(Boolean).join(' • ')}</p>
           </div>
           <button type="button" data-del="${escapeHtml(v.id)}"
                   class="del-vid-btn bg-rose-900/60 hover:bg-rose-700 text-rose-200 px-2.5 py-1 rounded-md shrink-0 transition">
@@ -759,13 +956,61 @@
     }
 
     function renderAll() {
-      renderCategories();
+      updateNavButtons();
+      renderNavDrawer();
+      updateSortButtons();
       renderGrid();
     }
 
+    // Top Nav Handlers (Home, Categories, Tags)
     document.getElementById('brandHomeLink').addEventListener('click', e => {
       e.preventDefault();
+      STATE.navTab = 'home';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.search = '';
+      STATE.page = 1;
+      document.getElementById('searchInput').value = '';
       closeWatchPage(true);
+      renderAll();
+    });
+
+    document.getElementById('navHomeBtn').addEventListener('click', () => {
+      STATE.navTab = 'home';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.page = 1;
+      closeWatchPage(true);
+      renderAll();
+    });
+
+    document.getElementById('navCategoriesBtn').addEventListener('click', () => {
+      STATE.navTab = STATE.navTab === 'categories' ? 'home' : 'categories';
+      updateNavButtons();
+      renderNavDrawer();
+    });
+
+    document.getElementById('navTagsBtn').addEventListener('click', () => {
+      STATE.navTab = STATE.navTab === 'tags' ? 'home' : 'tags';
+      updateNavButtons();
+      renderNavDrawer();
+    });
+
+    document.getElementById('clearActiveFilterBtn').addEventListener('click', () => {
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.page = 1;
+      renderAll();
+    });
+
+    // Sort By Handlers (Date Added, Most Views, Duration)
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        STATE.sortBy = btn.dataset.sort;
+        STATE.page = 1;
+        updateSortButtons();
+        renderGrid();
+      });
     });
 
     document.getElementById('backToHomeBtn').addEventListener('click', () => closeWatchPage(true));
@@ -779,7 +1024,10 @@
 
     document.getElementById('resetFiltersBtn').addEventListener('click', () => {
       STATE.search = '';
-      STATE.category = 'Trending';
+      STATE.navTab = 'home';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.sortBy = 'date';
       STATE.page = 1;
       document.getElementById('searchInput').value = '';
       closeWatchPage(false);
