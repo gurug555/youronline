@@ -296,6 +296,26 @@
       </svg>
     `);
 
+    function handleThumbError(imgEl, title) {
+      const step = Number(imgEl.dataset.errStep || 0);
+      const cleanName = String(title || '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '');
+      const rawName = String(title || '').trim();
+      const candidates = [
+        `thumbs/${encodeURIComponent(rawName)}.jpg`,
+        `thumbs/${cleanName}.jpg`,
+        `thumbs/${cleanName.slice(0, 60)}.jpg`,
+        `thumbnails/${encodeURIComponent(rawName)}.jpg`,
+        FALLBACK_SVG
+      ];
+      if (step < candidates.length) {
+        imgEl.dataset.errStep = String(step + 1);
+        imgEl.src = candidates[step];
+      } else {
+        imgEl.onerror = null;
+        imgEl.src = FALLBACK_SVG;
+      }
+    }
+
     function showToast(msg) {
       const box = document.getElementById('toastBox');
       box.textContent = msg;
@@ -365,8 +385,11 @@
       const views = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : (120 + ((index * 73) % 4800));
       const addedAt = item.addedAt || item.date || item.created_at || (Date.now() - index * 60000);
 
+      // Always store ID as String so string comparison never fails on numeric IDs (1, 2, 3)
+      const rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('vid_' + Math.random().toString(36).slice(2, 10));
+
       return {
-        id: item.id || ('vid_' + Math.random().toString(36).slice(2, 10)),
+        id: rawId,
         title: String(item.title || item.name || item.filename || 'Untitled Video').trim(),
         category,
         tags: tags.length ? tags : ['General'],
@@ -400,7 +423,7 @@
     function checkUrlVideoParam() {
       const vidId = new URLSearchParams(window.location.search).get('v');
       if (vidId) {
-        const found = STATE.videos.find(v => v.id === vidId);
+        const found = STATE.videos.find(v => String(v.id) === String(vidId));
         if (found) openWatchPage(found, false);
       }
     }
@@ -519,7 +542,7 @@
     function getFilteredAndSortedVideos() {
       const q = STATE.search.trim().toLowerCase();
       const filtered = STATE.videos.filter(v => {
-        if (STATE.activeVideoId && v.id === STATE.activeVideoId) return false;
+        if (STATE.activeVideoId && String(v.id) === String(STATE.activeVideoId)) return false;
 
         if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
           const target = STATE.filterValue.toLowerCase();
@@ -590,10 +613,10 @@
         const tagsHtml = (v.tags || []).slice(0, 3).map(t => `<span class="text-[11px] text-slate-400">#${escapeHtml(t)}</span>`).join(' ');
 
         return `
-          <article data-id="${escapeHtml(v.id)}" class="video-card group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-xl overflow-hidden cursor-pointer transition flex flex-col">
+          <article data-id="${escapeHtml(v.id)}" data-title="${escapeHtml(v.title)}" class="video-card group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-xl overflow-hidden cursor-pointer transition flex flex-col">
             <div class="relative aspect-video bg-slate-950 overflow-hidden">
               <img src="${thumbSrc}" alt="${escapeHtml(v.title)}" loading="lazy"
-                   onerror="this.onerror=null;this.src='${FALLBACK_SVG}';"
+                   onerror="handleThumbError(this, this.alt);"
                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
               ${badges.length ? `<div class="absolute bottom-2 right-2 flex items-center gap-1">${badges.join('')}</div>` : ''}
             </div>
@@ -610,7 +633,7 @@
 
       grid.querySelectorAll('.video-card').forEach(card => {
         card.addEventListener('click', () => {
-          const vid = STATE.videos.find(item => item.id === card.dataset.id);
+          const vid = STATE.videos.find(item => String(item.id) === String(card.dataset.id));
           if (vid) openWatchPage(vid, true);
         });
       });
@@ -660,14 +683,10 @@
       embedBox.innerHTML = `
         <div class="relative w-full h-full flex items-center justify-center bg-black">
           <img src="${thumbSrc}" alt="${escapeHtml(video.title)}"
-               onerror="this.onerror=null;this.src='${FALLBACK_SVG}';"
-               class="w-full h-full object-contain opacity-90" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col items-center justify-center p-4 text-center">
-            <a href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer"
-               class="w-16 h-16 rounded-full bg-brand-600 hover:bg-brand-500 text-white flex items-center justify-center shadow-2xl transition transform hover:scale-105 mb-3">
-              <span class="text-2xl ml-1">▶</span>
-            </a>
-            <p class="text-xs sm:text-sm font-medium text-slate-200 bg-black/70 px-3 py-1 rounded-full border border-slate-700">
+               onerror="handleThumbError(this, this.alt);"
+               class="w-full h-full object-contain opacity-95" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col items-center justify-end pb-6 p-4 text-center">
+            <p class="text-xs sm:text-sm font-medium text-slate-200 bg-black/75 px-3.5 py-1.5 rounded-full border border-slate-700">
               ${escapeHtml(statusMsg)}
             </p>
           </div>
@@ -676,7 +695,7 @@
     }
 
     function openWatchPage(video, pushHistory = true) {
-      STATE.activeVideoId = video.id;
+      STATE.activeVideoId = String(video.id);
       video.views = (Number(video.views) || 0) + 1;
       document.title = `${video.title} — yourpo.online`;
 
@@ -685,8 +704,8 @@
 
       if (pushHistory) {
         const url = new URL(window.location.href);
-        url.searchParams.set('v', video.id);
-        window.history.pushState({ videoId: video.id }, '', url);
+        url.searchParams.set('v', String(video.id));
+        window.history.pushState({ videoId: String(video.id) }, '', url);
       }
 
       document.getElementById('watchTitle').textContent = video.title;
@@ -720,16 +739,26 @@
       const embedBox = document.getElementById('embedContainer');
 
       if (!entries.length) {
-        btnBox.innerHTML = '<span class="text-xs text-slate-400">Preview Mode (Add mirror links in Admin Studio to stream)</span>';
+        btnBox.innerHTML = '<span class="text-xs text-slate-400">3x3 Preview Collage Mode</span>';
         extLink.href = 'https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd';
-        renderThumbnailPoster(embedBox, video, '3x3 Preview Collage • Click Play / HD Direct Download');
+        renderThumbnailPoster(embedBox, video, '3x3 Preview Collage • Click HD Direct Download');
       } else {
+        // Prefer embeddable stream servers (doodstream, voe, streamtape, lulustream) over gofile folder page
+        const preferredOrder = ['doodstream', 'voe', 'streamtape', 'lulustream', 'gofile'];
+        entries.sort((a, b) => {
+          const ia = preferredOrder.indexOf(a[0]);
+          const ib = preferredOrder.indexOf(b[0]);
+          return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+        });
+
         const selectServer = (serverName, rawUrl, idx) => {
-          btnBox.querySelectorAll('.srv-btn').forEach((b, i) => {
-            b.className = i === idx
-              ? 'srv-btn bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg'
-              : 'srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700';
+          btnBox.querySelectorAll('.srv-btn').forEach(b => {
+            b.className = 'srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase';
           });
+          const activeBtn = btnBox.querySelector(`.srv-btn[data-idx="${idx}"]`);
+          if (activeBtn) {
+            activeBtn.className = 'srv-btn bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg uppercase';
+          }
           extLink.href = rawUrl;
           const embedUrl = buildEmbedUrl(rawUrl);
           if (/\.(mp4|webm|ogg)(\?|$)/i.test(embedUrl)) {
@@ -762,6 +791,7 @@
           });
         });
 
+        // Start on 3x3 Preview or first embeddable player
         selectServer(entries[0][0], entries[0][1], 0);
       }
 
@@ -790,7 +820,7 @@
     window.addEventListener('popstate', () => {
       const vidId = new URLSearchParams(window.location.search).get('v');
       if (vidId) {
-        const found = STATE.videos.find(v => v.id === vidId);
+        const found = STATE.videos.find(v => String(v.id) === String(vidId));
         if (found) {
           openWatchPage(found, false);
           return;
@@ -833,7 +863,8 @@
     }
 
     function parseCsvText(text) {
-      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      const lines = text.split(/?
+/).filter(l => l.trim().length > 0);
       if (lines.length < 2) return [];
       const headers = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
       const rows = [];
@@ -915,7 +946,7 @@
 
       listEl.querySelectorAll('.del-vid-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          STATE.videos = STATE.videos.filter(item => item.id !== btn.dataset.del);
+          STATE.videos = STATE.videos.filter(item => String(item.id) !== String(btn.dataset.del));
           renderAll();
           renderAdminList();
         });
