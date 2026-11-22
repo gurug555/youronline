@@ -96,9 +96,9 @@
             <span id="watchMetaBadge" class="text-xs text-slate-400"></span>
           </div>
 
-          <!-- Full-Width 16:9 Player Box -->
+          <!-- Full-Width 16:9 Player / Thumbnail Preview Box -->
           <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-            <div id="embedContainer" class="aspect-video w-full bg-black flex items-center justify-center"></div>
+            <div id="embedContainer" class="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden"></div>
 
             <!-- Video Details + Mirror Controls + Zone 4: Smartlink -->
             <div class="p-4 sm:p-5 space-y-4 border-t border-slate-800">
@@ -129,13 +129,13 @@
           </div>
         </section>
 
-        <!-- Zone 3: Adsterra Native Banner (Sits right below player in Watch Mode, or above/below grid) -->
+        <!-- Zone 3: Adsterra Native Banner -->
         <div id="nativeAdSlot" class="mb-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
           <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
           <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
         </div>
 
-        <!-- Video Grid Header (Switches between "Trending Videos" & "Related / More Videos") -->
+        <!-- Video Grid Header -->
         <div class="flex items-center justify-between mb-4">
           <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Trending Videos</h2>
           <span id="resultCount" class="text-xs sm:text-sm text-slate-400"></span>
@@ -484,6 +484,26 @@
       return url;
     }
 
+    function renderThumbnailPoster(embedBox, video, statusMsg) {
+      const thumbSrc = video.thumb ? escapeHtml(video.thumb) : FALLBACK_SVG;
+      embedBox.innerHTML = `
+        <div class="relative w-full h-full flex items-center justify-center bg-black">
+          <img src="${thumbSrc}" alt="${escapeHtml(video.title)}"
+               onerror="this.onerror=null;this.src='${FALLBACK_SVG}';"
+               class="w-full h-full object-contain opacity-90" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col items-center justify-center p-4 text-center">
+            <a href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer"
+               class="w-16 h-16 rounded-full bg-brand-600 hover:bg-brand-500 text-white flex items-center justify-center shadow-2xl transition transform hover:scale-105 mb-3">
+              <span class="text-2xl ml-1">▶</span>
+            </a>
+            <p class="text-xs sm:text-sm font-medium text-slate-200 bg-black/70 px-3 py-1 rounded-full border border-slate-700">
+              ${escapeHtml(statusMsg)}
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
     function openWatchPage(video, pushHistory = true) {
       STATE.activeVideoId = video.id;
       document.title = `${video.title} — yourpo.online`;
@@ -507,9 +527,9 @@
       const embedBox = document.getElementById('embedContainer');
 
       if (!entries.length) {
-        btnBox.innerHTML = '<span class="text-xs text-slate-400">No mirror links attached yet.</span>';
+        btnBox.innerHTML = '<span class="text-xs text-slate-400">Preview Mode (Add mirror links in Admin Studio to stream)</span>';
         extLink.href = 'https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd';
-        embedBox.innerHTML = '<p class="text-sm text-slate-400">Mirror links not available for this video.</p>';
+        renderThumbnailPoster(embedBox, video, '3x3 Preview Collage • Click Play / HD Direct Download');
       } else {
         const selectServer = (serverName, rawUrl, idx) => {
           btnBox.querySelectorAll('.srv-btn').forEach((b, i) => {
@@ -520,17 +540,29 @@
           extLink.href = rawUrl;
           const embedUrl = buildEmbedUrl(rawUrl);
           if (/\.(mp4|webm|ogg)(\?|$)/i.test(embedUrl)) {
-            embedBox.innerHTML = `<video src="${escapeHtml(embedUrl)}" controls autoplay class="w-full h-full"></video>`;
+            const posterAttr = video.thumb ? `poster="${escapeHtml(video.thumb)}"` : '';
+            embedBox.innerHTML = `<video src="${escapeHtml(embedUrl)}" ${posterAttr} controls autoplay class="w-full h-full"></video>`;
           } else {
             embedBox.innerHTML = `<iframe src="${escapeHtml(embedUrl)}" allowfullscreen scrolling="no" class="w-full h-full border-0"></iframe>`;
           }
         };
 
-        btnBox.innerHTML = entries.map(([srv], i) =>
-          `<button type="button" data-idx="${i}" class="srv-btn bg-slate-800 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase">${escapeHtml(srv)}</button>`
-        ).join('');
+        btnBox.innerHTML =
+          `<button type="button" id="previewCollageBtn" class="srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700">3x3 PREVIEW</button>` +
+          entries.map(([srv], i) =>
+            `<button type="button" data-idx="${i}" class="srv-btn bg-slate-800 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase">${escapeHtml(srv)}</button>`
+          ).join('');
 
-        btnBox.querySelectorAll('.srv-btn').forEach(btn => {
+        document.getElementById('previewCollageBtn').addEventListener('click', () => {
+          btnBox.querySelectorAll('.srv-btn').forEach(b => {
+            b.className = 'srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase';
+          });
+          document.getElementById('previewCollageBtn').className =
+            'srv-btn bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg';
+          renderThumbnailPoster(embedBox, video, '3x3 Preview Collage • Switch server above to stream');
+        });
+
+        btnBox.querySelectorAll('.srv-btn[data-idx]').forEach(btn => {
           btn.addEventListener('click', () => {
             const i = Number(btn.dataset.idx);
             selectServer(entries[i][0], entries[i][1], i);
