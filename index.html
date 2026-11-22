@@ -28,12 +28,25 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    /* Isolate all ad containers so injected iframes/scripts can never float above sticky header */
+    .ad-box-isolated {
+      position: relative;
+      z-index: 1;
+      isolation: isolate;
+      contain: layout paint;
+    }
+    .ad-box-isolated iframe,
+    .ad-box-isolated ins,
+    .ad-box-isolated div {
+      z-index: 1 !important;
+      max-width: 100%;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- Top Header -->
-  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+  <!-- Top Header (z-50 + isolate so nothing inside main can ever render above header/category bar) -->
+  <header class="sticky top-0 z-50 isolate bg-slate-900 border-b border-slate-800 shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <!-- Brand Logo -->
       <a href="index.html" id="brandHomeLink" class="flex items-center gap-2 shrink-0">
@@ -65,17 +78,17 @@
     </div>
 
     <!-- Category Bar -->
-    <div class="border-t border-slate-800/80 bg-slate-900/70">
+    <div class="border-t border-slate-800/80 bg-slate-900">
       <div id="categoryBar" class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center gap-2 overflow-x-auto"></div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+  <!-- Main Content (z-0 + isolate traps all child z-indexes below sticky header z-50) -->
+  <main class="relative z-0 isolate flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
 
-    <!-- Zone 1: JuicyAds 300x100 Top Banner (Cleanly above content, never overlaps player) -->
-    <div class="mb-6 flex justify-center">
-      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-1.5 overflow-hidden max-w-[316px] max-h-[116px]">
+    <!-- Zone 1: JuicyAds 300x100 Top Banner (Auto-hides in Watch Page & stays strictly under header when scrolling) -->
+    <div id="topAdWrapper" class="mb-6 flex justify-center">
+      <div class="ad-box-isolated bg-slate-900/70 border border-slate-800 rounded-xl p-1.5 overflow-hidden w-[316px] h-[116px] flex items-center justify-center">
         <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
         <ins id="1133790" data-width="300" data-height="100"></ins>
         <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1133790});</script>
@@ -144,9 +157,8 @@
           <button id="resetFiltersBtn" type="button" class="text-sm text-brand-400 hover:underline">Reset search &amp; filters</button>
         </div>
 
-
-        <!-- Zone 3: Adsterra Native Banner (Moved below video grid) -->
-        <div id="nativeAdSlot" class="mt-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
+        <!-- Zone 3: Adsterra Native Banner (Below video grid) -->
+        <div id="nativeAdSlot" class="ad-box-isolated mt-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
           <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
           <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
         </div>
@@ -155,8 +167,8 @@
         <div id="paginationBar" class="mt-8 flex items-center justify-center gap-2 flex-wrap"></div>
       </div>
 
-      <!-- Zone 5: Adsterra 160x600 Sidebar Banner (Desktop Sticky) -->
-      <aside class="hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-28 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2">
+      <!-- Zone 5: Adsterra 160x600 Sidebar Banner (Desktop Sticky, isolated below header) -->
+      <aside class="ad-box-isolated hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-32 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2 overflow-hidden">
         <script>
           atOptions = {
             'key' : '58b8868202e44dc8ea861ccc8d62b9c7',
@@ -172,7 +184,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-800 bg-slate-900/60 py-5 text-center text-xs text-slate-400">
+  <footer class="relative z-0 border-t border-slate-800 bg-slate-900/60 py-5 text-center text-xs text-slate-400">
     <p id="secretFooterTap" class="cursor-default select-none inline-block px-2 py-1">© 2026 yourpo.online — All rights reserved.</p>
   </footer>
 
@@ -509,6 +521,10 @@
       STATE.activeVideoId = video.id;
       document.title = `${video.title} — yourpo.online`;
 
+      // Hide top JuicyAds banner while watching video so no ad sits above player
+      const topAd = document.getElementById('topAdWrapper');
+      if (topAd) topAd.classList.add('hidden');
+
       if (pushHistory) {
         const url = new URL(window.location.href);
         url.searchParams.set('v', video.id);
@@ -583,6 +599,10 @@
       document.title = 'yourpo.online — Watch & Download';
       document.getElementById('watchSection').classList.add('hidden');
       document.getElementById('embedContainer').innerHTML = '';
+
+      // Restore top JuicyAds banner on home grid
+      const topAd = document.getElementById('topAdWrapper');
+      if (topAd) topAd.classList.remove('hidden');
 
       if (pushHistory) {
         const url = new URL(window.location.href);
