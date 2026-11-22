@@ -11,7 +11,7 @@
       theme: {
         extend: {
           colors: {
-            brand: { 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c' }
+            brand: { 400: '#f87171', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c' }
           }
         }
       }
@@ -401,7 +401,7 @@
 
       const category = String(item.category || (tags[0] || 'General')).trim();
       const rawViews = Number(item.views);
-      const views = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : (120 + ((index * 73) % 4800));
+      const views = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : 0;
       const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 - index * 60000);
       const rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('vid_' + Math.random().toString(36).slice(2, 10));
 
@@ -645,7 +645,7 @@
               <h3 class="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h3>
               <div class="flex items-center justify-between gap-2 text-[11px] text-slate-400">
                 <div class="flex flex-wrap gap-1.5 truncate">${tagsHtml}</div>
-                <span class="shrink-0 text-slate-400">👁 ${formatViews(v.views)}</span>
+                ${v.views > 0 ? `<span class="shrink-0 text-slate-400">👁 ${formatViews(v.views)}</span>` : ''}
               </div>
             </div>
           </article>
@@ -717,8 +717,7 @@
 
     function openWatchPage(video, pushHistory = true) {
       STATE.activeVideoId = String(video.id);
-      video.views = (Number(video.views) || 0) + 1;
-      document.title = `${video.title} — yourpo.online`;
+            document.title = `${video.title} — yourpo.online`;
 
       const topAd = document.getElementById('topAdWrapper');
       if (topAd) topAd.classList.add('hidden');
@@ -748,6 +747,7 @@
         durWrap.classList.add('hidden');
       }
 
+      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(video.views > 0));
       document.getElementById('watchViewsVal').textContent = `${formatViews(video.views)} views`;
 
       document.getElementById('watchTags').innerHTML = (video.tags || [])
@@ -891,8 +891,7 @@
     }
 
     function parseCsvText(text) {
-      const lines = text.split(/?
-/).filter(l => l.trim().length > 0);
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
       if (lines.length < 2) return [];
       const headers = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
       const rows = [];
@@ -920,8 +919,13 @@
       let items = [];
 
       if (file.name.toLowerCase().endsWith('.json')) {
-        const parsed = JSON.parse(rawText);
-        items = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.videos) ? parsed.videos : []);
+        try {
+          const parsed = JSON.parse(rawText);
+          items = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.videos) ? parsed.videos : []);
+        } catch (err) {
+          showToast('Invalid JSON file: ' + err.message);
+          return;
+        }
       } else {
         items = parseCsvText(rawText);
       }
@@ -1061,7 +1065,7 @@
     document.getElementById('searchInput').addEventListener('input', e => {
       STATE.search = e.target.value;
       STATE.page = 1;
-      closeWatchPage(false);
+      closeWatchPage(STATE.activeVideoId !== null);
       renderGrid();
     });
 
