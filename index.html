@@ -44,7 +44,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- Top Header -->
+  <!-- Top Sticky Header -->
   <header class="sticky top-0 z-50 isolate bg-slate-900 border-b border-slate-800 shadow-lg">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <a href="index.html" id="brandHomeLink" class="flex items-center gap-2 shrink-0">
@@ -57,7 +57,7 @@
           <input
             id="searchInput"
             type="search"
-            placeholder="Search videos..."
+            placeholder="Search videos, performers, studios..."
             class="w-full bg-slate-800/90 text-slate-100 placeholder-slate-400 text-sm rounded-full pl-4 pr-10 py-2 border border-slate-700 focus:outline-none focus:border-brand-500 transition"
           />
           <span class="absolute right-3.5 top-2.5 text-slate-400 text-sm pointer-events-none">🔍</span>
@@ -236,7 +236,7 @@
             </button>
           </div>
           <p class="text-[11px] text-slate-400">
-            Supports columns: <code class="text-slate-300">title</code>, <code class="text-slate-300">category</code>, <code class="text-slate-300">tags</code>, <code class="text-slate-300">views</code>, <code class="text-slate-300">date</code>, <code class="text-slate-300">gofile</code>, <code class="text-slate-300">doodstream</code>, <code class="text-slate-300">streamtape</code>, <code class="text-slate-300">lulustream</code>, <code class="text-slate-300">voe</code>, <code class="text-slate-300">thumb</code>, <code class="text-slate-300">resolution</code>, <code class="text-slate-300">duration</code>.
+            Supports columns: <code class="text-slate-300">title</code>, <code class="text-slate-300">category</code>, <code class="text-slate-300">tags</code>, <code class="text-slate-300">views</code>, <code class="text-slate-300">date</code>, <code class="text-slate-300">gofile</code>, <code class="text-slate-300">doodstream</code>, <code class="text-slate-300">streamtape</code>, <code class="text-slate-300">lulustream</code>, <code class="text-slate-300">voe</code>, <code class="text-slate-300">thumbnail</code>, <code class="text-slate-300">resolution</code>, <code class="text-slate-300">duration</code>.
           </p>
         </div>
 
@@ -276,7 +276,7 @@
   <div id="toastBox" class="fixed bottom-5 right-5 z-[2147483647] hidden bg-slate-800 border border-slate-600 text-white text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-xl"></div>
 
   <script>
-    const FALLBACK_VIDEOS = [{"id": "vid-new-1", "title": "FilthyFamily_Brandy Salazar, Rei Sky, Johnny Love - Peeping Stepson", "filename": "FilthyFamily_Brandy Salazar, Rei Sky, Johnny Love - Peeping Stepson.mp4", "category": "Trending, HD", "thumbnail": "https://cdn.jsdelivr.net/gh/gurug555/youronline@main/thumbnails/FilthyFamily_Brandy%20Salazar%2C%20Rei%20Sky%2C%20Johnny%20Love%20-%20Peeping%20Stepson.jpg", "links": {"Gofile": "https://gofile.io/d/FcKSwRmG", "Doodstream": "https://dood.li/e/y25406jr0ai8", "VOE": "https://voe.sx/e/rhqjahpccndc"}, "mirrors": {"gofile": "https://gofile.io/d/FcKSwRmG", "doodstream": "https://dood.li/e/y25406jr0ai8", "voe": "https://voe.sx/e/rhqjahpccndc"}}, {"id": "vid-new-2", "title": "FilthyFamily_Gia Vendetti, Zoey Uso, Johnny Love - Watch And Learn", "filename": "FilthyFamily_Gia Vendetti, Zoey Uso, Johnny Love - Watch And Learn.mp4", "category": "Trending, HD", "thumbnail": "https://cdn.jsdelivr.net/gh/gurug555/youronline@main/thumbnails/FilthyFamily_Gia%20Vendetti%2C%20Zoey%20Uso%2C%20Johnny%20Love%20-%20Watch%20And%20Learn.jpg", "links": {"Gofile": "https://gofile.io/d/tfvCCObY", "Doodstream": "https://dood.li/e/pcbwd95wp9dw", "VOE": "https://voe.sx/e/6ociutyykqxs"}, "mirrors": {"gofile": "https://gofile.io/d/tfvCCObY", "doodstream": "https://dood.li/e/pcbwd95wp9dw", "voe": "https://voe.sx/e/6ociutyykqxs"}}, {"id": "vid-new-3", "title": "FilthyFamily_Kaden Kole, Johnny Love - Passionate Love", "filename": "FilthyFamily_Kaden Kole, Johnny Love - Passionate Love.mp4", "category": "Trending, HD", "thumbnail": "https://cdn.jsdelivr.net/gh/gurug555/youronline@main/thumbnails/FilthyFamily_Kaden%20Kole%2C%20Johnny%20Love%20-%20Passionate%20Love.jpg", "links": {"Gofile": "https://gofile.io/d/P5chDmEe", "Doodstream": "https://dood.li/e/dxkp9hxso78n", "VOE": "https://voe.sx/e/jpvhdtdutzlj"}, "mirrors": {"gofile": "https://gofile.io/d/P5chDmEe", "doodstream": "https://dood.li/e/dxkp9hxso78n", "voe": "https://voe.sx/e/jpvhdtdutzlj"}}, {"id": "vid-1795270272112-1", "title": "ForgiveMeFather_Aliyah Yasin - Pakistani Princess Pays For Fantasy Fun", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Aliyah_Yasin_-_Pakistani_Princess_Pays_For_F.jpg", "resolution": "1080p", "duration": "28:17"}, {"id": "vid-1795270272112-2", "title": "ForgiveMeFather_Angie Lynx, Martin Gun, Ian Scott - You Fucked My Mum", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Angie_Lynx_Martin_Gun_Ian_Scott_-_You_Fucked.jpg", "resolution": "1080p", "duration": "27:47"}, {"id": "vid-1795270272112-3", "title": "ForgiveMeFather_Emily Pink - Nanny Gets Fired", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Emily_Pink_-_Nanny_Gets_Fired.jpg", "resolution": "1080p", "duration": "32:28"}, {"id": "vid-1795270272112-4", "title": "ForgiveMeFather_Jessica Sin, Martin Gun, Ian Scott - The Boss's Mistress", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Jessica_Sin_Martin_Gun_Ian_Scott_-_The_Boss_.jpg", "resolution": "1080p", "duration": "38:52"}, {"id": "vid-1795270272112-5", "title": "ForgiveMeFather_Kenza Del Cairo, Martin Gun, Ian Scott - Frenchie Fucked Hard", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Kenza_Del_Cairo_Martin_Gun_Ian_Scott_-_Frenc.jpg", "resolution": "1080p", "duration": "31:17"}, {"id": "vid-1795270272112-6", "title": "ForgiveMeFather_LaPaisita - With your sister's husband !", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_LaPaisita_-_With_your_sister_s_husband.jpg", "resolution": "1080p", "duration": "32:55"}, {"id": "vid-1795270272112-7", "title": "ForgiveMeFather_Malia Lenoir, Ian Scott - Ebony thief caught red handed", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Malia_Lenoir_Ian_Scott_-_Ebony_thief_caught_.jpg", "resolution": "1080p", "duration": "35:41"}, {"id": "vid-1795270272112-8", "title": "ForgiveMeFather_Ria Sunn, Ian Scott - Her 1st Rough Fuck", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Ria_Sunn_Ian_Scott_-_Her_1st_Rough_Fuck.jpg", "resolution": "1080p", "duration": "34:26"}, {"id": "vid-1795270272112-9", "title": "ForgiveMeFather_Samantha Joiner, Martin Gun, Ian Scott - I'm sending this creampie to my ex", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Samantha_Joiner_Martin_Gun_Ian_Scott_-_I_m_s.jpg", "resolution": "1080p", "duration": "35:33"}, {"id": "vid-1795270272112-10", "title": "ForgiveMeFather_Sophia Locke - Innocent redhead learns how to fuck", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Sophia_Locke_-_Innocent_redhead_learns_how_t.jpg", "resolution": "1080p", "duration": "35:32"}, {"id": "vid-1795270272112-11", "title": "Thorri And Jax - Ass To Mouth Fucking", "category": "Trending, HD", "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/Thorri_And_Jax_-_Ass_To_Mouth_Fucking.jpg", "resolution": "1080p", "duration": "12:35"}];
+    const FALLBACK_VIDEOS = [{"id": "vid-new-1", "title": "FilthyFamily_Brandy Salazar, Rei Sky, Johnny Love - Peeping Stepson", "filename": "FilthyFamily_Brandy Salazar, Rei Sky, Johnny Love - Peeping Stepson.mp4", "category": "Trending, HD", "tags": ["Trending", "HD", "FilthyFamily", "Brandy Salazar", "Rei Sky", "Johnny Love"], "thumbnail": "https://cdn.jsdelivr.net/gh/gurug555/youronline@main/thumbnails/FilthyFamily_Brandy%20Salazar%2C%20Rei%20Sky%2C%20Johnny%20Love%20-%20Peeping%20Stepson.jpg", "resolution": "1080p", "duration": "32:10", "links": {"Gofile": "https://gofile.io/d/FcKSwRmG", "Doodstream": "https://dood.li/e/y25406jr0ai8", "VOE": "https://voe.sx/e/rhqjahpccndc"}, "mirrors": {"gofile": "https://gofile.io/d/FcKSwRmG", "doodstream": "https://dood.li/e/y25406jr0ai8", "voe": "https://voe.sx/e/rhqjahpccndc"}}, {"id": "vid-new-2", "title": "FilthyFamily_Gia Vendetti, Zoey Uso, Johnny Love - Watch And Learn", "filename": "FilthyFamily_Gia Vendetti, Zoey Uso, Johnny Love - Watch And Learn.mp4", "category": "Trending, HD", "tags": ["Trending", "HD", "FilthyFamily", "Gia Vendetti", "Zoey Uso", "Johnny Love"], "thumbnail": "https://cdn.jsdelivr.net/gh/gurug555/youronline@main/thumbnails/FilthyFamily_Gia%20Vendetti%2C%20Zoey%20Uso%2C%20Johnny%20Love%20-%20Watch%20And%20Learn.jpg", "resolution": "1080p", "duration": "34:45", "links": {"Gofile": "https://gofile.io/d/tfvCCObY", "Doodstream": "https://dood.li/e/pcbwd95wp9dw", "VOE": "https://voe.sx/e/6ociutyykqxs"}, "mirrors": {"gofile": "https://gofile.io/d/tfvCCObY", "doodstream": "https://dood.li/e/pcbwd95wp9dw", "voe": "https://voe.sx/e/6ociutyykqxs"}}, {"id": "vid-new-3", "title": "FilthyFamily_Kaden Kole, Johnny Love - Passionate Love", "filename": "FilthyFamily_Kaden Kole, Johnny Love - Passionate Love.mp4", "category": "Trending, HD", "tags": ["Trending", "HD", "FilthyFamily", "Kaden Kole", "Johnny Love"], "thumbnail": "https://cdn.jsdelivr.net/gh/gurug555/youronline@main/thumbnails/FilthyFamily_Kaden%20Kole%2C%20Johnny%20Love%20-%20Passionate%20Love.jpg", "resolution": "1080p", "duration": "29:50", "links": {"Gofile": "https://gofile.io/d/P5chDmEe", "Doodstream": "https://dood.li/e/dxkp9hxso78n", "VOE": "https://voe.sx/e/jpvhdtdutzlj"}, "mirrors": {"gofile": "https://gofile.io/d/P5chDmEe", "doodstream": "https://dood.li/e/dxkp9hxso78n", "voe": "https://voe.sx/e/jpvhdtdutzlj"}}, {"id": "vid-1795270272112-1", "title": "ForgiveMeFather_Aliyah Yasin - Pakistani Princess Pays For Fantasy Fun", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "Aliyah Yasin"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Aliyah_Yasin_-_Pakistani_Princess_Pays_For_F.jpg", "resolution": "1080p", "duration": "28:17"}, {"id": "vid-1795270272112-2", "title": "ForgiveMeFather_Angie Lynx, Martin Gun, Ian Scott - You Fucked My Mum", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "Angie Lynx", "Martin Gun", "Ian Scott"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Angie_Lynx_Martin_Gun_Ian_Scott_-_You_Fucked.jpg", "resolution": "1080p", "duration": "27:47"}, {"id": "vid-1795270272112-3", "title": "ForgiveMeFather_Emily Pink - Nanny Gets Fired", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "Emily Pink"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Emily_Pink_-_Nanny_Gets_Fired.jpg", "resolution": "1080p", "duration": "32:28"}, {"id": "vid-1795270272112-4", "title": "ForgiveMeFather_Jessica Sin, Martin Gun, Ian Scott - The Boss's Mistress", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "Jessica Sin", "Martin Gun", "Ian Scott"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Jessica_Sin_Martin_Gun_Ian_Scott_-_The_Boss_.jpg", "resolution": "1080p", "duration": "38:52"}, {"id": "vid-1795270272112-5", "title": "ForgiveMeFather_Kenza Del Cairo, Martin Gun, Ian Scott - Frenchie Fucked Hard", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "Kenza Del Cairo", "Martin Gun", "Ian Scott"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Kenza_Del_Cairo_Martin_Gun_Ian_Scott_-_Frenc.jpg", "resolution": "1080p", "duration": "31:17"}, {"id": "vid-1795270272112-6", "title": "ForgiveMeFather_LaPaisita - With your sister's husband !", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "LaPaisita"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_LaPaisita_-_With_your_sister_s_husband.jpg", "resolution": "1080p", "duration": "32:55"}, {"id": "vid-1795270272112-7", "title": "ForgiveMeFather_Malia Lenoir, Ian Scott - Ebony thief caught red handed", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "Malia Lenoir", "Ian Scott"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Malia_Lenoir_Ian_Scott_-_Ebony_thief_caught_.jpg", "resolution": "1080p", "duration": "35:41"}, {"id": "vid-1795270272112-8", "title": "ForgiveMeFather_Ria Sunn, Ian Scott - Her 1st Rough Fuck", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "Ria Sunn", "Ian Scott"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Ria_Sunn_Ian_Scott_-_Her_1st_Rough_Fuck.jpg", "resolution": "1080p", "duration": "34:26"}, {"id": "vid-1795270272112-9", "title": "ForgiveMeFather_Samantha Joiner, Martin Gun, Ian Scott - I'm sending this creampie to my ex", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "Samantha Joiner", "Martin Gun", "Ian Scott"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Samantha_Joiner_Martin_Gun_Ian_Scott_-_I_m_s.jpg", "resolution": "1080p", "duration": "35:33"}, {"id": "vid-1795270272112-10", "title": "ForgiveMeFather_Sophia Locke - Innocent redhead learns how to fuck", "category": "Trending, HD", "tags": ["Trending", "HD", "ForgiveMeFather", "Sophia Locke"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/ForgiveMeFather_Sophia_Locke_-_Innocent_redhead_learns_how_t.jpg", "resolution": "1080p", "duration": "35:32"}, {"id": "vid-1795270272112-11", "title": "Thorri And Jax - Ass To Mouth Fucking", "category": "Trending, HD", "tags": ["Trending", "HD", "Thorri And Jax"], "url": "", "downloadUrl": "", "downloadUrls": [], "hoverUrl": "", "thumbnail": "thumbs/Thorri_And_Jax_-_Ass_To_Mouth_Fucking.jpg", "resolution": "1080p", "duration": "12:35"}];
 
     const STATE = {
       videos: [],
@@ -344,6 +344,21 @@
       return parts.length ? parts : ['General'];
     }
 
+    function extractAutoTags(title, baseTags) {
+      const set = new Set(baseTags);
+      const raw = String(title || '').trim();
+      if (raw.includes('_')) {
+        const studio = raw.split('_')[0].trim();
+        if (studio) set.add(studio);
+      }
+      const afterStudio = raw.includes('_') ? raw.split('_').slice(1).join('_') : raw;
+      if (afterStudio.includes(' - ')) {
+        const actorsPart = afterStudio.split(' - ')[0];
+        actorsPart.split(',').map(a => a.trim()).filter(Boolean).forEach(actor => set.add(actor));
+      }
+      return Array.from(set);
+    }
+
     function parseDurationSeconds(dur) {
       if (!dur) return 0;
       if (typeof dur === 'number') return dur;
@@ -378,23 +393,24 @@
         });
       }
 
-      const tags = Array.isArray(item.tags)
+      const title = String(item.title || item.name || item.filename || 'Untitled Video').trim();
+      const baseTags = Array.isArray(item.tags) && item.tags.length
         ? item.tags.map(t => String(t).trim()).filter(Boolean)
         : parseTags(item.tags || item.category, defaultTags);
+      const tags = extractAutoTags(title, baseTags);
 
       const category = String(item.category || (tags[0] || 'General')).trim();
       const rawViews = Number(item.views);
       const views = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : (120 + ((index * 73) % 4800));
-      // Keep newest items (index 0, 1, 2) strictly at top when sorting by Date Added
       const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 - index * 60000);
       const rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('vid_' + Math.random().toString(36).slice(2, 10));
 
       return {
         id: rawId,
-        title: String(item.title || item.name || item.filename || 'Untitled Video').trim(),
+        title,
         category,
         tags: tags.length ? tags : ['General'],
-        thumb: String(item.thumb || item.thumbnail || '').trim(),
+        thumb: String(item.thumbnail || item.thumb || '').trim(),
         resolution: String(item.resolution || '').trim(),
         duration: String(item.duration || '').trim(),
         views,
@@ -423,7 +439,6 @@
       } catch (e) {
         console.warn('videos.json fetch fallback to embedded dataset:', e);
       }
-      // Guaranteed fallback so videos never disappear even if videos.json fails to load
       applyVideoList(FALLBACK_VIDEOS);
     }
 
@@ -436,10 +451,9 @@
     }
 
     function getAllCategories() {
-      const set = new Set(['All', 'Trending', 'HD', 'General']);
+      const set = new Set(['All', 'Trending', 'HD', 'FilthyFamily', 'ForgiveMeFather']);
       STATE.videos.forEach(v => {
-        if (v.category) set.add(v.category);
-        (v.tags || []).forEach(t => set.add(t));
+        parseTags(v.category, '').forEach(c => set.add(c));
       });
       return Array.from(set);
     }
@@ -451,7 +465,7 @@
           counts.set(t, (counts.get(t) || 0) + 1);
         });
       });
-      if (!counts.size) return ['Trending', 'HD', 'General'];
+      if (!counts.size) return ['Trending', 'HD'];
       return Array.from(counts.entries())
         .sort((a, b) => b[1] - a[1])
         .map(([tag]) => tag);
@@ -553,7 +567,7 @@
 
         if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
           const target = STATE.filterValue.toLowerCase();
-          const inCat = (v.category || '').toLowerCase() === target;
+          const inCat = parseTags(v.category, '').some(c => c.toLowerCase() === target);
           const inTags = (v.tags || []).some(t => t.toLowerCase() === target);
           if (!inCat && !inTags) return false;
         } else if (STATE.filterType === 'tag') {
@@ -617,7 +631,7 @@
         const badges = [];
         if (v.resolution) badges.push(`<span class="bg-black/80 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded">${escapeHtml(v.resolution)}</span>`);
         if (v.duration) badges.push(`<span class="bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">${escapeHtml(v.duration)}</span>`);
-        const tagsHtml = (v.tags || []).slice(0, 3).map(t => `<span class="text-[11px] text-slate-400">#${escapeHtml(t)}</span>`).join(' ');
+        const tagsHtml = (v.tags || []).slice(0, 4).map(t => `<span class="text-[11px] text-slate-400">#${escapeHtml(t)}</span>`).join(' ');
 
         return `
           <article data-id="${escapeHtml(v.id)}" data-title="${escapeHtml(v.title)}" class="video-card group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-xl overflow-hidden cursor-pointer transition flex flex-col">
@@ -737,8 +751,17 @@
       document.getElementById('watchViewsVal').textContent = `${formatViews(video.views)} views`;
 
       document.getElementById('watchTags').innerHTML = (video.tags || [])
-        .map(t => `<span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">#${escapeHtml(t)}</span>`)
+        .map(t => `<button type="button" data-watch-tag="${escapeHtml(t)}" class="watch-tag-chip text-xs bg-slate-800 hover:bg-brand-600 text-slate-300 hover:text-white px-2.5 py-0.5 rounded-full border border-slate-700 transition">#${escapeHtml(t)}</button>`)
         .join('');
+
+      document.querySelectorAll('.watch-tag-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          STATE.filterType = 'tag';
+          STATE.filterValue = chip.dataset.watchTag;
+          STATE.page = 1;
+          closeWatchPage(true);
+        });
+      });
 
       const entries = Object.entries(video.mirrors || {}).filter(([, url]) => Boolean(url));
       const btnBox = document.getElementById('mirrorButtons');
@@ -959,7 +982,18 @@
     }
 
     function downloadVideosJson() {
-      const blob = new Blob([JSON.stringify(STATE.videos, null, 2)], { type: 'application/json' });
+      const exportList = STATE.videos.map(v => ({
+        id: v.id,
+        title: v.title,
+        category: v.category,
+        tags: v.tags,
+        thumbnail: v.thumb,
+        resolution: v.resolution,
+        duration: v.duration,
+        views: v.views,
+        mirrors: v.mirrors
+      }));
+      const blob = new Blob([JSON.stringify(exportList, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
