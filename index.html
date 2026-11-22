@@ -36,7 +36,7 @@
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <!-- Brand Logo -->
-      <a href="index.html" class="flex items-center gap-2 shrink-0">
+      <a href="index.html" id="brandHomeLink" class="flex items-center gap-2 shrink-0">
         <span class="inline-flex items-center justify-center bg-brand-600 text-white font-extrabold text-xs px-2 py-1 rounded tracking-wider">PLAY</span>
         <span class="text-xl font-bold tracking-tight text-white">yourpo<span class="text-brand-500">.online</span></span>
       </a>
@@ -54,7 +54,7 @@
         </div>
       </div>
 
-      <!-- Hidden Admin Studio Button (Toggle via Ctrl+Shift+A, 5x Footer Tap, or ?admin=1) -->
+      <!-- Hidden Admin Studio Button (Ctrl+Shift+A, 5x Footer Tap, or ?admin=1) -->
       <button
         id="openAdminBtn"
         type="button"
@@ -72,23 +72,75 @@
 
   <!-- Main Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
-    <!-- JuicyAds 300x100 Top Banner (Auto-hides while video player is open) -->
-    <div id="topAdWrapper" class="mb-5 flex justify-center relative z-10">
-      <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-1.5 overflow-hidden max-w-[316px] max-h-[116px]">
+
+    <!-- Zone 1: JuicyAds 300x100 Top Banner (Cleanly above content, never overlaps player) -->
+    <div class="mb-6 flex justify-center">
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-1.5 overflow-hidden max-w-[316px] max-h-[116px]">
         <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
         <ins id="1133790" data-width="300" data-height="100"></ins>
         <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1133790});</script>
       </div>
     </div>
 
-    <div class="flex items-center justify-between mb-4">
-      <h1 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Trending Videos</h1>
-      <span id="resultCount" class="text-xs sm:text-sm text-slate-400"></span>
-    </div>
-
-    <!-- Content + Desktop Sidebar Banner Layout -->
+    <!-- Content + Zone 5: Desktop 160x600 Sidebar Layout -->
     <div class="flex flex-col lg:flex-row items-start gap-6">
       <div class="flex-1 w-full min-w-0">
+
+        <!-- FULL-PAGE WATCH VIEW (Shown when a video is clicked) -->
+        <section id="watchSection" class="hidden mb-10 space-y-4">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <button id="backToHomeBtn" type="button"
+                    class="inline-flex items-center gap-1.5 text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-slate-100 px-3.5 py-1.5 rounded-lg border border-slate-700 transition">
+              ← Back to All Videos
+            </button>
+            <span id="watchMetaBadge" class="text-xs text-slate-400"></span>
+          </div>
+
+          <!-- Full-Width 16:9 Player Box -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <div id="embedContainer" class="aspect-video w-full bg-black flex items-center justify-center"></div>
+
+            <!-- Video Details + Mirror Controls + Zone 4: Smartlink -->
+            <div class="p-4 sm:p-5 space-y-4 border-t border-slate-800">
+              <div>
+                <h1 id="watchTitle" class="text-lg sm:text-xl font-bold text-white leading-snug"></h1>
+                <div id="watchTags" class="flex flex-wrap gap-2 mt-2"></div>
+              </div>
+
+              <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs text-slate-400 mr-1">Servers:</span>
+                  <div id="mirrorButtons" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                  <!-- Zone 4: Adsterra Smartlink -->
+                  <a href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer"
+                     class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3.5 py-2 rounded-lg transition shadow">
+                    ⚡ HD Direct Download
+                  </a>
+                  <a id="externalWatchLink" href="#" target="_blank" rel="noopener noreferrer"
+                     class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg border border-slate-700 transition">
+                    Open in New Tab ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Zone 3: Adsterra Native Banner (Sits right below player in Watch Mode, or above/below grid) -->
+        <div id="nativeAdSlot" class="mb-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
+          <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
+          <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
+        </div>
+
+        <!-- Video Grid Header (Switches between "Trending Videos" & "Related / More Videos") -->
+        <div class="flex items-center justify-between mb-4">
+          <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Trending Videos</h2>
+          <span id="resultCount" class="text-xs sm:text-sm text-slate-400"></span>
+        </div>
+
         <!-- Video Grid -->
         <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5"></div>
 
@@ -98,17 +150,11 @@
           <button id="resetFiltersBtn" type="button" class="text-sm text-brand-400 hover:underline">Reset search &amp; filters</button>
         </div>
 
-        <!-- Adsterra Native Banner -->
-        <div class="mt-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
-          <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
-          <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
-        </div>
-
         <!-- Pagination -->
         <div id="paginationBar" class="mt-8 flex items-center justify-center gap-2 flex-wrap"></div>
       </div>
 
-      <!-- Adsterra 160x600 Sidebar Banner (Desktop) -->
+      <!-- Zone 5: Adsterra 160x600 Sidebar Banner (Desktop Sticky) -->
       <aside class="hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-28 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2">
         <script>
           atOptions = {
@@ -128,39 +174,6 @@
   <footer class="border-t border-slate-800 bg-slate-900/60 py-5 text-center text-xs text-slate-400">
     <p id="secretFooterTap" class="cursor-default select-none inline-block px-2 py-1">© 2026 yourpo.online — All rights reserved.</p>
   </footer>
-
-  <!-- Video Player Modal (Highest z-index so no ad overlaps video) -->
-  <div id="playerModal" class="fixed inset-0 z-[2147483647] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl">
-      <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-slate-800">
-        <div class="min-w-0 pr-4">
-          <h2 id="playerTitle" class="text-base sm:text-lg font-bold text-white truncate"></h2>
-          <p id="playerMeta" class="text-xs text-slate-400 mt-0.5"></p>
-        </div>
-        <button id="closePlayerBtn" type="button" class="text-slate-400 hover:text-white text-xl leading-none px-2 py-1">✕</button>
-      </div>
-
-      <div class="p-4 sm:p-6 space-y-4">
-        <!-- Mirror Server Switcher + Smartlink -->
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div id="mirrorButtons" class="flex flex-wrap gap-2"></div>
-          <div class="flex flex-wrap items-center gap-2">
-            <a href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer"
-               class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-lg transition">
-              ⚡ HD Direct Download
-            </a>
-            <a id="externalWatchLink" href="#" target="_blank" rel="noopener noreferrer"
-               class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition">
-              Open in New Tab ↗
-            </a>
-          </div>
-        </div>
-
-        <!-- Embed / Preview Container -->
-        <div id="embedContainer" class="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- Admin Studio Modal -->
   <div id="adminModal" class="fixed inset-0 z-[2147483647] hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
@@ -235,6 +248,7 @@
   <script>
     const STATE = {
       videos: [],
+      activeVideoId: null,
       search: '',
       category: 'Trending',
       page: 1,
@@ -310,6 +324,7 @@
           const list = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : []);
           STATE.videos = list.map(v => normalizeVideoItem(v));
           renderAll();
+          checkUrlVideoParam();
           return;
         }
       } catch (e) {
@@ -317,6 +332,14 @@
       }
       STATE.videos = [];
       renderAll();
+    }
+
+    function checkUrlVideoParam() {
+      const vidId = new URLSearchParams(window.location.search).get('v');
+      if (vidId) {
+        const found = STATE.videos.find(v => v.id === vidId);
+        if (found) openWatchPage(found, false);
+      }
     }
 
     function getCategories() {
@@ -340,6 +363,7 @@
         btn.addEventListener('click', () => {
           STATE.category = btn.dataset.cat;
           STATE.page = 1;
+          closeWatchPage(false);
           renderGrid();
           renderCategories();
         });
@@ -349,6 +373,7 @@
     function getFilteredVideos() {
       const q = STATE.search.trim().toLowerCase();
       return STATE.videos.filter(v => {
+        if (STATE.activeVideoId && v.id === STATE.activeVideoId) return false;
         const matchesCat =
           STATE.category === 'All' ||
           (v.tags || []).some(t => t.toLowerCase() === STATE.category.toLowerCase());
@@ -369,8 +394,12 @@
       const start = (STATE.page - 1) * STATE.perPage;
       const pageItems = filtered.slice(start, start + STATE.perPage);
 
-      document.getElementById('sectionTitle').textContent =
-        STATE.category === 'All' ? 'All Videos' : `${STATE.category} Videos`;
+      if (STATE.activeVideoId) {
+        document.getElementById('sectionTitle').textContent = 'More Videos';
+      } else {
+        document.getElementById('sectionTitle').textContent =
+          STATE.category === 'All' ? 'All Videos' : `${STATE.category} Videos`;
+      }
       document.getElementById('resultCount').textContent =
         `${total} ${total === 1 ? 'video' : 'videos'}`;
 
@@ -401,7 +430,7 @@
               ${badges.length ? `<div class="absolute bottom-2 right-2 flex items-center gap-1">${badges.join('')}</div>` : ''}
             </div>
             <div class="p-3.5 flex-1 flex flex-col justify-between gap-2">
-              <h2 class="text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h2>
+              <h3 class="text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h3>
               <div class="flex flex-wrap gap-2">${tagsHtml}</div>
             </div>
           </article>
@@ -411,7 +440,7 @@
       grid.querySelectorAll('.video-card').forEach(card => {
         card.addEventListener('click', () => {
           const vid = STATE.videos.find(item => item.id === card.dataset.id);
-          if (vid) openPlayer(vid);
+          if (vid) openWatchPage(vid, true);
         });
       });
 
@@ -455,14 +484,22 @@
       return url;
     }
 
-    function openPlayer(video) {
-      const topAd = document.getElementById('topAdWrapper');
-      if (topAd) topAd.classList.add('hidden');
+    function openWatchPage(video, pushHistory = true) {
+      STATE.activeVideoId = video.id;
+      document.title = `${video.title} — yourpo.online`;
 
-      const modal = document.getElementById('playerModal');
-      document.getElementById('playerTitle').textContent = video.title;
-      document.getElementById('playerMeta').textContent =
-        [video.resolution, video.duration, ...(video.tags || [])].filter(Boolean).join(' • ');
+      if (pushHistory) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('v', video.id);
+        window.history.pushState({ videoId: video.id }, '', url);
+      }
+
+      document.getElementById('watchTitle').textContent = video.title;
+      document.getElementById('watchMetaBadge').textContent =
+        [video.resolution, video.duration].filter(Boolean).join(' • ');
+      document.getElementById('watchTags').innerHTML = (video.tags || [])
+        .map(t => `<span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">#${escapeHtml(t)}</span>`)
+        .join('');
 
       const entries = Object.entries(video.mirrors || {}).filter(([, url]) => Boolean(url));
       const btnBox = document.getElementById('mirrorButtons');
@@ -473,46 +510,66 @@
         btnBox.innerHTML = '<span class="text-xs text-slate-400">No mirror links attached yet.</span>';
         extLink.href = 'https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd';
         embedBox.innerHTML = '<p class="text-sm text-slate-400">Mirror links not available for this video.</p>';
-        modal.classList.remove('hidden');
-        return;
+      } else {
+        const selectServer = (serverName, rawUrl, idx) => {
+          btnBox.querySelectorAll('.srv-btn').forEach((b, i) => {
+            b.className = i === idx
+              ? 'srv-btn bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg'
+              : 'srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700';
+          });
+          extLink.href = rawUrl;
+          const embedUrl = buildEmbedUrl(rawUrl);
+          if (/\.(mp4|webm|ogg)(\?|$)/i.test(embedUrl)) {
+            embedBox.innerHTML = `<video src="${escapeHtml(embedUrl)}" controls autoplay class="w-full h-full"></video>`;
+          } else {
+            embedBox.innerHTML = `<iframe src="${escapeHtml(embedUrl)}" allowfullscreen scrolling="no" class="w-full h-full border-0"></iframe>`;
+          }
+        };
+
+        btnBox.innerHTML = entries.map(([srv], i) =>
+          `<button type="button" data-idx="${i}" class="srv-btn bg-slate-800 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase">${escapeHtml(srv)}</button>`
+        ).join('');
+
+        btnBox.querySelectorAll('.srv-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.dataset.idx);
+            selectServer(entries[i][0], entries[i][1], i);
+          });
+        });
+
+        selectServer(entries[0][0], entries[0][1], 0);
       }
 
-      const selectServer = (serverName, rawUrl, idx) => {
-        btnBox.querySelectorAll('.srv-btn').forEach((b, i) => {
-          b.className = i === idx
-            ? 'srv-btn bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg'
-            : 'srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700';
-        });
-        extLink.href = rawUrl;
-        const embedUrl = buildEmbedUrl(rawUrl);
-        if (/\.(mp4|webm|ogg)(\?|$)/i.test(embedUrl)) {
-          embedBox.innerHTML = `<video src="${escapeHtml(embedUrl)}" controls autoplay class="w-full h-full"></video>`;
-        } else {
-          embedBox.innerHTML = `<iframe src="${escapeHtml(embedUrl)}" allowfullscreen scrolling="no" class="w-full h-full border-0"></iframe>`;
-        }
-      };
-
-      btnBox.innerHTML = entries.map(([srv], i) =>
-        `<button type="button" data-idx="${i}" class="srv-btn bg-slate-800 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase">${escapeHtml(srv)}</button>`
-      ).join('');
-
-      btnBox.querySelectorAll('.srv-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const i = Number(btn.dataset.idx);
-          selectServer(entries[i][0], entries[i][1], i);
-        });
-      });
-
-      selectServer(entries[0][0], entries[0][1], 0);
-      modal.classList.remove('hidden');
+      document.getElementById('watchSection').classList.remove('hidden');
+      renderGrid();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function closePlayer() {
-      document.getElementById('playerModal').classList.add('hidden');
+    function closeWatchPage(pushHistory = true) {
+      STATE.activeVideoId = null;
+      document.title = 'yourpo.online — Watch & Download';
+      document.getElementById('watchSection').classList.add('hidden');
       document.getElementById('embedContainer').innerHTML = '';
-      const topAd = document.getElementById('topAdWrapper');
-      if (topAd) topAd.classList.remove('hidden');
+
+      if (pushHistory) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('v');
+        window.history.pushState({}, '', url);
+      }
+      renderGrid();
     }
+
+    window.addEventListener('popstate', () => {
+      const vidId = new URLSearchParams(window.location.search).get('v');
+      if (vidId) {
+        const found = STATE.videos.find(v => v.id === vidId);
+        if (found) {
+          openWatchPage(found, false);
+          return;
+        }
+      }
+      closeWatchPage(false);
+    });
 
     function openAdmin() {
       renderAdminList();
@@ -653,9 +710,17 @@
       renderGrid();
     }
 
+    document.getElementById('brandHomeLink').addEventListener('click', e => {
+      e.preventDefault();
+      closeWatchPage(true);
+    });
+
+    document.getElementById('backToHomeBtn').addEventListener('click', () => closeWatchPage(true));
+
     document.getElementById('searchInput').addEventListener('input', e => {
       STATE.search = e.target.value;
       STATE.page = 1;
+      closeWatchPage(false);
       renderGrid();
     });
 
@@ -664,12 +729,8 @@
       STATE.category = 'Trending';
       STATE.page = 1;
       document.getElementById('searchInput').value = '';
+      closeWatchPage(false);
       renderAll();
-    });
-
-    document.getElementById('closePlayerBtn').addEventListener('click', closePlayer);
-    document.getElementById('playerModal').addEventListener('click', e => {
-      if (e.target.id === 'playerModal') closePlayer();
     });
 
     document.getElementById('openAdminBtn').addEventListener('click', openAdmin);
@@ -718,10 +779,10 @@
     loadInitialVideos();
   </script>
 
-  <!-- Adsterra Popunder -->
+  <!-- Zone 6A: Adsterra Popunder -->
   <script data-cfasync="false" src="https://benchform.org/1/4c4ca49e2e5f4745faebc1d79b918b7b"></script>
 
-  <!-- Adsterra Social Bar -->
+  <!-- Zone 6B: Adsterra Social Bar -->
   <script data-cfasync="false" src="https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43"></script>
 </body>
 </html>
