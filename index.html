@@ -106,34 +106,6 @@
     <div id="navSubDrawer" class="hidden border-t border-slate-800/80 bg-slate-900/95">
       <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 overflow-x-auto" id="navDrawerList"></div>
     </div>
-
-    <!-- Sort By Filter Bar (Directly below Search / Nav Header) -->
-    <div class="border-t border-slate-800/80 bg-slate-950/90">
-      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-3 flex-wrap">
-        <div class="flex items-center gap-2 overflow-x-auto">
-          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 shrink-0">Sort by:</span>
-          <button type="button" data-sort="date"
-                  class="sort-btn bg-brand-600 text-white border border-brand-500 text-xs font-semibold px-3 py-1 rounded-full transition shrink-0">
-            Date Added
-          </button>
-          <button type="button" data-sort="views"
-                  class="sort-btn bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium px-3 py-1 rounded-full transition shrink-0">
-            Most Views
-          </button>
-          <button type="button" data-sort="duration"
-                  class="sort-btn bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium px-3 py-1 rounded-full transition shrink-0">
-            Duration
-          </button>
-        </div>
-
-        <!-- Active Filter Pill -->
-        <div id="activeFilterBadge" class="hidden items-center gap-2 text-xs">
-          <span class="text-slate-400">Filter:</span>
-          <span id="activeFilterLabel" class="bg-slate-800 text-brand-400 font-semibold px-2.5 py-0.5 rounded-full border border-slate-700"></span>
-          <button id="clearActiveFilterBtn" type="button" class="text-slate-400 hover:text-white">✕</button>
-        </div>
-      </div>
-    </div>
   </header>
 
   <!-- Main Content (z-0 + isolate traps all child z-indexes below sticky header z-50) -->
@@ -159,19 +131,26 @@
                     class="inline-flex items-center gap-1.5 text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-slate-100 px-3.5 py-1.5 rounded-lg border border-slate-700 transition">
               ← Back to All Videos
             </button>
-            <span id="watchMetaBadge" class="text-xs text-slate-400"></span>
           </div>
 
           <!-- Full-Width 16:9 Player / Thumbnail Preview Box -->
           <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
             <div id="embedContainer" class="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden"></div>
 
-            <!-- Video Details + Mirror Controls + Zone 4: Smartlink -->
+            <!-- Video Details + Quality / Timestamp / Views Below Player + Mirror Controls + Zone 4: Smartlink -->
             <div class="p-4 sm:p-5 space-y-4 border-t border-slate-800">
-              <div>
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <h1 id="watchTitle" class="text-lg sm:text-xl font-bold text-white leading-snug"></h1>
-                <div id="watchTags" class="flex flex-wrap gap-2 mt-2"></div>
+
+                <!-- Video Quality, Timestamp & Views Row Directly Below Player -->
+                <div id="watchStatsRow" class="flex flex-wrap items-center gap-2 text-xs shrink-0">
+                  <span id="watchQualityBadge" class="hidden bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold px-2.5 py-1 rounded-md"></span>
+                  <span id="watchDurationBadge" class="hidden bg-slate-800 text-slate-200 border border-slate-700 font-medium px-2.5 py-1 rounded-md">⏱ <span id="watchDurationVal"></span></span>
+                  <span id="watchViewsBadge" class="bg-slate-800 text-slate-200 border border-slate-700 font-medium px-2.5 py-1 rounded-md">👁 <span id="watchViewsVal"></span></span>
+                </div>
               </div>
+
+              <div id="watchTags" class="flex flex-wrap gap-2"></div>
 
               <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
                 <div class="flex flex-wrap items-center gap-2">
@@ -195,10 +174,31 @@
           </div>
         </section>
 
-        <!-- Video Grid Header -->
-        <div class="flex items-center justify-between mb-4">
-          <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>
-          <span id="resultCount" class="text-xs sm:text-sm text-slate-400"></span>
+        <!-- Video Grid Header + Top-Right Sort By Dropdown -->
+        <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <div class="flex items-center gap-3 flex-wrap">
+            <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>
+            <span id="resultCount" class="text-xs sm:text-sm text-slate-400"></span>
+
+            <!-- Active Filter Pill -->
+            <div id="activeFilterBadge" class="hidden items-center gap-1.5 text-xs">
+              <span id="activeFilterLabel" class="bg-slate-800 text-brand-400 font-semibold px-2.5 py-0.5 rounded-full border border-slate-700"></span>
+              <button id="clearActiveFilterBtn" type="button" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+          </div>
+
+          <!-- Top-Right Sort By Dropdown -->
+          <div class="flex items-center gap-2 ml-auto">
+            <label for="sortBySelect" class="text-xs font-medium text-slate-400 shrink-0">Sort by:</label>
+            <select
+              id="sortBySelect"
+              class="bg-slate-900 hover:bg-slate-800 text-slate-100 text-xs sm:text-sm font-medium rounded-lg px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-brand-500 cursor-pointer transition"
+            >
+              <option value="date" selected>Date Added</option>
+              <option value="views">Most Views</option>
+              <option value="duration">Duration</option>
+            </select>
+          </div>
         </div>
 
         <!-- 4-Column Responsive Video Grid (1 col mobile -> 2 col sm -> 3 col md -> 4 col lg/xl) -->
@@ -221,7 +221,7 @@
       </div>
 
       <!-- Zone 5: Adsterra 160x600 Sidebar Banner (Desktop Sticky, isolated below header) -->
-      <aside class="ad-box-isolated hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-32 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2 overflow-hidden">
+      <aside class="ad-box-isolated hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-24 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2 overflow-hidden">
         <script>
           atOptions = {
             'key' : '58b8868202e44dc8ea861ccc8d62b9c7',
@@ -534,15 +534,6 @@
       }
     }
 
-    function updateSortButtons() {
-      document.querySelectorAll('.sort-btn').forEach(btn => {
-        const active = btn.dataset.sort === STATE.sortBy;
-        btn.className = active
-          ? 'sort-btn bg-brand-600 text-white border border-brand-500 text-xs font-semibold px-3 py-1 rounded-full transition shrink-0'
-          : 'sort-btn bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium px-3 py-1 rounded-full transition shrink-0';
-      });
-    }
-
     function updateFilterBadge() {
       const badge = document.getElementById('activeFilterBadge');
       const label = document.getElementById('activeFilterLabel');
@@ -730,8 +721,27 @@
       }
 
       document.getElementById('watchTitle').textContent = video.title;
-      document.getElementById('watchMetaBadge').textContent =
-        [video.resolution, video.duration, `${formatViews(video.views)} views`].filter(Boolean).join(' • ');
+
+      // Populate Quality, Timestamp (Duration) & Views badges directly below player
+      const qualEl = document.getElementById('watchQualityBadge');
+      if (video.resolution) {
+        qualEl.textContent = video.resolution;
+        qualEl.classList.remove('hidden');
+      } else {
+        qualEl.classList.add('hidden');
+      }
+
+      const durWrap = document.getElementById('watchDurationBadge');
+      const durVal = document.getElementById('watchDurationVal');
+      if (video.duration) {
+        durVal.textContent = video.duration;
+        durWrap.classList.remove('hidden');
+      } else {
+        durWrap.classList.add('hidden');
+      }
+
+      document.getElementById('watchViewsVal').textContent = `${formatViews(video.views)} views`;
+
       document.getElementById('watchTags').innerHTML = (video.tags || [])
         .map(t => `<span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">#${escapeHtml(t)}</span>`)
         .join('');
@@ -855,7 +865,8 @@
     }
 
     function parseCsvText(text) {
-      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      const lines = text.split(/?
+/).filter(l => l.trim().length > 0);
       if (lines.length < 2) return [];
       const headers = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
       const rows = [];
@@ -958,7 +969,7 @@
     function renderAll() {
       updateNavButtons();
       renderNavDrawer();
-      updateSortButtons();
+      document.getElementById('sortBySelect').value = STATE.sortBy;
       renderGrid();
     }
 
@@ -1003,14 +1014,11 @@
       renderAll();
     });
 
-    // Sort By Handlers (Date Added, Most Views, Duration)
-    document.querySelectorAll('.sort-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        STATE.sortBy = btn.dataset.sort;
-        STATE.page = 1;
-        updateSortButtons();
-        renderGrid();
-      });
+    // Sort By Dropdown Handler (Date Added, Most Views, Duration)
+    document.getElementById('sortBySelect').addEventListener('change', e => {
+      STATE.sortBy = e.target.value;
+      STATE.page = 1;
+      renderGrid();
     });
 
     document.getElementById('backToHomeBtn').addEventListener('click', () => closeWatchPage(true));
@@ -1030,6 +1038,7 @@
       STATE.sortBy = 'date';
       STATE.page = 1;
       document.getElementById('searchInput').value = '';
+      document.getElementById('sortBySelect').value = 'date';
       closeWatchPage(false);
       renderAll();
     });
