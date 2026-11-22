@@ -350,6 +350,11 @@
           if (v && String(v).trim()) mirrors[k.toLowerCase()] = String(v).trim();
         });
       }
+      if (item.links && typeof item.links === 'object') {
+        Object.entries(item.links).forEach(([k, v]) => {
+          if (v && String(v).trim()) mirrors[k.toLowerCase()] = String(v).trim();
+        });
+      }
 
       const tags = Array.isArray(item.tags)
         ? item.tags.map(t => String(t).trim()).filter(Boolean)
@@ -828,7 +833,7 @@
     }
 
     function parseCsvText(text) {
-      const lines = text.split(/\\r?\\n/).filter(l => l.trim().length > 0);
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
       if (lines.length < 2) return [];
       const headers = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
       const rows = [];
