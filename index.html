@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-  <meta name="juicyads-site-verification" content="15d01f0e1b4e21bd36bf4b278845fb36">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>yourpo.online — Watch &amp; Download</title>
@@ -78,17 +77,42 @@
       <span id="resultCount" class="text-xs sm:text-sm text-slate-400"></span>
     </div>
 
-    <!-- Video Grid -->
-    <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+    <!-- Content + Desktop Sidebar Banner Layout -->
+    <div class="flex flex-col lg:flex-row items-start gap-6">
+      <div class="flex-1 w-full min-w-0">
+        <!-- Video Grid -->
+        <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5"></div>
 
-    <!-- Empty State -->
-    <div id="emptyState" class="hidden text-center py-20">
-      <p class="text-slate-400 text-base mb-2">No matching videos found.</p>
-      <button id="resetFiltersBtn" type="button" class="text-sm text-brand-400 hover:underline">Reset search &amp; filters</button>
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-20">
+          <p class="text-slate-400 text-base mb-2">No matching videos found.</p>
+          <button id="resetFiltersBtn" type="button" class="text-sm text-brand-400 hover:underline">Reset search &amp; filters</button>
+        </div>
+
+        <!-- Adsterra Native Banner -->
+        <div class="mt-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
+          <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
+          <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="paginationBar" class="mt-8 flex items-center justify-center gap-2 flex-wrap"></div>
+      </div>
+
+      <!-- Adsterra 160x600 Sidebar Banner (Desktop) -->
+      <aside class="hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-28 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2">
+        <script>
+          atOptions = {
+            'key' : '58b8868202e44dc8ea861ccc8d62b9c7',
+            'format' : 'iframe',
+            'height' : 600,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script src="https://biomanos.org/22/58b8868202e44dc8ea861ccc8d62b9c7"></script>
+      </aside>
     </div>
-
-    <!-- Pagination -->
-    <div id="paginationBar" class="mt-8 flex items-center justify-center gap-2 flex-wrap"></div>
   </main>
 
   <!-- Footer -->
@@ -108,13 +132,19 @@
       </div>
 
       <div class="p-4 sm:p-6 space-y-4">
-        <!-- Mirror Server Switcher -->
+        <!-- Mirror Server Switcher + Smartlink -->
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div id="mirrorButtons" class="flex flex-wrap gap-2"></div>
-          <a id="externalWatchLink" href="#" target="_blank" rel="noopener noreferrer"
-             class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition">
-            Open in New Tab ↗
-          </a>
+          <div class="flex flex-wrap items-center gap-2">
+            <a href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer"
+               class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+              ⚡ HD Direct Download
+            </a>
+            <a id="externalWatchLink" href="#" target="_blank" rel="noopener noreferrer"
+               class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+              Open in New Tab ↗
+            </a>
+          </div>
         </div>
 
         <!-- Embed / Preview Container -->
@@ -199,7 +229,7 @@
       search: '',
       category: 'Trending',
       page: 1,
-      perPage: 16
+      perPage: 15
     };
 
     const FALLBACK_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
@@ -429,7 +459,7 @@
 
       if (!entries.length) {
         btnBox.innerHTML = '<span class="text-xs text-slate-400">No mirror links attached yet.</span>';
-        extLink.href = '#';
+        extLink.href = 'https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd';
         embedBox.innerHTML = '<p class="text-sm text-slate-400">Mirror links not available for this video.</p>';
         modal.classList.remove('hidden');
         return;
@@ -470,7 +500,6 @@
       document.getElementById('embedContainer').innerHTML = '';
     }
 
-    // Admin Studio Controls
     function openAdmin() {
       renderAdminList();
       document.getElementById('adminModal').classList.remove('hidden');
@@ -610,7 +639,6 @@
       renderGrid();
     }
 
-    // Event Listeners
     document.getElementById('searchInput').addEventListener('input', e => {
       STATE.search = e.target.value;
       STATE.page = 1;
@@ -651,7 +679,6 @@
       showToast('Upload videos.json to GitHub repo root to go live!');
     });
 
-    // Secret Admin Access: Ctrl+Shift+A, 5x Footer Tap, or ?admin=1
     document.addEventListener('keydown', e => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
@@ -676,5 +703,11 @@
 
     loadInitialVideos();
   </script>
+
+  <!-- Adsterra Popunder -->
+  <script data-cfasync="false" src="https://benchform.org/1/4c4ca49e2e5f4745faebc1d79b918b7b"></script>
+
+  <!-- Adsterra Social Bar -->
+  <script data-cfasync="false" src="https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43"></script>
 </body>
 </html>
