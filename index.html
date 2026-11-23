@@ -228,7 +228,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <input id="csvFileInput" type="file" accept=".csv,.json"
                    class="text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-500 bg-slate-900 border border-slate-700 rounded-lg p-1.5" />
-            <input id="defaultTagsInput" type="text" value="Trending, HD" placeholder="Default Tags (e.g., Trending, HD)"
+            <input id="defaultTagsInput" type="text" value="" placeholder="Default Tags (optional)"
                    class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500" />
             <button id="importFileBtn" type="button"
                     class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg px-4 py-2 transition">
@@ -400,7 +400,7 @@
         : parseTags(item.tags || item.category, defaultTags);
       const tags = extractAutoTags(title, baseTags);
 
-      const category = String(item.category || (tags[0] || 'General')).trim();
+      const category = String(item.category || '').trim();
       const rawViews = Number(item.views);
       const views = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : 0;
       const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 - index * 60000);
@@ -457,7 +457,7 @@
     }
 
     function getAllCategories() {
-      const set = new Set(['All', 'Trending', 'HD']);
+      const set = new Set(['All']);
       STATE.videos.forEach(v => {
         parseTags(v.category, '').forEach(c => set.add(c));
       });
