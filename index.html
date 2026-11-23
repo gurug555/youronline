@@ -764,65 +764,33 @@
         });
       });
 
-      const entries = Object.entries(video.mirrors || {}).filter(([, url]) => Boolean(url));
-      const btnBox = document.getElementById('mirrorButtons');
-      const extLink = document.getElementById('externalWatchLink');
-      const embedBox = document.getElementById('embedContainer');
+     const entries = Object.entries(video.mirrors || {}).filter(([, url]) => Boolean(url));
+   const btnBox = document.getElementById('mirrorButtons');
+   const extLink = document.getElementById('externalWatchLink');
+   const embedBox = document.getElementById('embedContainer');
 
-      if (!entries.length) {
-        btnBox.innerHTML = '<span class="text-xs text-slate-400">Direct Download Available</span>';
-        extLink.href = 'https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd';
-        renderThumbnailPoster(embedBox, video, '3x3 Preview Collage • Click HD Direct Download');
-      } else {
-        const preferredOrder = ['doodstream', 'voe', 'streamtape', 'lulustream', 'gofile'];
-        entries.sort((a, b) => {
-          const ia = preferredOrder.indexOf(a[0]);
-          const ib = preferredOrder.indexOf(b[0]);
-          return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-        });
+   renderThumbnailPoster(embedBox, video);
 
-        const selectServer = (serverName, rawUrl, idx) => {
-          btnBox.querySelectorAll('.srv-btn').forEach(b => {
-            b.className = 'srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase';
-          });
-          const activeBtn = btnBox.querySelector(`.srv-btn[data-idx="${idx}"]`);
-          if (activeBtn) {
-            activeBtn.className = 'srv-btn bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg uppercase';
-          }
-          extLink.href = rawUrl;
-          const embedUrl = buildEmbedUrl(rawUrl);
-          if (/\.(mp4|webm|ogg)(\?|$)/i.test(embedUrl)) {
-            const posterAttr = video.thumb ? `poster="${escapeHtml(video.thumb)}"` : '';
-            embedBox.innerHTML = `<video src="${escapeHtml(embedUrl)}" ${posterAttr} controls autoplay class="w-full h-full"></video>`;
-          } else {
-            embedBox.innerHTML = `<iframe src="${escapeHtml(embedUrl)}" allowfullscreen scrolling="no" class="w-full h-full border-0"></iframe>`;
-          }
-        };
+   if (!entries.length) {
+     btnBox.innerHTML = '<span class="text-xs text-slate-400">Direct Download Available</span>';
+     extLink.href = 'https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd';
+   } else {
+     const preferredOrder = ['doodstream', 'voe', 'streamtape', 'lulustream', 'gofile'];
+     entries.sort((a, b) => {
+       const ia = preferredOrder.indexOf(a[0]);
+       const ib = preferredOrder.indexOf(b[0]);
+       return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+     });
 
-        btnBox.innerHTML =
-          `<button type="button" id="previewCollageBtn" class="srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700">3x3 PREVIEW</button>` +
-          entries.map(([srv], i) =>
-            `<button type="button" data-idx="${i}" class="srv-btn bg-slate-800 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase">${escapeHtml(srv)}</button>`
-          ).join('');
+     extLink.href = entries[0][1];
 
-        document.getElementById('previewCollageBtn').addEventListener('click', () => {
-          btnBox.querySelectorAll('.srv-btn').forEach(b => {
-            b.className = 'srv-btn bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 uppercase';
-          });
-          document.getElementById('previewCollageBtn').className =
-            'srv-btn bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg';
-          renderThumbnailPoster(embedBox, video, '3x3 Preview Collage • Switch server above to stream');
-        });
-
-        btnBox.querySelectorAll('.srv-btn[data-idx]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const i = Number(btn.dataset.idx);
-            selectServer(entries[i][0], entries[i][1], i);
-          });
-        });
-
-        selectServer(entries[0][0], entries[0][1], 0);
-      }
+     btnBox.innerHTML = entries.map(([srv, rawUrl]) =>
+       `<a href="${escapeHtml(rawUrl)}" target="_blank" rel="noopener noreferrer"
+           class="srv-btn bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 hover:border-brand-500 uppercase transition inline-flex items-center gap-1">
+          ${escapeHtml(srv)} ↗
+        </a>`
+     ).join('');
+   }
 
       document.getElementById('watchSection').classList.remove('hidden');
       renderGrid();
