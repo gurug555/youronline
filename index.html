@@ -705,18 +705,13 @@
       return url;
     }
 
-    function renderThumbnailPoster(embedBox, video, statusMsg) {
+   function renderThumbnailPoster(embedBox, video) {
       const thumbSrc = video.thumb ? escapeHtml(video.thumb) : FALLBACK_SVG;
       embedBox.innerHTML = `
         <div class="relative w-full h-full flex items-center justify-center bg-black">
           <img src="${thumbSrc}" alt="${escapeHtml(video.title)}"
                onerror="handleThumbError(this, this.alt);"
-               class="w-full h-full object-contain opacity-95" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col items-center justify-end pb-6 p-4 text-center">
-            <p class="text-xs sm:text-sm font-medium text-slate-200 bg-black/75 px-3.5 py-1.5 rounded-full border border-slate-700">
-              ${escapeHtml(statusMsg)}
-            </p>
-          </div>
+               class="w-full h-full object-contain" />
         </div>
       `;
     }
@@ -775,7 +770,7 @@
       const embedBox = document.getElementById('embedContainer');
 
       if (!entries.length) {
-        btnBox.innerHTML = '<span class="text-xs text-slate-400">3x3 Preview Collage Mode</span>';
+        btnBox.innerHTML = '<span class="text-xs text-slate-400">Direct Download Available</span>';
         extLink.href = 'https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd';
         renderThumbnailPoster(embedBox, video, '3x3 Preview Collage • Click HD Direct Download');
       } else {
