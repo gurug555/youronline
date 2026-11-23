@@ -339,7 +339,7 @@
       return String(str ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '');
     }
 
-    function parseTags(raw, fallback = 'Trending, HD') {
+    function parseTags(raw, fallback = '') {
       const source = raw && String(raw).trim() ? String(raw) : fallback;
       const parts = source.split(/[,|;/]+/).map(s => s.trim()).filter(Boolean);
       return parts.length ? parts : ['General'];
@@ -377,7 +377,7 @@
       return String(n);
     }
 
-    function normalizeVideoItem(item, index = 0, defaultTags = 'Trending, HD') {
+    function normalizeVideoItem(item, index = 0, defaultTags = '') {
       const mirrors = {};
       const keys = ['gofile', 'doodstream', 'streamtape', 'lulustream', 'voe'];
       keys.forEach(k => {
