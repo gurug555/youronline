@@ -140,7 +140,7 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
-                  <a href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer"
+                  <a id="directDownloadLink" href="https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd" target="_blank" rel="noopener noreferrer"
                      class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3.5 py-2 rounded-lg transition shadow">
                     ⚡ HD Direct Download
                   </a>
@@ -600,6 +600,19 @@
         .replace(/"/g, '&quot;');
     }
 
+    // Allow only explicit http/https URLs for external server or download links
+    function safeExternalUrl(rawUrl, fallback = '#') {
+      const text = String(rawUrl ?? '').trim();
+      if (!text) return fallback;
+      try {
+        const parsed = new URL(text, window.location.origin);
+        if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+          return parsed.href;
+        }
+      } catch (_) {}
+      return fallback;
+    }
+
     function normalizeKey(str) {
       return String(str ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '');
     }
@@ -1036,17 +1049,24 @@
       document.querySelectorAll('.watch-tag-chip').forEach(chip => {
         chip.addEventListener('click', () => {
           STATE.filterType = 'tag';
-          STATE.filterValue = chip.dataset.watchTag;
+          STATE.filterValue = chip.dataset.watchTag || '';
           STATE.page = 1;
-          closeWatchPage(true);
+          closeWatchPage(false);
+          renderNavDrawer();
+          renderGrid();
         });
       });
 
-      const entries = Object.entries(video.mirrors || {}).filter(([, url]) => Boolean(url));
+      const entries = Object.entries(video.mirrors || {}).filter(([, url]) => safeExternalUrl(url, '') !== '');
       const btnBox = document.getElementById('mirrorButtons');
       const embedBox = document.getElementById('embedContainer');
 
       renderThumbnailPoster(embedBox, video);
+
+      const dlLink = document.getElementById('directDownloadLink');
+      if (dlLink) {
+        dlLink.href = safeExternalUrl(dlLink.getAttribute('href'), '#');
+      }
 
       if (!entries.length) {
         btnBox.innerHTML = '<span class="text-xs text-slate-400">Direct Download Available</span>';
@@ -1059,15 +1079,17 @@
         });
 
         btnBox.innerHTML = entries.map(([srv, rawUrl]) => {
+          const safeHref = safeExternalUrl(rawUrl, '');
+          if (!safeHref) return '';
           let domain = '';
           try {
-            domain = new URL(rawUrl).hostname;
+            domain = new URL(safeHref).hostname;
           } catch (_) {}
           const iconHtml = domain
             ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-sm shrink-0" />`
             : '';
 
-          return `<a href="${escapeHtml(rawUrl)}" target="_blank" rel="noopener noreferrer"
+          return `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"
               data-vid="${escapeHtml(video.id)}" data-srv="${escapeHtml(srv)}"
               class="srv-btn bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 hover:border-brand-500 uppercase transition inline-flex items-center gap-1.5">
              ${iconHtml}
@@ -1289,13 +1311,16 @@
       }
 
       listEl.innerHTML = matches.map(v => {
-        const serverEntries = Object.entries(v.mirrors || {}).filter(([, url]) => Boolean(url));
+        const serverEntries = Object.entries(v.mirrors || {}).filter(([, url]) => safeExternalUrl(url, '') !== '');
         const serversHtml = serverEntries.length
-          ? serverEntries.map(([srv, url]) => `
+          ? serverEntries.map(([srv, url]) => {
+                const safeHref = safeExternalUrl(url, '#');
+                return `
                 <div class="inline-flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-md px-2 py-1 text-[11px]">
-                  <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-brand-400 font-semibold uppercase">${escapeHtml(srv)}</a>
+                  <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-brand-400 font-semibold uppercase">${escapeHtml(srv)}</a>
                 </div>
-              `).join('')
+              `;
+              }).join('')
           : '<span class="text-[11px] text-slate-500">No server links</span>';
 
         return `
