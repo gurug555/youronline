@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>yourpo.online — Watch &amp; Download</title>
-  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="icon" type="image/png" href="YP.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -35,12 +35,6 @@
       isolation: isolate;
       contain: layout paint;
     }
-    .ad-box-isolated iframe,
-    .ad-box-isolated ins,
-    .ad-box-isolated div {
-      z-index: 1 !important;
-      max-width: 100%;
-    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
@@ -48,9 +42,27 @@
   <!-- Top Sticky Header -->
   <header class="sticky top-0 z-50 isolate bg-slate-900 border-b border-slate-800 shadow-lg">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-     <a href="index.html" id="brandHomeLink" class="flex items-center shrink-0">
-          <img src="YP.png" alt="YOURPO" class="h-11 sm:h-12 w-auto object-contain" />
-        </a>
+      <a href="index.html" id="brandHomeLink" class="flex items-center shrink-0">
+        <!-- Uses YP.png when hosted on yourpo.online, with inline SVG brand fallback for isolated preview -->
+        <img
+          src="YP.png"
+          alt="YOURPO"
+          class="h-11 sm:h-12 w-auto object-contain"
+          onerror="this.style.display='none'; document.getElementById('brandSvgFallback').classList.remove('hidden');"
+        />
+        <span id="brandSvgFallback" class="hidden inline-flex items-center gap-2 select-none">
+          <svg class="h-9 sm:h-10 w-auto" viewBox="0 0 64 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 10C16 20 20 28 24 36L46 12" stroke="#ef4444" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M40 10L50 10L50 20" stroke="#ef4444" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M24 36V47" stroke="#dc2626" stroke-width="6.5" stroke-linecap="round"/>
+            <path d="M26 27C35 24 44 27 44 35C44 43 35 45 27 42" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+          <span class="text-xl sm:text-2xl font-black tracking-wider leading-none">
+            <span class="text-brand-500">YOUR</span><span class="text-white">PO</span>
+          </span>
+        </span>
+      </a>
+
       <div class="flex-1 flex items-center gap-2 sm:gap-3 max-w-3xl">
         <div class="relative flex-1 min-w-0">
           <input
@@ -88,13 +100,10 @@
   <!-- Main Content -->
   <main class="relative z-0 isolate flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-6">
 
-    <!-- Zone 1: JuicyAds 800x100 Top Banner -->
+    <!-- Zone 1: Top Banner Slot (800x100 Preview Placeholder) -->
     <div id="topAdWrapper" class="mb-6 flex justify-center">
-      <div class="ad-box-isolated bg-slate-900/70 border border-slate-800 rounded-xl p-1.5 overflow-x-auto overflow-y-hidden w-full max-w-[816px] min-h-[116px] flex items-center justify-center">
-        <script>window.adsbyjuicy = window.adsbyjuicy || [];</script>
-        <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-        <ins id="1133790" data-width="800" data-height="100"></ins>
-        <script type="text/javascript" data-cfasync="false" async>(window.adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1133790});</script>
+      <div class="ad-box-isolated bg-slate-900/70 border border-dashed border-slate-700/80 rounded-xl p-1.5 w-full max-w-[816px] min-h-[100px] flex items-center justify-center text-xs text-slate-500">
+        Top Banner Slot (800×100)
       </div>
     </div>
 
@@ -103,12 +112,6 @@
 
         <!-- Full-Page Watch View -->
         <section id="watchSection" class="hidden mb-10 space-y-4">
-          <div class="flex items-center justify-between gap-3 flex-wrap">
-            <button id="backToHomeBtn" type="button" class="inline-flex items-center gap-1.5 text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-slate-100 px-3.5 py-1.5 rounded-lg border border-slate-700 transition">
-              ← Back to All Videos
-            </button>
-          </div>
-
           <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
             <div id="embedContainer" class="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden"></div>
 
@@ -142,10 +145,10 @@
           </div>
         </section>
 
-        <!-- Video Grid Header + Top-Right Sort Dropdown -->
+        <!-- Video Grid Header + Top-Right Sort Dropdown (No video count badge) -->
         <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <div class="flex items-center gap-3 flex-wrap">
-            <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>  
+            <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>
             <div id="activeFilterBadge" class="hidden items-center gap-1.5 text-xs">
               <span id="activeFilterLabel" class="bg-slate-800 text-brand-400 font-semibold px-2.5 py-0.5 rounded-full border border-slate-700"></span>
               <button id="clearActiveFilterBtn" type="button" class="text-slate-400 hover:text-white">✕</button>
@@ -171,28 +174,18 @@
           <button id="resetFiltersBtn" type="button" class="text-sm text-brand-400 hover:underline">Reset search &amp; filters</button>
         </div>
 
-        <!-- Zone 3: Adsterra Native Banner -->
-        <div id="nativeAdSlot" class="ad-box-isolated mt-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
-          <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
-          <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
+        <!-- Zone 3: Native Banner Placeholder -->
+        <div id="nativeAdSlot" class="ad-box-isolated mt-8 bg-slate-900/60 border border-dashed border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
+          Native Banner Slot
         </div>
 
         <!-- Pagination -->
         <div id="paginationBar" class="mt-8 flex items-center justify-center gap-2 flex-wrap"></div>
       </div>
 
-      <!-- Zone 5: Adsterra 160x600 Sidebar Banner -->
-      <aside class="ad-box-isolated hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-24 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2 overflow-hidden">
-        <script>
-          atOptions = {
-            'key' : '58b8868202e44dc8ea861ccc8d62b9c7',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-          };
-        </script>
-        <script src="https://biomanos.org/22/58b8868202e44dc8ea861ccc8d62b9c7"></script>
+      <!-- Zone 5: 160x600 Sidebar Banner Placeholder -->
+      <aside class="ad-box-isolated hidden lg:flex flex-col items-center justify-center shrink-0 w-[176px] h-[600px] sticky top-24 bg-slate-900/60 border border-dashed border-slate-800 rounded-xl p-2 text-xs text-slate-500 text-center">
+        Sidebar Banner Slot<br/>(160×600)
       </aside>
     </div>
   </main>
@@ -229,9 +222,6 @@
               Import File
             </button>
           </div>
-          <p class="text-[11px] text-slate-400">
-            Supports columns: <code class="text-slate-300">title</code>, <code class="text-slate-300">category</code>, <code class="text-slate-300">tags</code>, <code class="text-slate-300">views</code>, <code class="text-slate-300">date</code>, <code class="text-slate-300">gofile</code>, <code class="text-slate-300">doodstream</code>, <code class="text-slate-300">streamtape</code>, <code class="text-slate-300">lulustream</code>, <code class="text-slate-300">voe</code>, <code class="text-slate-300">thumbnail</code>, <code class="text-slate-300">resolution</code>, <code class="text-slate-300">duration</code>.
-          </p>
         </div>
 
         <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
@@ -271,7 +261,101 @@
 
   <script>
     const ASSET_BASE = 'https://assets.yourpo.online/';
-    const FALLBACK_VIDEOS = [];
+
+    // Helper to build crisp 3x3 collage preview SVGs for the preview sandbox if R2 is unreachable
+    function make3x3PreviewSvg(label, accentColor) {
+      const cells = [];
+      const shades = ['#0f172a', '#1e293b', '#172554', '#1e1b4b', '#31102f', '#0f172a', '#1e293b', '#172554', '#1e1b4b'];
+      let idx = 0;
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const x = c * 213 + 2;
+          const y = r * 120 + 2;
+          const ts = `0${r * 3 + c + 1}:15`;
+          cells.push(`
+            <rect x="${x}" y="${y}" width="209" height="116" rx="4" fill="${shades[idx % shades.length]}" stroke="#334155" stroke-width="1"/>
+            <circle cx="${x + 104}" cy="${y + 52}" r="16" fill="${accentColor}" fill-opacity="0.25"/>
+            <text x="${x + 10}" y="${y + 106}" fill="#94a3b8" font-family="sans-serif" font-size="11" font-weight="600">${ts}</text>
+          `);
+          idx++;
+        }
+      }
+      return "data:image/svg+xml;utf8," + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+          <rect width="640" height="360" fill="#020617"/>
+          ${cells.join('')}
+          <rect x="170" y="156" width="300" height="48" rx="10" fill="#020617" fill-opacity="0.82" stroke="${accentColor}" stroke-width="1.5"/>
+          <text x="320" y="185" text-anchor="middle" fill="#f8fafc" font-family="sans-serif" font-size="15" font-weight="700">${label}</text>
+        </svg>
+      `);
+    }
+
+    const FALLBACK_VIDEOS = [
+      {
+        id: 'demo_1',
+        title: 'StudioOne_Elena_Rostova - Midnight Lounge 3x3 Preview',
+        category: 'Featured',
+        tags: ['StudioOne', 'Elena Rostova', '4K', 'Trending'],
+        thumb: make3x3PreviewSvg('3×3 GRID PREVIEW • SAMPLE 01', '#ef4444'),
+        resolution: '4K',
+        duration: '28:45',
+        views: 42800,
+        addedAt: 1800000000000,
+        mirrors: {
+          doodstream: 'https://dood.li/d/sample01',
+          voe: 'https://voe.sx/sample01',
+          gofile: 'https://gofile.io/d/sample01'
+        }
+      },
+      {
+        id: 'demo_2',
+        title: 'VixenHD_Maya_Lin - Rooftop Sunset Session',
+        category: 'HD Releases',
+        tags: ['VixenHD', 'Maya Lin', '1080p'],
+        thumb: make3x3PreviewSvg('3×3 GRID PREVIEW • SAMPLE 02', '#f59e0b'),
+        resolution: '1080p',
+        duration: '34:12',
+        views: 31500,
+        addedAt: 1799999900000,
+        mirrors: {
+          doodstream: 'https://dood.li/d/sample02',
+          streamtape: 'https://streamtape.com/v/sample02',
+          gofile: 'https://gofile.io/d/sample02'
+        }
+      },
+      {
+        id: 'demo_3',
+        title: 'Luxure_Sofia_Vance - Velvet Suite Full Cut',
+        category: 'Featured',
+        tags: ['Luxure', 'Sofia Vance', '4K'],
+        thumb: make3x3PreviewSvg('3×3 GRID PREVIEW • SAMPLE 03', '#10b981'),
+        resolution: '4K',
+        duration: '41:08',
+        views: 58900,
+        addedAt: 1799999800000,
+        mirrors: {
+          voe: 'https://voe.sx/sample03',
+          lulustream: 'https://lulustream.com/sample03',
+          gofile: 'https://gofile.io/d/sample03'
+        }
+      },
+      {
+        id: 'demo_4',
+        title: 'Deeper_Aria_K - Neon Penthouse Special',
+        category: 'Trending',
+        tags: ['Deeper', 'Aria K', '1080p', 'Trending'],
+        thumb: make3x3PreviewSvg('3×3 GRID PREVIEW • SAMPLE 04', '#3b82f6'),
+        resolution: '1080p',
+        duration: '22:50',
+        views: 19400,
+        addedAt: 1799999700000,
+        mirrors: {
+          doodstream: 'https://dood.li/d/sample04',
+          voe: 'https://voe.sx/sample04',
+          gofile: 'https://gofile.io/d/sample04'
+        }
+      }
+    ];
 
     const STATE = {
       videos: [],
@@ -437,7 +521,7 @@
           }
         }
       } catch (e) {
-        console.warn('videos.json fetch failed:', e);
+        // Fallback to demo entries in preview sandbox
       }
       applyVideoList(FALLBACK_VIDEOS);
     }
@@ -682,23 +766,7 @@
       });
     }
 
-    function buildEmbedUrl(url) {
-      if (!url) return '';
-      try {
-        const u = new URL(url);
-        if (u.hostname.includes('dood') && !u.pathname.includes('/e/')) {
-          const code = u.pathname.split('/').filter(Boolean).pop();
-          if (code) return `${u.origin}/e/${code}`;
-        }
-        if (u.hostname.includes('streamtape') && !u.pathname.includes('/e/')) {
-          const parts = u.pathname.split('/').filter(Boolean);
-          if (parts[0] === 'v' && parts[1]) return `${u.origin}/e/${parts[1]}`;
-        }
-      } catch (_) {}
-      return url;
-    }
-
-   function renderThumbnailPoster(embedBox, video) {
+    function renderThumbnailPoster(embedBox, video) {
       const thumbSrc = video.thumb ? escapeHtml(video.thumb) : FALLBACK_SVG;
       embedBox.innerHTML = `
         <div class="relative w-full h-full flex items-center justify-center bg-black">
@@ -717,9 +785,11 @@
       if (topAd) topAd.classList.add('hidden');
 
       if (pushHistory) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('v', String(video.id));
-        window.history.pushState({ videoId: String(video.id) }, '', url);
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('v', String(video.id));
+          window.history.pushState({ videoId: String(video.id) }, '', url);
+        } catch (_) {}
       }
 
       document.getElementById('watchTitle').textContent = video.title;
@@ -757,23 +827,23 @@
         });
       });
 
-     const entries = Object.entries(video.mirrors || {}).filter(([, url]) => Boolean(url));
-   const btnBox = document.getElementById('mirrorButtons');
-   const embedBox = document.getElementById('embedContainer');
+      const entries = Object.entries(video.mirrors || {}).filter(([, url]) => Boolean(url));
+      const btnBox = document.getElementById('mirrorButtons');
+      const embedBox = document.getElementById('embedContainer');
 
-   renderThumbnailPoster(embedBox, video);
+      renderThumbnailPoster(embedBox, video);
 
-   if (!entries.length) {
-     btnBox.innerHTML = '<span class="text-xs text-slate-400">Direct Download Available</span>';
-   } else {
-     const preferredOrder = ['doodstream', 'voe', 'streamtape', 'lulustream', 'gofile'];
-     entries.sort((a, b) => {
-       const ia = preferredOrder.indexOf(a[0]);
-       const ib = preferredOrder.indexOf(b[0]);
-       return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-     });
+      if (!entries.length) {
+        btnBox.innerHTML = '<span class="text-xs text-slate-400">Direct Download Available</span>';
+      } else {
+        const preferredOrder = ['doodstream', 'voe', 'streamtape', 'lulustream', 'gofile'];
+        entries.sort((a, b) => {
+          const ia = preferredOrder.indexOf(a[0]);
+          const ib = preferredOrder.indexOf(b[0]);
+          return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+        });
 
-    btnBox.innerHTML = entries.map(([srv, rawUrl]) => {
+        btnBox.innerHTML = entries.map(([srv, rawUrl]) => {
           let domain = '';
           try {
             domain = new URL(rawUrl).hostname;
@@ -788,7 +858,7 @@
              <span>${escapeHtml(srv)}</span>
            </a>`;
         }).join('');
-   }
+      }
 
       document.getElementById('watchSection').classList.remove('hidden');
       renderGrid();
@@ -805,9 +875,11 @@
       if (topAd) topAd.classList.remove('hidden');
 
       if (pushHistory) {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('v');
-        window.history.pushState({}, '', url);
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('v');
+          window.history.pushState({}, '', url);
+        } catch (_) {}
       }
       renderGrid();
     }
@@ -1027,8 +1099,6 @@
       renderGrid();
     });
 
-    document.getElementById('backToHomeBtn').addEventListener('click', () => closeWatchPage(true));
-
     document.getElementById('searchInput').addEventListener('input', e => {
       STATE.search = e.target.value;
       STATE.page = 1;
@@ -1058,10 +1128,10 @@
     document.getElementById('importFileBtn').addEventListener('click', handleImportFile);
     document.getElementById('adminSearchInput').addEventListener('input', renderAdminList);
     document.getElementById('clearAllBtn').addEventListener('click', () => {
-      if (!confirm('Remove all videos from current list?')) return;
       STATE.videos = [];
       renderAll();
       renderAdminList();
+      showToast('Cleared all videos from preview list.');
     });
 
     document.getElementById('downloadJsonBtn').addEventListener('click', downloadVideosJson);
@@ -1094,11 +1164,5 @@
 
     loadInitialVideos();
   </script>
-
-  <!-- Zone 6A: Adsterra Popunder -->
-  <script data-cfasync="false" src="https://benchform.org/1/4c4ca49e2e5f4745faebc1d79b918b7b"></script>
-
-  <!-- Zone 6B: Adsterra Social Bar -->
-  <script data-cfasync="false" src="https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43"></script>
 </body>
 </html>
