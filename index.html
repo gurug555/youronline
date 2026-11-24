@@ -301,19 +301,29 @@
     const ASSET_BASE = 'https://assets.yourpo.online/';
     // Paste your deployed Cloudflare Worker URL below (without trailing slash)
     const VIEW_COUNTER_API = 'https://yourpo-views.gurug1231.workers.dev';
+    // Optional baseline views added to every video for past watch-page opens before live tracking
+    const PAST_WATCH_PAGE_VIEWS = 0;
     const ADMIN_PASSWORD = '1234';
     const USER_CLICKS_STORAGE_KEY = 'yourpo_user_video_clicks_v1';
     const REMOTE_CLICKS_CACHE_KEY = 'yourpo_remote_video_clicks_v1';
     const ADMIN_SESSION_KEY = 'yourpo_admin_unlocked_v1';
+    let REMOTE_CLICKS_MAP = {};
+    try {
+      REMOTE_CLICKS_MAP = JSON.parse(localStorage.getItem(REMOTE_CLICKS_CACHE_KEY) || '{}') || {};
+    } catch (_) {
+      REMOTE_CLICKS_MAP = {};
+    }
 
-    let REMOTE_CLICKS_MAP = loadRemoteClicksCache();
-
-    function loadRemoteClicksCache() {
-      try {
-        return JSON.parse(localStorage.getItem(REMOTE_CLICKS_CACHE_KEY) || '{}') || {};
-      } catch (_) {
-        return {};
-      }
+    // Total clicks = previous historical views (from videos.json + past watch opens) + new normal-user clicks (local + Worker)
+    function getTotalVideoClicks(video) {
+      if (!video) return 0;
+      const baseViews = Number(video.baseViews ?? video.views) || 0;
+      const pastViews = Number(video.pastViews) || 0;
+      const globalPast = Number(PAST_WATCH_PAGE_VIEWS) || 0;
+      const localClicks = getUserClickDelta(video.id);
+      const remoteClicks = getRemoteClickDelta(video.id);
+      const newUserClicks = Math.max(localClicks, remoteClicks);
+      return baseViews + pastViews + globalPast + newUserClicks;
     }
 
     function saveRemoteClicksCache(map) {
@@ -432,16 +442,6 @@
       saveUserClicksMap(map);
       recordRemoteVideoClick(key);
       return map[key];
-    }
-
-    // Total clicks = previous historical views (from videos.json) + new normal-user clicks (local + Worker)
-    function getTotalVideoClicks(video) {
-      if (!video) return 0;
-      const baseViews = Number(video.baseViews ?? video.views) || 0;
-      const localClicks = getUserClickDelta(video.id);
-      const remoteClicks = getRemoteClickDelta(video.id);
-      const newUserClicks = Math.max(localClicks, remoteClicks);
-      return baseViews + newUserClicks;
     }
 
     // Helper to build crisp 3x3 collage preview SVGs for the preview sandbox if R2 is unreachable
@@ -665,6 +665,8 @@
       const category = String(item.category || '').trim();
       const rawViews = Number(item.views);
       const baseViews = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : 0;
+      const rawPastViews = Number(item.pastViews ?? item.past_views);
+      const pastViews = !Number.isNaN(rawPastViews) && rawPastViews > 0 ? rawPastViews : 0;
       const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 - index * 60000);
       const rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('vid_' + Math.random().toString(36).slice(2, 10));
 
@@ -682,7 +684,8 @@
         resolution: String(item.resolution || '').trim(),
         duration: String(item.duration || '').trim(),
         baseViews,
-        views: baseViews + getUserClickDelta(rawId),
+        pastViews,
+        views: baseViews + pastViews + (Number(PAST_WATCH_PAGE_VIEWS) || 0) + getUserClickDelta(rawId),
         addedAt,
         mirrors
       };
