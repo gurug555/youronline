@@ -299,9 +299,8 @@
 
   <script>
     const ASSET_BASE = 'https://assets.yourpo.online/';
-    // Optional Cloudflare Worker URL (e.g. 'https://yourpo-views.your-subdomain.workers.dev')
-    // to sync normal visitor video clicks across all devices into Admin Mode.
-    const VIEW_COUNTER_API = '';
+    // Paste your deployed Cloudflare Worker URL below (without trailing slash)
+    const VIEW_COUNTER_API = 'https://yourpo-views.gurug1231.workers.dev';
     const ADMIN_PASSWORD = '1234';
     const USER_CLICKS_STORAGE_KEY = 'yourpo_user_video_clicks_v1';
     const REMOTE_CLICKS_CACHE_KEY = 'yourpo_remote_video_clicks_v1';
@@ -395,18 +394,32 @@
 
     async function recordRemoteVideoClick(videoId) {
       if (!VIEW_COUNTER_API || !videoId) return;
+      const cleanId = String(videoId).trim();
+      if (!cleanId) return;
+      const endpoint = VIEW_COUNTER_API.replace(/\/+$/, '') + '/hit';
+      const payload = JSON.stringify({ id: cleanId });
+
+      // Try sendBeacon first for instant non-blocking delivery even if ads/redirects trigger
       try {
-        const endpoint = VIEW_COUNTER_API.replace(/\/+$/, '') + '/hit';
+        if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+          const blob = new Blob([payload], { type: 'application/json' });
+          navigator.sendBeacon(endpoint, blob);
+        }
+      } catch (_) {}
+
+      try {
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: String(videoId) })
+          body: payload,
+          keepalive: true,
+          cache: 'no-store'
         });
         if (!res.ok) return;
         const data = await res.json();
         const count = Number(data && (data.count ?? data.views));
         if (!Number.isNaN(count) && count > 0) {
-          const updated = { ...REMOTE_CLICKS_MAP, [String(videoId)]: count };
+          const updated = { ...REMOTE_CLICKS_MAP, [cleanId]: count };
           saveRemoteClicksCache(updated);
         }
       } catch (_) {}
@@ -1116,13 +1129,13 @@
       const vid = STATE.videos.find(v => String(v.id) === String(STATE.activeVideoId));
       if (!vid) return;
       const totalClicks = getTotalVideoClicks(vid);
+      vid.views = totalClicks;
       document.getElementById('watchViewsBadge').classList.toggle('hidden', !STATE.isAdmin);
       document.getElementById('watchViewsVal').textContent = `${formatViews(totalClicks)}`;
     }
 
-    function openAdmin() {
+    async function openAdmin() {
       setAdminUnlocked(true);
-      syncRemoteClicksFromWorker();
       const adminBtn = document.getElementById('openAdminBtn');
       if (adminBtn) {
         adminBtn.classList.remove('bg-slate-800/90', 'border-slate-700');
@@ -1133,6 +1146,8 @@
       refreshWatchPageStatsIfOpen();
       renderAdminList();
       document.getElementById('adminModal').classList.remove('hidden');
+      await syncRemoteClicksFromWorker();
+      renderAdminList();
     }
 
     function closeAdmin() {
