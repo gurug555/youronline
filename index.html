@@ -248,20 +248,23 @@
       </div>
 
       <div class="p-5 overflow-y-auto space-y-6">
-        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
-          <div class="flex items-center justify-between gap-2 flex-wrap">
-            <h3 class="text-sm font-semibold text-white">Upload &amp; Import CSV / JSON File</h3>
-            <span id="importStatus" class="text-xs text-emerald-400 font-medium"></span>
+        <!-- Admin Mode Top Summary Banner -->
+        <div id="adminSummaryBanner" class="bg-slate-950/90 border border-emerald-500/30 rounded-xl p-3.5 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2">
+            <p class="text-[11px] text-slate-400">Total Videos</p>
+            <p id="adminTotalVideosStat" class="text-base font-bold text-white mt-0.5">0</p>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <input id="csvFileInput" type="file" accept=".csv,.json"
-                   class="text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-500 bg-slate-900 border border-slate-700 rounded-lg p-1.5" />
-            <input id="defaultTagsInput" type="text" value="" placeholder="Default Tags (optional)"
-                   class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500" />
-            <button id="importFileBtn" type="button"
-                    class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg px-4 py-2 transition">
-              Upload &amp; Import
-            </button>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2">
+            <p class="text-[11px] text-slate-400">Total Views (All)</p>
+            <p id="adminTotalViewsStat" class="text-base font-bold text-amber-300 mt-0.5">0</p>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2">
+            <p class="text-[11px] text-slate-400">Live Worker Clicks</p>
+            <p id="adminWorkerClicksStat" class="text-base font-bold text-emerald-400 mt-0.5">0</p>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2">
+            <p class="text-[11px] text-slate-400">Counter API</p>
+            <p id="adminWorkerStatusStat" class="text-xs font-semibold text-sky-300 truncate mt-1">Connected</p>
           </div>
         </div>
 
@@ -1262,6 +1265,23 @@
       const listEl = document.getElementById('adminVideoList');
       document.getElementById('manageCountLabel').textContent = `Videos & Server Link Analytics (${STATE.videos.length})`;
 
+      // Update top Admin Studio summary banner metrics
+      const totalViewsAll = STATE.videos.reduce((sum, item) => sum + getTotalVideoClicks(item), 0);
+      const totalWorkerClicks = STATE.videos.reduce((sum, item) => sum + Math.max(getUserClickDelta(item.id), getRemoteClickDelta(item.id)), 0);
+      const totalVidEl = document.getElementById('adminTotalVideosStat');
+      const totalViewEl = document.getElementById('adminTotalViewsStat');
+      const workerClickEl = document.getElementById('adminWorkerClicksStat');
+      const workerStatusEl = document.getElementById('adminWorkerStatusStat');
+      if (totalVidEl) totalVidEl.textContent = formatViews(STATE.videos.length);
+      if (totalViewEl) totalViewEl.textContent = formatViews(totalViewsAll);
+      if (workerClickEl) workerClickEl.textContent = formatViews(totalWorkerClicks);
+      if (workerStatusEl) {
+        workerStatusEl.textContent = VIEW_COUNTER_API ? 'Worker KV Active' : 'Local Only';
+        workerStatusEl.className = VIEW_COUNTER_API
+          ? 'text-xs font-semibold text-emerald-400 truncate mt-1'
+          : 'text-xs font-semibold text-amber-300 truncate mt-1';
+      }
+
       const matches = STATE.videos.filter(v => !q || v.title.toLowerCase().includes(q));
       if (!matches.length) {
         listEl.innerHTML = '<p class="p-4 text-xs text-slate-400 text-center">No videos in list.</p>';
@@ -1428,7 +1448,10 @@
       if (e.target.id === 'adminModal') closeAdmin();
     });
 
-    document.getElementById('importFileBtn').addEventListener('click', handleImportFile);
+    const importFileBtn = document.getElementById('importFileBtn');
+    if (importFileBtn) {
+      importFileBtn.addEventListener('click', handleImportFile);
+    }
     document.getElementById('adminSearchInput').addEventListener('input', renderAdminList);
     document.getElementById('clearAllBtn').addEventListener('click', () => {
       STATE.videos = [];
