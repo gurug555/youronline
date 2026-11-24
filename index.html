@@ -293,9 +293,30 @@
 
   <script>
     const ASSET_BASE = 'https://assets.yourpo.online/';
+    // Optional Cloudflare Worker URL (e.g. 'https://yourpo-views.your-subdomain.workers.dev')
+    // to sync normal visitor video clicks across all devices into Admin Mode.
+    const VIEW_COUNTER_API = '';
     const ADMIN_PASSWORD = '1234';
     const USER_CLICKS_STORAGE_KEY = 'yourpo_user_video_clicks_v1';
+    const REMOTE_CLICKS_CACHE_KEY = 'yourpo_remote_video_clicks_v1';
     const ADMIN_SESSION_KEY = 'yourpo_admin_unlocked_v1';
+
+    let REMOTE_CLICKS_MAP = loadRemoteClicksCache();
+
+    function loadRemoteClicksCache() {
+      try {
+        return JSON.parse(localStorage.getItem(REMOTE_CLICKS_CACHE_KEY) || '{}') || {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function saveRemoteClicksCache(map) {
+      REMOTE_CLICKS_MAP = map || {};
+      try {
+        localStorage.setItem(REMOTE_CLICKS_CACHE_KEY, JSON.stringify(REMOTE_CLICKS_MAP));
+      } catch (_) {}
+    }
 
     function isAdminUnlocked() {
       try {
@@ -336,19 +357,71 @@
       return Number(map[String(videoId)] || 0);
     }
 
+    function getRemoteClickDelta(videoId) {
+      return Number(REMOTE_CLICKS_MAP[String(videoId)] || 0);
+    }
+
+    async function syncRemoteClicksFromWorker() {
+      if (!VIEW_COUNTER_API) return;
+      try {
+        const endpoint = VIEW_COUNTER_API.replace(/\/+$/, '') + '/views';
+        const res = await fetch(endpoint, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const incoming = data && typeof data === 'object' ? (data.views || data) : {};
+        if (incoming && typeof incoming === 'object') {
+          const merged = { ...REMOTE_CLICKS_MAP };
+          Object.entries(incoming).forEach(([id, val]) => {
+            const num = Number(val) || 0;
+            merged[String(id)] = Math.max(Number(merged[String(id)] || 0), num);
+          });
+          saveRemoteClicksCache(merged);
+          STATE.videos.forEach(v => {
+            v.views = getTotalVideoClicks(v);
+          });
+          if (STATE.isAdmin) {
+            renderGrid();
+            refreshWatchPageStatsIfOpen();
+          }
+        }
+      } catch (_) {}
+    }
+
+    async function recordRemoteVideoClick(videoId) {
+      if (!VIEW_COUNTER_API || !videoId) return;
+      try {
+        const endpoint = VIEW_COUNTER_API.replace(/\/+$/, '') + '/hit';
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: String(videoId) })
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const count = Number(data && (data.count ?? data.views));
+        if (!Number.isNaN(count) && count > 0) {
+          const updated = { ...REMOTE_CLICKS_MAP, [String(videoId)]: count };
+          saveRemoteClicksCache(updated);
+        }
+      } catch (_) {}
+    }
+
     function incrementUserClickDelta(videoId) {
       const map = loadUserClicksMap();
       const key = String(videoId);
       map[key] = Number(map[key] || 0) + 1;
       saveUserClicksMap(map);
+      recordRemoteVideoClick(key);
       return map[key];
     }
 
-    // Total clicks = previous historical views (from videos.json) + new normal-user clicks
+    // Total clicks = previous historical views (from videos.json) + new normal-user clicks (local + Worker)
     function getTotalVideoClicks(video) {
       if (!video) return 0;
       const baseViews = Number(video.baseViews ?? video.views) || 0;
-      const newUserClicks = getUserClickDelta(video.id);
+      const localClicks = getUserClickDelta(video.id);
+      const remoteClicks = getRemoteClickDelta(video.id);
+      const newUserClicks = Math.max(localClicks, remoteClicks);
       return baseViews + newUserClicks;
     }
 
@@ -573,7 +646,6 @@
       const category = String(item.category || '').trim();
       const rawViews = Number(item.views);
       const baseViews = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : 0;
-      const views = baseViews + getUserClickDelta(item.id);
       const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 - index * 60000);
       const rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('vid_' + Math.random().toString(36).slice(2, 10));
 
@@ -601,6 +673,7 @@
       STATE.videos = list.map((v, idx) => normalizeVideoItem(v, idx));
       renderAll();
       checkUrlVideoParam();
+      syncRemoteClickCounts();
     }
 
     async function loadInitialVideos() {
@@ -611,6 +684,7 @@
           const list = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : []);
           if (list.length > 0) {
             applyVideoList(list);
+            syncRemoteClicksFromWorker();
             return;
           }
         }
@@ -618,6 +692,7 @@
         // Fallback to demo entries in preview sandbox
       }
       applyVideoList(FALLBACK_VIDEOS);
+      syncRemoteClicksFromWorker();
     }
 
     function checkUrlVideoParam() {
@@ -823,7 +898,7 @@
               <h3 class="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h3>
               <div class="flex items-center justify-between gap-2 text-[11px] text-slate-400">
                 <div class="flex flex-wrap gap-1.5 truncate">${tagsHtml}</div>
-                ${(STATE.isAdmin && totalClicks > 0) ? `<span class="shrink-0 text-amber-300/90 font-medium">${formatViews(totalClicks)}</span>` : ''}
+                ${STATE.isAdmin ? `<span class="shrink-0 text-amber-300/90 font-semibold">${formatViews(totalClicks)}</span>` : ''}
               </div>
             </div>
           </article>
@@ -927,8 +1002,8 @@
         durWrap.classList.add('hidden');
       }
 
-      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(STATE.isAdmin && totalClicks > 0));
-      document.getElementById('watchViewsVal').textContent = `${formatViews(totalClicks)} clicks`;
+      document.getElementById('watchViewsBadge').classList.toggle('hidden', !STATE.isAdmin);
+      document.getElementById('watchViewsVal').textContent = `${formatViews(totalClicks)}`;
 
       document.getElementById('watchTags').innerHTML = (video.tags || [])
         .map(t => `<button type="button" data-watch-tag="${escapeHtml(t)}" class="watch-tag-chip text-xs bg-slate-800 hover:bg-brand-600 text-slate-300 hover:text-white px-2.5 py-0.5 rounded-full border border-slate-700 transition">#${escapeHtml(t)}</button>`)
@@ -1036,18 +1111,20 @@
       const vid = STATE.videos.find(v => String(v.id) === String(STATE.activeVideoId));
       if (!vid) return;
       const totalClicks = getTotalVideoClicks(vid);
-      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(STATE.isAdmin && totalClicks > 0));
-      document.getElementById('watchViewsVal').textContent = `${formatViews(totalClicks)} clicks`;
+      document.getElementById('watchViewsBadge').classList.toggle('hidden', !STATE.isAdmin);
+      document.getElementById('watchViewsVal').textContent = `${formatViews(totalClicks)}`;
     }
 
     function openAdmin() {
       setAdminUnlocked(true);
+      syncRemoteClicksFromWorker();
       const adminBtn = document.getElementById('openAdminBtn');
       if (adminBtn) {
         adminBtn.classList.remove('bg-slate-800/90', 'border-slate-700');
         adminBtn.classList.add('bg-emerald-700', 'border-emerald-500/50', 'text-white');
         adminBtn.innerHTML = '<span>🔓</span><span class="hidden sm:inline">Admin Mode</span>';
       }
+      syncRemoteClickCounts();
       renderGrid();
       refreshWatchPageStatsIfOpen();
       renderAdminList();
