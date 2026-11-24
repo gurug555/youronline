@@ -136,10 +136,6 @@
                      class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3.5 py-2 rounded-lg transition shadow">
                     ⚡ HD Direct Download
                   </a>
-                  <a id="externalWatchLink" href="#" target="_blank" rel="noopener noreferrer"
-                     class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg border border-slate-700 transition">
-                    Open in New Tab ↗
-                  </a>
                 </div>
               </div>
             </div>
@@ -149,8 +145,7 @@
         <!-- Video Grid Header + Top-Right Sort Dropdown -->
         <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <div class="flex items-center gap-3 flex-wrap">
-            <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>
-            <span id="resultCount" class="text-xs sm:text-sm text-slate-400"></span>
+            <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>  
             <div id="activeFilterBadge" class="hidden items-center gap-1.5 text-xs">
               <span id="activeFilterLabel" class="bg-slate-800 text-brand-400 font-semibold px-2.5 py-0.5 rounded-full border border-slate-700"></span>
               <button id="clearActiveFilterBtn" type="button" class="text-slate-400 hover:text-white">✕</button>
@@ -618,7 +613,6 @@
         const sortNames = { date: 'Latest Videos', views: 'Most Viewed Videos', duration: 'Longest Videos' };
         document.getElementById('sectionTitle').textContent = sortNames[STATE.sortBy] || 'All Videos';
       }
-      document.getElementById('resultCount').textContent = `${total} ${total === 1 ? 'video' : 'videos'}`;
 
       const grid = document.getElementById('videoGrid');
       const empty = document.getElementById('emptyState');
@@ -765,14 +759,12 @@
 
      const entries = Object.entries(video.mirrors || {}).filter(([, url]) => Boolean(url));
    const btnBox = document.getElementById('mirrorButtons');
-   const extLink = document.getElementById('externalWatchLink');
    const embedBox = document.getElementById('embedContainer');
 
    renderThumbnailPoster(embedBox, video);
 
    if (!entries.length) {
      btnBox.innerHTML = '<span class="text-xs text-slate-400">Direct Download Available</span>';
-     extLink.href = 'https://apiguinee.org/4/dc95c87ba8dc546b1a31b02900733acd';
    } else {
      const preferredOrder = ['doodstream', 'voe', 'streamtape', 'lulustream', 'gofile'];
      entries.sort((a, b) => {
@@ -780,8 +772,6 @@
        const ib = preferredOrder.indexOf(b[0]);
        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
      });
-
-     extLink.href = entries[0][1];
 
     btnBox.innerHTML = entries.map(([srv, rawUrl]) => {
           let domain = '';
