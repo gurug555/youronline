@@ -127,7 +127,7 @@
                 <div id="watchStatsRow" class="flex flex-wrap items-center gap-2 text-xs shrink-0">
                   <span id="watchQualityBadge" class="hidden bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold px-2.5 py-1 rounded-md"></span>
                   <span id="watchDurationBadge" class="hidden bg-slate-800 text-slate-200 border border-slate-700 font-medium px-2.5 py-1 rounded-md">⏱ <span id="watchDurationVal"></span></span>
-                  <span id="watchViewsBadge" class="bg-slate-800 text-slate-200 border border-slate-700 font-medium px-2.5 py-1 rounded-md">👁 <span id="watchViewsVal"></span></span>
+                  <span id="watchViewsBadge" class="bg-slate-800 text-slate-200 border border-slate-700 font-medium px-2.5 py-1 rounded-md"><span id="watchViewsVal"></span></span>
                 </div>
               </div>
 
@@ -294,7 +294,7 @@
   <script>
     const ASSET_BASE = 'https://assets.yourpo.online/';
     const ADMIN_PASSWORD = '1234';
-    const CLICK_STORAGE_KEY = 'yourpo_server_clicks_v1';
+    const USER_CLICKS_STORAGE_KEY = 'yourpo_user_video_clicks_v1';
     const ADMIN_SESSION_KEY = 'yourpo_admin_unlocked_v1';
 
     function isAdminUnlocked() {
@@ -317,31 +317,39 @@
       } catch (_) {}
     }
 
-    function loadServerClicksMap() {
+    function loadUserClicksMap() {
       try {
-        return JSON.parse(localStorage.getItem(CLICK_STORAGE_KEY) || '{}') || {};
+        return JSON.parse(localStorage.getItem(USER_CLICKS_STORAGE_KEY) || '{}') || {};
       } catch (_) {
         return {};
       }
     }
 
-    function saveServerClicksMap(map) {
+    function saveUserClicksMap(map) {
       try {
-        localStorage.setItem(CLICK_STORAGE_KEY, JSON.stringify(map));
+        localStorage.setItem(USER_CLICKS_STORAGE_KEY, JSON.stringify(map));
       } catch (_) {}
     }
 
-    function getServerClickCount(videoId, serverName) {
-      const map = loadServerClicksMap();
-      return Number(map[`${videoId}::${serverName}`] || 0);
+    function getUserClickDelta(videoId) {
+      const map = loadUserClicksMap();
+      return Number(map[String(videoId)] || 0);
     }
 
-    function incrementServerClickCount(videoId, serverName) {
-      const map = loadServerClicksMap();
-      const key = `${videoId}::${serverName}`;
+    function incrementUserClickDelta(videoId) {
+      const map = loadUserClicksMap();
+      const key = String(videoId);
       map[key] = Number(map[key] || 0) + 1;
-      saveServerClicksMap(map);
+      saveUserClicksMap(map);
       return map[key];
+    }
+
+    // Total clicks = previous historical views (from videos.json) + new normal-user clicks
+    function getTotalVideoClicks(video) {
+      if (!video) return 0;
+      const baseViews = Number(video.baseViews ?? video.views) || 0;
+      const newUserClicks = getUserClickDelta(video.id);
+      return baseViews + newUserClicks;
     }
 
     // Helper to build crisp 3x3 collage preview SVGs for the preview sandbox if R2 is unreachable
@@ -564,7 +572,8 @@
 
       const category = String(item.category || '').trim();
       const rawViews = Number(item.views);
-      const views = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : 0;
+      const baseViews = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : 0;
+      const views = baseViews + getUserClickDelta(item.id);
       const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 - index * 60000);
       const rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('vid_' + Math.random().toString(36).slice(2, 10));
 
@@ -581,7 +590,8 @@
         thumb,
         resolution: String(item.resolution || '').trim(),
         duration: String(item.duration || '').trim(),
-        views,
+        baseViews,
+        views: baseViews + getUserClickDelta(rawId),
         addedAt,
         mirrors
       };
@@ -752,7 +762,7 @@
 
       const sorted = [...filtered];
       if (STATE.sortBy === 'views') {
-        sorted.sort((a, b) => (Number(b.views) || 0) - (Number(a.views) || 0));
+        sorted.sort((a, b) => getTotalVideoClicks(b) - getTotalVideoClicks(a));
       } else if (STATE.sortBy === 'duration') {
         sorted.sort((a, b) => parseDurationSeconds(b.duration) - parseDurationSeconds(a.duration));
       } else {
@@ -795,6 +805,7 @@
       empty.classList.add('hidden');
       grid.innerHTML = pageItems.map(v => {
         const thumbSrc = v.thumb ? escapeHtml(v.thumb) : FALLBACK_SVG;
+        const totalClicks = getTotalVideoClicks(v);
         const badges = [];
         if (v.resolution) badges.push(`<span class="bg-black/80 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded">${escapeHtml(v.resolution)}</span>`);
         if (v.duration) badges.push(`<span class="bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">${escapeHtml(v.duration)}</span>`);
@@ -812,7 +823,7 @@
               <h3 class="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h3>
               <div class="flex items-center justify-between gap-2 text-[11px] text-slate-400">
                 <div class="flex flex-wrap gap-1.5 truncate">${tagsHtml}</div>
-                ${(STATE.isAdmin && v.views > 0) ? `<span class="shrink-0 text-amber-300/90 font-medium">👁 ${formatViews(v.views)}</span>` : ''}
+                ${(STATE.isAdmin && totalClicks > 0) ? `<span class="shrink-0 text-amber-300/90 font-medium">${formatViews(totalClicks)}</span>` : ''}
               </div>
             </div>
           </article>
@@ -879,7 +890,11 @@
 
     function openWatchPage(video, pushHistory = true) {
       STATE.activeVideoId = String(video.id);
-      video.views = (Number(video.views) || 0) + 1;
+      if (!STATE.isAdmin) {
+        incrementUserClickDelta(video.id);
+      }
+      const totalClicks = getTotalVideoClicks(video);
+      video.views = totalClicks;
       document.title = `${video.title} — yourpo.online`;
 
       const topAd = document.getElementById('topAdWrapper');
@@ -912,8 +927,8 @@
         durWrap.classList.add('hidden');
       }
 
-      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(STATE.isAdmin && video.views > 0));
-      document.getElementById('watchViewsVal').textContent = `${formatViews(video.views)} views`;
+      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(STATE.isAdmin && totalClicks > 0));
+      document.getElementById('watchViewsVal').textContent = `${formatViews(totalClicks)} clicks`;
 
       document.getElementById('watchTags').innerHTML = (video.tags || [])
         .map(t => `<button type="button" data-watch-tag="${escapeHtml(t)}" class="watch-tag-chip text-xs bg-slate-800 hover:bg-brand-600 text-slate-300 hover:text-white px-2.5 py-0.5 rounded-full border border-slate-700 transition">#${escapeHtml(t)}</button>`)
@@ -952,30 +967,14 @@
           const iconHtml = domain
             ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-sm shrink-0" />`
             : '';
-          const clicks = getServerClickCount(video.id, srv);
-          const clickBadgeHtml = STATE.isAdmin
-            ? `<span class="srv-click-badge text-[10px] font-semibold bg-slate-900/90 text-emerald-300 px-1.5 py-0.5 rounded">👁 ${clicks}</span>`
-            : '';
 
           return `<a href="${escapeHtml(rawUrl)}" target="_blank" rel="noopener noreferrer"
               data-vid="${escapeHtml(video.id)}" data-srv="${escapeHtml(srv)}"
               class="srv-btn bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 hover:border-brand-500 uppercase transition inline-flex items-center gap-1.5">
              ${iconHtml}
              <span>${escapeHtml(srv)}</span>
-             ${clickBadgeHtml}
            </a>`;
         }).join('');
-
-        btnBox.querySelectorAll('.srv-btn').forEach(link => {
-          link.addEventListener('click', () => {
-            const nextCount = incrementServerClickCount(link.dataset.vid, link.dataset.srv);
-            const badge = link.querySelector('.srv-click-badge');
-            if (badge) badge.textContent = String(nextCount);
-            if (!document.getElementById('adminModal').classList.contains('hidden')) {
-              renderAdminList();
-            }
-          });
-        });
       }
 
       document.getElementById('watchSection').classList.remove('hidden');
@@ -1036,24 +1035,9 @@
       if (!STATE.activeVideoId) return;
       const vid = STATE.videos.find(v => String(v.id) === String(STATE.activeVideoId));
       if (!vid) return;
-      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(STATE.isAdmin && vid.views > 0));
-      document.getElementById('watchViewsVal').textContent = `${formatViews(vid.views)} views`;
-      document.querySelectorAll('#mirrorButtons .srv-btn').forEach(link => {
-        const existingBadge = link.querySelector('.srv-click-badge');
-        if (STATE.isAdmin) {
-          const clicks = getServerClickCount(link.dataset.vid, link.dataset.srv);
-          if (existingBadge) {
-            existingBadge.textContent = `👁 ${clicks}`;
-          } else {
-            const span = document.createElement('span');
-            span.className = 'srv-click-badge text-[10px] font-semibold bg-slate-900/90 text-emerald-300 px-1.5 py-0.5 rounded';
-            span.textContent = `👁 ${clicks}`;
-            link.appendChild(span);
-          }
-        } else if (existingBadge) {
-          existingBadge.remove();
-        }
-      });
+      const totalClicks = getTotalVideoClicks(vid);
+      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(STATE.isAdmin && totalClicks > 0));
+      document.getElementById('watchViewsVal').textContent = `${formatViews(totalClicks)} clicks`;
     }
 
     function openAdmin() {
@@ -1221,7 +1205,7 @@
         thumbnail: v.thumb,
         resolution: v.resolution,
         duration: v.duration,
-        views: v.views,
+        views: getTotalVideoClicks(v),
         mirrors: v.mirrors
       }));
       const blob = new Blob([JSON.stringify(exportList, null, 2)], { type: 'application/json' });
