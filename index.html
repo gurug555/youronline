@@ -35,6 +35,9 @@
       isolation: isolate;
       contain: layout paint;
     }
+    .admin-mode .ad-zone {
+      display: none !important;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
@@ -100,7 +103,7 @@
   <main class="relative z-0 isolate flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-6">
 
     <!-- Zone 1: JuicyAds 800x100 Top Banner -->
-    <div id="topAdWrapper" class="mb-6 flex justify-center">
+    <div id="topAdWrapper" class="ad-zone mb-6 flex justify-center">
       <div class="ad-box-isolated bg-slate-900/70 border border-slate-800 rounded-xl p-1.5 overflow-x-auto overflow-y-hidden w-full max-w-[816px] min-h-[116px] flex items-center justify-center">
         <script>window.adsbyjuicy = window.adsbyjuicy || [];</script>
         <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
@@ -177,7 +180,7 @@
         </div>
 
         <!-- Zone 3: Adsterra Native Banner -->
-        <div id="nativeAdSlot" class="ad-box-isolated mt-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
+        <div id="nativeAdSlot" class="ad-zone ad-box-isolated mt-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
           <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
           <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
         </div>
@@ -187,7 +190,7 @@
       </div>
 
       <!-- Zone 5: Adsterra 160x600 Sidebar Banner -->
-      <aside class="ad-box-isolated hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-24 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2 overflow-hidden">
+      <aside class="ad-zone ad-box-isolated hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-24 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2 overflow-hidden">
         <script>
           atOptions = {
             'key' : '58b8868202e44dc8ea861ccc8d62b9c7',
@@ -292,6 +295,27 @@
     const ASSET_BASE = 'https://assets.yourpo.online/';
     const ADMIN_PASSWORD = '1234';
     const CLICK_STORAGE_KEY = 'yourpo_server_clicks_v1';
+    const ADMIN_SESSION_KEY = 'yourpo_admin_unlocked_v1';
+
+    function isAdminUnlocked() {
+      try {
+        return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+      } catch (_) {
+        return Boolean(STATE && STATE.isAdmin);
+      }
+    }
+
+    function setAdminUnlocked(flag) {
+      if (STATE) STATE.isAdmin = Boolean(flag);
+      document.documentElement.classList.toggle('admin-mode', Boolean(flag));
+      try {
+        if (flag) {
+          sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+        } else {
+          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+        }
+      } catch (_) {}
+    }
 
     function loadServerClicksMap() {
       try {
@@ -418,6 +442,7 @@
     const STATE = {
       videos: [],
       activeVideoId: null,
+      isAdmin: false,
       search: '',
       navTab: 'home',
       filterType: 'all',
@@ -426,6 +451,7 @@
       page: 1,
       perPage: 24
     };
+    STATE.isAdmin = isAdminUnlocked();
 
     const FALLBACK_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
@@ -786,7 +812,7 @@
               <h3 class="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h3>
               <div class="flex items-center justify-between gap-2 text-[11px] text-slate-400">
                 <div class="flex flex-wrap gap-1.5 truncate">${tagsHtml}</div>
-                ${v.views > 0 ? `<span class="shrink-0 text-slate-400">👁 ${formatViews(v.views)}</span>` : ''}
+                ${(STATE.isAdmin && v.views > 0) ? `<span class="shrink-0 text-amber-300/90 font-medium">👁 ${formatViews(v.views)}</span>` : ''}
               </div>
             </div>
           </article>
@@ -886,7 +912,7 @@
         durWrap.classList.add('hidden');
       }
 
-      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(video.views > 0));
+      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(STATE.isAdmin && video.views > 0));
       document.getElementById('watchViewsVal').textContent = `${formatViews(video.views)} views`;
 
       document.getElementById('watchTags').innerHTML = (video.tags || [])
@@ -927,13 +953,16 @@
             ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-sm shrink-0" />`
             : '';
           const clicks = getServerClickCount(video.id, srv);
+          const clickBadgeHtml = STATE.isAdmin
+            ? `<span class="srv-click-badge text-[10px] font-semibold bg-slate-900/90 text-emerald-300 px-1.5 py-0.5 rounded">👁 ${clicks}</span>`
+            : '';
 
           return `<a href="${escapeHtml(rawUrl)}" target="_blank" rel="noopener noreferrer"
               data-vid="${escapeHtml(video.id)}" data-srv="${escapeHtml(srv)}"
               class="srv-btn bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 hover:border-brand-500 uppercase transition inline-flex items-center gap-1.5">
              ${iconHtml}
              <span>${escapeHtml(srv)}</span>
-             <span class="srv-click-badge text-[10px] font-normal bg-slate-900/90 text-slate-300 px-1.5 py-0.5 rounded">${clicks}</span>
+             ${clickBadgeHtml}
            </a>`;
         }).join('');
 
@@ -986,6 +1015,10 @@
     });
 
     function openAdminPrompt() {
+      if (STATE.isAdmin) {
+        openAdmin();
+        return;
+      }
       const modal = document.getElementById('adminPinModal');
       const input = document.getElementById('adminPinInput');
       const err = document.getElementById('adminPinError');
@@ -999,7 +1032,40 @@
       document.getElementById('adminPinModal').classList.add('hidden');
     }
 
+    function refreshWatchPageStatsIfOpen() {
+      if (!STATE.activeVideoId) return;
+      const vid = STATE.videos.find(v => String(v.id) === String(STATE.activeVideoId));
+      if (!vid) return;
+      document.getElementById('watchViewsBadge').classList.toggle('hidden', !(STATE.isAdmin && vid.views > 0));
+      document.getElementById('watchViewsVal').textContent = `${formatViews(vid.views)} views`;
+      document.querySelectorAll('#mirrorButtons .srv-btn').forEach(link => {
+        const existingBadge = link.querySelector('.srv-click-badge');
+        if (STATE.isAdmin) {
+          const clicks = getServerClickCount(link.dataset.vid, link.dataset.srv);
+          if (existingBadge) {
+            existingBadge.textContent = `👁 ${clicks}`;
+          } else {
+            const span = document.createElement('span');
+            span.className = 'srv-click-badge text-[10px] font-semibold bg-slate-900/90 text-emerald-300 px-1.5 py-0.5 rounded';
+            span.textContent = `👁 ${clicks}`;
+            link.appendChild(span);
+          }
+        } else if (existingBadge) {
+          existingBadge.remove();
+        }
+      });
+    }
+
     function openAdmin() {
+      setAdminUnlocked(true);
+      const adminBtn = document.getElementById('openAdminBtn');
+      if (adminBtn) {
+        adminBtn.classList.remove('bg-slate-800/90', 'border-slate-700');
+        adminBtn.classList.add('bg-emerald-700', 'border-emerald-500/50', 'text-white');
+        adminBtn.innerHTML = '<span>🔓</span><span class="hidden sm:inline">Admin Mode</span>';
+      }
+      renderGrid();
+      refreshWatchPageStatsIfOpen();
       renderAdminList();
       document.getElementById('adminModal').classList.remove('hidden');
     }
@@ -1108,15 +1174,11 @@
       listEl.innerHTML = matches.map(v => {
         const serverEntries = Object.entries(v.mirrors || {}).filter(([, url]) => Boolean(url));
         const serversHtml = serverEntries.length
-          ? serverEntries.map(([srv, url]) => {
-              const clicks = getServerClickCount(v.id, srv);
-              return `
+          ? serverEntries.map(([srv, url]) => `
                 <div class="inline-flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-md px-2 py-1 text-[11px]">
                   <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-brand-400 font-semibold uppercase">${escapeHtml(srv)}</a>
-                  <span class="bg-slate-800 text-emerald-300 font-semibold px-1.5 py-0.5 rounded">👁 ${clicks} clicks</span>
                 </div>
-              `;
-            }).join('')
+              `).join('')
           : '<span class="text-[11px] text-slate-500">No server links</span>';
 
         return `
@@ -1125,7 +1187,6 @@
               <div class="min-w-0 flex-1">
                 <p class="font-semibold text-slate-100 truncate">${escapeHtml(v.title)}</p>
                 <div class="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-slate-400">
-                  <span class="bg-slate-800 text-amber-300 font-semibold px-2 py-0.5 rounded">👁 ${formatViews(v.views)} video views</span>
                   ${v.resolution ? `<span>${escapeHtml(v.resolution)}</span>` : ''}
                   ${v.duration ? `<span>⏱ ${escapeHtml(v.duration)}</span>` : ''}
                 </div>
@@ -1178,6 +1239,7 @@
       renderNavDrawer();
       document.getElementById('sortBySelect').value = STATE.sortBy;
       renderGrid();
+      refreshWatchPageStatsIfOpen();
     }
 
     document.getElementById('brandHomeLink').addEventListener('click', e => {
@@ -1303,6 +1365,16 @@
 
     if (new URLSearchParams(window.location.search).get('admin') === '1') {
       openAdminPrompt();
+    }
+
+    if (STATE.isAdmin) {
+      document.documentElement.classList.add('admin-mode');
+      const adminBtn = document.getElementById('openAdminBtn');
+      if (adminBtn) {
+        adminBtn.classList.remove('bg-slate-800/90', 'border-slate-700');
+        adminBtn.classList.add('bg-emerald-700', 'border-emerald-500/50', 'text-white');
+        adminBtn.innerHTML = '<span>🔓</span><span class="hidden sm:inline">Admin Mode</span>';
+      }
     }
 
     loadInitialVideos();
