@@ -673,7 +673,6 @@
       STATE.videos = list.map((v, idx) => normalizeVideoItem(v, idx));
       renderAll();
       checkUrlVideoParam();
-      syncRemoteClickCounts();
     }
 
     async function loadInitialVideos() {
@@ -1124,7 +1123,6 @@
         adminBtn.classList.add('bg-emerald-700', 'border-emerald-500/50', 'text-white');
         adminBtn.innerHTML = '<span>🔓</span><span class="hidden sm:inline">Admin Mode</span>';
       }
-      syncRemoteClickCounts();
       renderGrid();
       refreshWatchPageStatsIfOpen();
       renderAdminList();
