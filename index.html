@@ -238,7 +238,13 @@
           <h2 class="text-lg font-bold text-white">Admin Studio</h2>
           <p class="text-xs text-slate-400">Bulk CSV / JSON Upload + Video Views &amp; Server Link Clicks</p>
         </div>
-        <button id="closeAdminBtn" type="button" class="text-slate-400 hover:text-white text-xl px-2 py-1">✕</button>
+        <div class="flex items-center gap-2">
+          <button id="logoutAdminBtn" type="button"
+                  class="bg-rose-950/80 hover:bg-rose-800 text-rose-200 border border-rose-800/60 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+            Logout
+          </button>
+          <button id="closeAdminBtn" type="button" class="text-slate-400 hover:text-white text-xl px-2 py-1">✕</button>
+        </div>
       </div>
 
       <div class="p-5 overflow-y-auto space-y-6">
@@ -1133,6 +1139,20 @@
       document.getElementById('adminModal').classList.add('hidden');
     }
 
+    function logoutAdmin() {
+      setAdminUnlocked(false);
+      closeAdmin();
+      const adminBtn = document.getElementById('openAdminBtn');
+      if (adminBtn) {
+        adminBtn.classList.remove('bg-emerald-700', 'border-emerald-500/50', 'text-white');
+        adminBtn.classList.add('bg-slate-800/90', 'hover:bg-brand-600', 'text-slate-200', 'hover:text-white', 'border-slate-700', 'hover:border-brand-500');
+        adminBtn.innerHTML = '<span>🔐</span><span class="hidden sm:inline">Admin</span>';
+      }
+      renderGrid();
+      refreshWatchPageStatsIfOpen();
+      showToast('Logged out of Admin Mode.');
+    }
+
     function parseCsvLine(line) {
       const result = [];
       let cur = '';
@@ -1385,6 +1405,7 @@
       }
     });
     document.getElementById('closeAdminBtn').addEventListener('click', closeAdmin);
+    document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
     document.getElementById('adminModal').addEventListener('click', e => {
       if (e.target.id === 'adminModal') closeAdmin();
     });
