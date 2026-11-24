@@ -43,7 +43,6 @@
   <header class="sticky top-0 z-50 isolate bg-slate-900 border-b border-slate-800 shadow-lg">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <a href="index.html" id="brandHomeLink" class="flex items-center shrink-0">
-        <!-- Uses YP.png when hosted on yourpo.online, with inline SVG brand fallback for isolated preview -->
         <img
           src="YP.png"
           alt="YOURPO"
@@ -84,12 +83,12 @@
           <button id="navTagsBtn" type="button" class="nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition">
             Tags
           </button>
+          <button id="openAdminBtn" type="button" title="Admin Login" class="bg-slate-800/90 hover:bg-brand-600 text-slate-200 hover:text-white border border-slate-700 hover:border-brand-500 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition inline-flex items-center gap-1.5">
+            <span>🔐</span>
+            <span class="hidden sm:inline">Admin</span>
+          </button>
         </nav>
       </div>
-
-      <button id="openAdminBtn" type="button" class="hidden bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition shrink-0">
-        Admin Studio
-      </button>
     </div>
 
     <div id="navSubDrawer" class="hidden border-t border-slate-800/80 bg-slate-900/95">
@@ -208,13 +207,33 @@
     <p id="secretFooterTap" class="cursor-default select-none inline-block px-2 py-1">© 2026 yourpo.online — All rights reserved.</p>
   </footer>
 
+  <!-- Admin Password Modal (PIN: 1234) -->
+  <div id="adminPinModal" class="fixed inset-0 z-[2147483647] hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">🔐 Admin Login</h3>
+        <button id="closePinModalBtn" type="button" class="text-slate-400 hover:text-white text-lg px-1">✕</button>
+      </div>
+      <p class="text-xs text-slate-400">Enter admin password to manage uploads &amp; view analytics.</p>
+      <form id="adminPinForm" class="space-y-3">
+        <input id="adminPinInput" type="password" inputmode="numeric" maxlength="12" placeholder="Enter password"
+               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white tracking-widest focus:outline-none focus:border-brand-500" />
+        <p id="adminPinError" class="hidden text-xs text-rose-400">Incorrect password. Try again.</p>
+        <div class="flex justify-end gap-2 pt-1">
+          <button id="cancelPinBtn" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3.5 py-2 rounded-lg transition">Cancel</button>
+          <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Admin Studio Modal -->
   <div id="adminModal" class="fixed inset-0 z-[2147483647] hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full my-auto max-h-[90vh] flex flex-col shadow-2xl">
       <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800">
         <div>
           <h2 class="text-lg font-bold text-white">Admin Studio</h2>
-          <p class="text-xs text-slate-400">Bulk CSV / JSON Import + Manage Videos + Publish Live</p>
+          <p class="text-xs text-slate-400">Bulk CSV / JSON Upload + Video Views &amp; Server Link Clicks</p>
         </div>
         <button id="closeAdminBtn" type="button" class="text-slate-400 hover:text-white text-xl px-2 py-1">✕</button>
       </div>
@@ -222,7 +241,7 @@
       <div class="p-5 overflow-y-auto space-y-6">
         <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
           <div class="flex items-center justify-between gap-2 flex-wrap">
-            <h3 class="text-sm font-semibold text-white">Bulk CSV / JSON Import (Colab Output)</h3>
+            <h3 class="text-sm font-semibold text-white">Upload &amp; Import CSV / JSON File</h3>
             <span id="importStatus" class="text-xs text-emerald-400 font-medium"></span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -232,14 +251,14 @@
                    class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500" />
             <button id="importFileBtn" type="button"
                     class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg px-4 py-2 transition">
-              Import File
+              Upload &amp; Import
             </button>
           </div>
         </div>
 
         <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
           <div class="flex items-center justify-between gap-3 flex-wrap">
-            <h3 id="manageCountLabel" class="text-sm font-semibold text-white">Manage Videos (0)</h3>
+            <h3 id="manageCountLabel" class="text-sm font-semibold text-white">Videos &amp; Server Link Analytics (0)</h3>
             <div class="flex items-center gap-2">
               <input id="adminSearchInput" type="search" placeholder="Filter admin list..."
                      class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-slate-500" />
@@ -249,7 +268,7 @@
               </button>
             </div>
           </div>
-          <div id="adminVideoList" class="max-h-64 overflow-y-auto divide-y divide-slate-800/80 border border-slate-800 rounded-lg bg-slate-900/50"></div>
+          <div id="adminVideoList" class="max-h-72 overflow-y-auto divide-y divide-slate-800/80 border border-slate-800 rounded-lg bg-slate-900/50"></div>
         </div>
       </div>
 
@@ -274,6 +293,35 @@
 
   <script>
     const ASSET_BASE = 'https://assets.yourpo.online/';
+    const ADMIN_PASSWORD = '1234';
+    const CLICK_STORAGE_KEY = 'yourpo_server_clicks_v1';
+
+    function loadServerClicksMap() {
+      try {
+        return JSON.parse(localStorage.getItem(CLICK_STORAGE_KEY) || '{}') || {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function saveServerClicksMap(map) {
+      try {
+        localStorage.setItem(CLICK_STORAGE_KEY, JSON.stringify(map));
+      } catch (_) {}
+    }
+
+    function getServerClickCount(videoId, serverName) {
+      const map = loadServerClicksMap();
+      return Number(map[`${videoId}::${serverName}`] || 0);
+    }
+
+    function incrementServerClickCount(videoId, serverName) {
+      const map = loadServerClicksMap();
+      const key = `${videoId}::${serverName}`;
+      map[key] = Number(map[key] || 0) + 1;
+      saveServerClicksMap(map);
+      return map[key];
+    }
 
     // Helper to build crisp 3x3 collage preview SVGs for the preview sandbox if R2 is unreachable
     function make3x3PreviewSvg(label, accentColor) {
@@ -808,6 +856,7 @@
 
     function openWatchPage(video, pushHistory = true) {
       STATE.activeVideoId = String(video.id);
+      video.views = (Number(video.views) || 0) + 1;
       document.title = `${video.title} — yourpo.online`;
 
       const topAd = document.getElementById('topAdWrapper');
@@ -880,13 +929,27 @@
           const iconHtml = domain
             ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-sm shrink-0" />`
             : '';
+          const clicks = getServerClickCount(video.id, srv);
 
           return `<a href="${escapeHtml(rawUrl)}" target="_blank" rel="noopener noreferrer"
+              data-vid="${escapeHtml(video.id)}" data-srv="${escapeHtml(srv)}"
               class="srv-btn bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 hover:border-brand-500 uppercase transition inline-flex items-center gap-1.5">
              ${iconHtml}
              <span>${escapeHtml(srv)}</span>
+             <span class="srv-click-badge text-[10px] font-normal bg-slate-900/90 text-slate-300 px-1.5 py-0.5 rounded">${clicks}</span>
            </a>`;
         }).join('');
+
+        btnBox.querySelectorAll('.srv-btn').forEach(link => {
+          link.addEventListener('click', () => {
+            const nextCount = incrementServerClickCount(link.dataset.vid, link.dataset.srv);
+            const badge = link.querySelector('.srv-click-badge');
+            if (badge) badge.textContent = String(nextCount);
+            if (!document.getElementById('adminModal').classList.contains('hidden')) {
+              renderAdminList();
+            }
+          });
+        });
       }
 
       document.getElementById('watchSection').classList.remove('hidden');
@@ -924,6 +987,20 @@
       }
       closeWatchPage(false);
     });
+
+    function openAdminPrompt() {
+      const modal = document.getElementById('adminPinModal');
+      const input = document.getElementById('adminPinInput');
+      const err = document.getElementById('adminPinError');
+      err.classList.add('hidden');
+      input.value = '';
+      modal.classList.remove('hidden');
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeAdminPrompt() {
+      document.getElementById('adminPinModal').classList.add('hidden');
+    }
 
     function openAdmin() {
       renderAdminList();
@@ -1023,7 +1100,7 @@
     function renderAdminList() {
       const q = (document.getElementById('adminSearchInput').value || '').trim().toLowerCase();
       const listEl = document.getElementById('adminVideoList');
-      document.getElementById('manageCountLabel').textContent = `Manage Videos (${STATE.videos.length})`;
+      document.getElementById('manageCountLabel').textContent = `Videos & Server Link Analytics (${STATE.videos.length})`;
 
       const matches = STATE.videos.filter(v => !q || v.title.toLowerCase().includes(q));
       if (!matches.length) {
@@ -1031,18 +1108,42 @@
         return;
       }
 
-      listEl.innerHTML = matches.map(v => `
-        <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 text-xs">
-          <div class="min-w-0 flex-1">
-            <p class="font-medium text-slate-100 truncate">${escapeHtml(v.title)}</p>
-            <p class="text-[11px] text-slate-400 truncate">${[v.resolution, v.duration, `${formatViews(v.views)} views`].filter(Boolean).join(' • ')}</p>
+      listEl.innerHTML = matches.map(v => {
+        const serverEntries = Object.entries(v.mirrors || {}).filter(([, url]) => Boolean(url));
+        const serversHtml = serverEntries.length
+          ? serverEntries.map(([srv, url]) => {
+              const clicks = getServerClickCount(v.id, srv);
+              return `
+                <div class="inline-flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-md px-2 py-1 text-[11px]">
+                  <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-brand-400 font-semibold uppercase">${escapeHtml(srv)}</a>
+                  <span class="bg-slate-800 text-emerald-300 font-semibold px-1.5 py-0.5 rounded">👁 ${clicks} clicks</span>
+                </div>
+              `;
+            }).join('')
+          : '<span class="text-[11px] text-slate-500">No server links</span>';
+
+        return `
+          <div class="px-3.5 py-3 text-xs space-y-2">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <p class="font-semibold text-slate-100 truncate">${escapeHtml(v.title)}</p>
+                <div class="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-slate-400">
+                  <span class="bg-slate-800 text-amber-300 font-semibold px-2 py-0.5 rounded">👁 ${formatViews(v.views)} video views</span>
+                  ${v.resolution ? `<span>${escapeHtml(v.resolution)}</span>` : ''}
+                  ${v.duration ? `<span>⏱ ${escapeHtml(v.duration)}</span>` : ''}
+                </div>
+              </div>
+              <button type="button" data-del="${escapeHtml(v.id)}"
+                      class="del-vid-btn bg-rose-900/60 hover:bg-rose-700 text-rose-200 px-2.5 py-1 rounded-md shrink-0 transition">
+                Delete
+              </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+              ${serversHtml}
+            </div>
           </div>
-          <button type="button" data-del="${escapeHtml(v.id)}"
-                  class="del-vid-btn bg-rose-900/60 hover:bg-rose-700 text-rose-200 px-2.5 py-1 rounded-md shrink-0 transition">
-            Delete
-          </button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       listEl.querySelectorAll('.del-vid-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1148,7 +1249,23 @@
       renderAll();
     });
 
-    document.getElementById('openAdminBtn').addEventListener('click', openAdmin);
+    document.getElementById('openAdminBtn').addEventListener('click', openAdminPrompt);
+    document.getElementById('closePinModalBtn').addEventListener('click', closeAdminPrompt);
+    document.getElementById('cancelPinBtn').addEventListener('click', closeAdminPrompt);
+    document.getElementById('adminPinModal').addEventListener('click', e => {
+      if (e.target.id === 'adminPinModal') closeAdminPrompt();
+    });
+    document.getElementById('adminPinForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const val = document.getElementById('adminPinInput').value.trim();
+      if (val === ADMIN_PASSWORD) {
+        closeAdminPrompt();
+        openAdmin();
+      } else {
+        document.getElementById('adminPinError').classList.remove('hidden');
+        document.getElementById('adminPinInput').focus();
+      }
+    });
     document.getElementById('closeAdminBtn').addEventListener('click', closeAdmin);
     document.getElementById('adminModal').addEventListener('click', e => {
       if (e.target.id === 'adminModal') closeAdmin();
@@ -1172,7 +1289,7 @@
     document.addEventListener('keydown', e => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
-        openAdmin();
+        openAdminPrompt();
       }
     });
 
@@ -1183,12 +1300,12 @@
       document.getElementById('secretFooterTap')._t = setTimeout(() => { footerTaps = 0; }, 1500);
       if (footerTaps >= 5) {
         footerTaps = 0;
-        openAdmin();
+        openAdminPrompt();
       }
     });
 
     if (new URLSearchParams(window.location.search).get('admin') === '1') {
-      openAdmin();
+      openAdminPrompt();
     }
 
     loadInitialVideos();
