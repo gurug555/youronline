@@ -268,6 +268,24 @@
           </div>
         </div>
 
+        <!-- Bulk CSV / JSON Upload Section -->
+        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <h3 class="text-sm font-semibold text-white">Bulk CSV / JSON Upload</h3>
+            <span id="importStatus" class="text-xs text-slate-400"></span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input id="csvFileInput" type="file" accept=".csv,.json,text/csv,application/json"
+                   class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500" />
+            <input id="defaultTagsInput" type="text" value="Trending, HD" placeholder="Default tags (comma separated)"
+                   class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" />
+            <button id="importFileBtn" type="button"
+                    class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+              Import CSV / JSON
+            </button>
+          </div>
+        </div>
+
         <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
           <div class="flex items-center justify-between gap-3 flex-wrap">
             <h3 id="manageCountLabel" class="text-sm font-semibold text-white">Videos &amp; Server Link Analytics (0)</h3>
@@ -1173,12 +1191,14 @@
       renderGrid();
       refreshWatchPageStatsIfOpen();
       renderAdminList();
+      document.body.classList.add('overflow-hidden');
       document.getElementById('adminModal').classList.remove('hidden');
       await syncRemoteClicksFromWorker();
       renderAdminList();
     }
 
     function closeAdmin() {
+      document.body.classList.remove('overflow-hidden');
       document.getElementById('adminModal').classList.add('hidden');
     }
 
@@ -1238,13 +1258,14 @@
 
     async function handleImportFile() {
       const fileInput = document.getElementById('csvFileInput');
-      const file = fileInput.files && fileInput.files[0];
+      const file = fileInput && fileInput.files && fileInput.files[0];
       if (!file) {
         showToast('Please select a CSV or JSON file first.');
         return;
       }
 
-      const defaultTags = document.getElementById('defaultTagsInput').value || 'Trending, HD';
+      const defaultTagsEl = document.getElementById('defaultTagsInput');
+      const defaultTags = (defaultTagsEl && defaultTagsEl.value) || 'Trending, HD';
       const rawText = await file.text();
       let items = [];
 
@@ -1275,8 +1296,8 @@
         STATE.videos.unshift(norm);
         added++;
       });
-
-      document.getElementById('importStatus').textContent = `Added ${added}, skipped ${skipped} dupes`;
+      const statusEl = document.getElementById('importStatus');
+      if (statusEl) statusEl.textContent = `Added ${added}, skipped ${skipped} dupes`;
       renderAll();
       renderAdminList();
       showToast(`Imported ${added} videos! Click Publish Live.`);
