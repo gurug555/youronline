@@ -631,6 +631,11 @@
         } catch (_) {}
       }
 
+      const initialPage = parseInt(new URLSearchParams(window.location.search).get('page'), 10);
+      if (initialPage && initialPage > 1) {
+        STATE.page = initialPage;
+      }
+
       STATE.videos = loadedList.map((item, idx) => normalizeVideoItem(item, idx));
       await syncRemoteClicksFromWorker();
       renderAll();
@@ -889,6 +894,12 @@
 
     function renderPagination(totalPages) {
       const bar = document.getElementById('paginationBar');
+      const searchEl = document.getElementById('searchInput');
+      if (searchEl) {
+        searchEl.placeholder = STATE.page > 1
+          ? `Search videos, performers, studios... (Page ${STATE.page})`
+          : 'Search videos, performers, studios...';
+      }
       if (totalPages <= 1) {
         bar.innerHTML = '';
         return;
@@ -902,6 +913,15 @@
       bar.querySelectorAll('.page-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           STATE.page = Number(btn.dataset.page);
+          try {
+            const url = new URL(window.location.href);
+            if (STATE.page > 1) {
+              url.searchParams.set('page', String(STATE.page));
+            } else {
+              url.searchParams.delete('page');
+            }
+            window.history.pushState({ page: STATE.page }, '', url);
+          } catch (_) {}
           renderGrid();
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
@@ -1053,14 +1073,22 @@
         try {
           const url = new URL(window.location.href);
           url.searchParams.delete('v');
-          window.history.pushState({}, '', url);
+          if (STATE.page > 1) {
+            url.searchParams.set('page', String(STATE.page));
+          } else {
+            url.searchParams.delete('page');
+          }
+          window.history.pushState({ page: STATE.page }, '', url);
         } catch (_) {}
       }
       renderGrid();
     }
 
     window.addEventListener('popstate', () => {
-      const vidId = new URLSearchParams(window.location.search).get('v');
+      const params = new URLSearchParams(window.location.search);
+      const pageNum = parseInt(params.get('page'), 10);
+      STATE.page = pageNum && pageNum > 0 ? pageNum : 1;
+      const vidId = params.get('v');
       if (vidId) {
         const found = STATE.videos.find(v => String(v.id) === String(vidId));
         if (found) {
