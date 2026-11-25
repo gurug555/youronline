@@ -170,7 +170,7 @@
           <div class="flex items-center justify-between gap-3 flex-wrap border-b border-slate-800 pb-4">
             <div>
               <h1 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">🛠️ Admin Studio</h1>
-              <p class="text-xs text-slate-400 mt-0.5">Bulk CSV / JSON Upload + Video Views &amp; Server Link Analytics</p>
+              <p class="text-xs text-slate-400 mt-0.5">Bulk CSV / JSON Upload + Video Views &amp; Server Link Analytics (Your device views are excluded)</p>
             </div>
             <div class="flex items-center gap-2">
               <button id="adminBackHomeBtn" type="button"
@@ -199,8 +199,8 @@
               <p id="adminWorkerClicksStat" class="text-lg font-bold text-emerald-400 mt-0.5">0</p>
             </div>
             <div class="bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5">
-              <p class="text-[11px] text-slate-400">Counter API</p>
-              <p id="adminWorkerStatusStat" class="text-xs font-semibold text-sky-300 truncate mt-1.5">Connected</p>
+              <p class="text-[11px] text-slate-400">My Device Tracking</p>
+              <p id="adminOwnerDeviceStat" class="text-xs font-semibold text-emerald-300 truncate mt-1.5">Ignored (Owner)</p>
             </div>
           </div>
 
@@ -391,6 +391,32 @@
     const USER_CLICKS_STORAGE_KEY = 'yourpo_user_video_clicks_v1';
     const REMOTE_CLICKS_CACHE_KEY = 'yourpo_remote_video_clicks_v1';
     const ADMIN_SESSION_KEY = 'yourpo_admin_unlocked_v1';
+    const OWNER_DEVICE_KEY = 'yourpo_owner_device_ignore_views_v1';
+
+    function markAsOwnerDevice() {
+      try {
+        localStorage.setItem(OWNER_DEVICE_KEY, '1');
+        // Clear any previously stored local view deltas from owner's browser
+        localStorage.removeItem(USER_CLICKS_STORAGE_KEY);
+      } catch (_) {}
+    }
+
+    function isOwnerDevice() {
+      try {
+        if (localStorage.getItem(OWNER_DEVICE_KEY) === '1') return true;
+        if (sessionStorage.getItem(ADMIN_SESSION_KEY) === '1') return true;
+      } catch (_) {}
+      return false;
+    }
+
+    // Automatically recognize owner device if ?owner=1 or ?admin=1 is visited
+    try {
+      const bootParams = new URLSearchParams(window.location.search);
+      if (bootParams.get('owner') === '1' || bootParams.get('admin') === '1') {
+        markAsOwnerDevice();
+      }
+    } catch (_) {}
+
     let REMOTE_CLICKS_MAP = {};
     try {
       REMOTE_CLICKS_MAP = JSON.parse(localStorage.getItem(REMOTE_CLICKS_CACHE_KEY) || '{}') || {};
@@ -425,6 +451,10 @@
         }
       })()
     };
+
+    if (STATE.isAdmin) {
+      markAsOwnerDevice();
+    }
 
     function escapeHtml(str) {
       return String(str ?? '')
@@ -522,6 +552,7 @@
     }
 
     function getUserClicksMap() {
+      if (isOwnerDevice()) return {};
       try {
         return JSON.parse(localStorage.getItem(USER_CLICKS_STORAGE_KEY) || '{}') || {};
       } catch (_) {
@@ -530,6 +561,7 @@
     }
 
     function getUserClickDelta(videoId) {
+      if (isOwnerDevice()) return 0;
       const map = getUserClicksMap();
       return Number(map[String(videoId)]) || 0;
     }
@@ -567,6 +599,8 @@
     }
 
     function recordRemoteVideoClick(videoId) {
+      // Never send view hits from the site owner's browser/device
+      if (STATE.isAdmin || isOwnerDevice()) return;
       if (!VIEW_COUNTER_API || !videoId) return;
       const endpoint = `${VIEW_COUNTER_API.replace(/\/+$/, '')}/hit`;
       const payload = JSON.stringify({ id: String(videoId) });
@@ -595,6 +629,8 @@
     }
 
     function incrementUserClickDelta(videoId) {
+      // Never increment local or remote view counts on the owner's device
+      if (STATE.isAdmin || isOwnerDevice()) return;
       const id = String(videoId);
       const map = getUserClicksMap();
       map[id] = (Number(map[id]) || 0) + 1;
@@ -1022,7 +1058,7 @@
 
     function openWatchPage(video, pushHistory = true) {
       STATE.activeVideoId = String(video.id);
-      if (!STATE.isAdmin) {
+      if (!STATE.isAdmin && !isOwnerDevice()) {
         incrementUserClickDelta(video.id);
       }
       const totalClicks = getTotalVideoClicks(video);
@@ -1207,6 +1243,7 @@
         errEl.classList.add('hidden');
         STATE.isAdmin = true;
         window.__YOURPO_BLOCK_ADS__ = true;
+        markAsOwnerDevice();
         try {
           sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
         } catch (_) {}
@@ -1263,6 +1300,7 @@
     function logoutAdmin() {
       STATE.isAdmin = false;
       window.__YOURPO_BLOCK_ADS__ = false;
+      // Keep OWNER_DEVICE_KEY intact so your own views still do NOT count after logout
       try {
         sessionStorage.removeItem(ADMIN_SESSION_KEY);
       } catch (_) {}
@@ -1275,7 +1313,7 @@
       }
       closeAdmin();
       renderAll();
-      showToast('Logged out of Admin Mode.');
+      showToast('Logged out of Admin Mode (Your device views remain excluded).');
     }
 
     function renderAdminList() {
@@ -1292,6 +1330,10 @@
       document.getElementById('adminTotalVideosStat').textContent = String(STATE.videos.length);
       document.getElementById('adminTotalViewsStat').textContent = formatViews(totalViews);
       document.getElementById('adminWorkerClicksStat').textContent = formatViews(workerClicks);
+      const ownerStatEl = document.getElementById('adminOwnerDeviceStat');
+      if (ownerStatEl) {
+        ownerStatEl.textContent = isOwnerDevice() ? 'Ignored (Owner)' : 'Tracking';
+      }
 
       const listEl = document.getElementById('adminVideoList');
       if (!filtered.length) {
