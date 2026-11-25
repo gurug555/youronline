@@ -150,6 +150,21 @@
     <div class="flex flex-col lg:flex-row items-start gap-6">
       <div class="flex-1 w-full min-w-0">
 
+        <!-- Dedicated Categories / Tags Directory View -->
+        <section id="directorySection" class="hidden mb-10 space-y-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap border-b border-slate-800 pb-3">
+            <div>
+              <h1 id="directoryTitle" class="text-xl sm:text-2xl font-bold text-white">All Categories</h1>
+              <p id="directorySubtitle" class="text-xs text-slate-400 mt-0.5">Select a category to browse its videos</p>
+            </div>
+            <button id="directoryBackHomeBtn" type="button"
+                    class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3.5 py-2 rounded-lg transition">
+              ← Back to Home
+            </button>
+          </div>
+          <div id="directoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+        </section>
+
         <!-- Full-Page Watch View (Compact Left-Aligned Player Size) -->
         <section id="watchSection" class="hidden mb-10 max-w-3xl space-y-4">
           <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
@@ -186,7 +201,7 @@
         </section>
 
         <!-- Video Grid Header + Top-Right Sort Dropdown (No video count badge) -->
-        <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <div id="gridHeaderBar" class="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <div class="flex items-center gap-3 flex-wrap">
             <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>
             <div id="activeFilterBadge" class="hidden items-center gap-1.5 text-xs">
@@ -636,142 +651,146 @@
         STATE.page = initialPage;
       }
 
+      const initParams = new URLSearchParams(window.location.search);
+      const initCat = initParams.get('category');
+      const initTag = initParams.get('tag');
+      const initView = initParams.get('view');
+
       STATE.videos = loadedList.map((item, idx) => normalizeVideoItem(item, idx));
       await syncRemoteClicksFromWorker();
+
+      if (initView === 'categories' || initView === 'tags') {
+        STATE.navTab = initView;
+      } else if (initCat) {
+        STATE.navTab = 'categories';
+        STATE.filterType = 'category';
+        STATE.filterValue = initCat;
+      } else if (initTag) {
+        STATE.navTab = 'tags';
+        STATE.filterType = 'tag';
+        STATE.filterValue = initTag;
+      }
+
       renderAll();
 
-      const vidParam = new URLSearchParams(window.location.search).get('v');
+      const vidParam = initParams.get('v');
       if (vidParam) {
         const found = STATE.videos.find(v => String(v.id) === String(vidParam));
         if (found) openWatchPage(found, false);
       }
     }
 
-    // Total clicks = previous historical views (from videos.json + past watch opens) + new normal-user clicks (local + Worker)
-    function getTotalVideoClicks(video) {
-      if (!video) return 0;
-      const baseViews = Number(video.baseViews ?? video.views) || 0;
-      const pastViews = Number(video.pastViews) || 0;
-      const globalPast = Number(PAST_WATCH_PAGE_VIEWS) || 0;
-      const localClicks = getUserClickDelta(video.id);
-      const remoteClicks = getRemoteClickDelta(video.id);
-      const newUserClicks = Math.max(localClicks, remoteClicks);
-      return baseViews + pastViews + globalPast + newUserClicks;
-    }
-
-    function saveRemoteClicksCache(map) {
-      REMOTE_CLICKS_MAP = map || {};
+    function syncFilterUrl(push = true) {
       try {
-        localStorage.setItem(REMOTE_CLICKS_CACHE_KEY, JSON.stringify(REMOTE_CLICKS_MAP));
-      } catch (_) {}
-    }
-
-    function isAdminUnlocked() {
-      try {
-        return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
-      } catch (_) {
-        return Boolean(STATE && STATE.isAdmin);
-      }
-    }
-
-    function setAdminUnlocked(flag) {
-      if (STATE) STATE.isAdmin = Boolean(flag);
-      window.__YOURPO_BLOCK_ADS__ = Boolean(flag);
-      document.documentElement.classList.toggle('admin-mode', Boolean(flag));
-      try {
-        if (flag) {
-          sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
-          purgeInjectedAdsAndPopups();
+        const url = new URL(window.location.href);
+        url.searchParams.delete('v');
+        url.searchParams.delete('view');
+        url.searchParams.delete('category');
+        url.searchParams.delete('tag');
+        if (STATE.page > 1) {
+          url.searchParams.set('page', String(STATE.page));
         } else {
-          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+          url.searchParams.delete('page');
+        }
+        if ((STATE.navTab === 'categories' || STATE.navTab === 'tags') && STATE.filterType === 'all') {
+          url.searchParams.set('view', STATE.navTab);
+        } else if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
+          url.searchParams.set('category', STATE.filterValue);
+        } else if (STATE.filterType === 'tag' && STATE.filterValue) {
+          url.searchParams.set('tag', STATE.filterValue);
+        }
+        if (push) {
+          window.history.pushState(
+            { navTab: STATE.navTab, filterType: STATE.filterType, filterValue: STATE.filterValue, page: STATE.page },
+            '',
+            url
+          );
         }
       } catch (_) {}
     }
 
-    // Remove any already-injected third-party ad iframes, popunders, or social bar overlays when unlocking Admin Mode
-    function purgeInjectedAdsAndPopups() {
-      document.querySelectorAll('.ad-zone').forEach(el => {
-        el.innerHTML = '';
-        el.style.display = 'none';
-      });
-      document.querySelectorAll('script[src*="jads.co"], script[src*="biomanos.org"], script[src*="benchform.org"]').forEach(s => s.remove());
-      document.querySelectorAll('iframe, ins').forEach(el => {
-        const src = String(el.getAttribute('src') || '');
-        const id = String(el.id || '');
-        if (
-          src.includes('jads.co') ||
-          src.includes('biomanos.org') ||
-          src.includes('benchform.org') ||
-          id === '1133790' ||
-          id.startsWith('container-8ebe172168680c52df883eca2f77b34a')
-        ) {
-          el.remove();
-        }
-      });
-      // Remove any floating third-party social bar / overlay divs outside our app containers
-      Array.from(document.body.children).forEach(child => {
-        if (!child.matches('header, main, footer, #adminPinModal, #adminModal, #toastBox, script')) {
-          child.remove();
+    function setFeedVisibility(showFeed) {
+      const ids = ['gridHeaderBar', 'videoGrid', 'emptyState', 'paginationBar'];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (showFeed) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
         }
       });
     }
 
-    function renderNavDrawer() {
-      const drawer = document.getElementById('navSubDrawer');
-      const listEl = document.getElementById('navDrawerList');
+    function renderDirectoryPage() {
+      const dirSec = document.getElementById('directorySection');
+      const dirGrid = document.getElementById('directoryGrid');
+      const dirTitle = document.getElementById('directoryTitle');
+      const dirSub = document.getElementById('directorySubtitle');
 
-      if (STATE.navTab === 'home') {
-        drawer.classList.add('hidden');
-        listEl.innerHTML = '';
+      const showDir = (STATE.navTab === 'categories' || STATE.navTab === 'tags') && STATE.filterType === 'all' && !STATE.activeVideoId;
+      if (!showDir) {
+        dirSec.classList.add('hidden');
+        setFeedVisibility(true);
         return;
       }
 
-      drawer.classList.remove('hidden');
+      dirSec.classList.remove('hidden');
+      setFeedVisibility(false);
 
       if (STATE.navTab === 'categories') {
-        const cats = getAllCategories();
-        listEl.innerHTML = cats.map(cat => {
-          const active = STATE.filterType === 'category' && STATE.filterValue.toLowerCase() === cat.toLowerCase();
-          const cls = active
-            ? 'bg-brand-600 text-white border-brand-500'
-            : 'bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white';
-          return `<button type="button" data-cat="${escapeHtml(cat)}" class="drawer-cat-btn text-xs px-3 py-1.5 rounded-full border transition shrink-0 ${cls}">${escapeHtml(cat)}</button>`;
+        const cats = getAllCategories().filter(c => c !== 'All');
+        dirTitle.textContent = `Categories (${cats.length})`;
+        dirSub.textContent = 'Click any category to open its dedicated videos page';
+        dirGrid.innerHTML = cats.map(cat => {
+          const count = STATE.videos.filter(v =>
+            parseTags(v.category, '').some(c => c.toLowerCase() === cat.toLowerCase()) ||
+            (v.tags || []).some(t => t.toLowerCase() === cat.toLowerCase())
+          ).length;
+          return `
+            <button type="button" data-dir-cat="${escapeHtml(cat)}"
+                    class="dir-cat-card text-left bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-brand-500 rounded-xl p-4 transition group flex items-center justify-between gap-2">
+              <span class="text-sm font-semibold text-slate-100 group-hover:text-brand-400 truncate">${escapeHtml(cat)}</span>
+              <span class="text-xs bg-slate-800 group-hover:bg-brand-600 text-slate-300 group-hover:text-white px-2.5 py-0.5 rounded-full shrink-0 transition">${count}</span>
+            </button>
+          `;
         }).join('');
 
-        listEl.querySelectorAll('.drawer-cat-btn').forEach(btn => {
+        dirGrid.querySelectorAll('.dir-cat-card').forEach(btn => {
           btn.addEventListener('click', () => {
-            const val = btn.dataset.cat;
-            if (val === 'All') {
-              STATE.filterType = 'all';
-              STATE.filterValue = 'All';
-            } else {
-              STATE.filterType = 'category';
-              STATE.filterValue = val;
-            }
+            STATE.filterType = 'category';
+            STATE.filterValue = btn.dataset.dirCat;
             STATE.page = 1;
-            closeWatchPage(false);
-            renderNavDrawer();
-            renderGrid();
+            syncFilterUrl(true);
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           });
         });
-      } else if (STATE.navTab === 'tags') {
+      } else {
         const tags = getAllTags();
-        listEl.innerHTML = tags.map(tag => {
-          const active = STATE.filterType === 'tag' && STATE.filterValue.toLowerCase() === tag.toLowerCase();
-          const cls = active
-            ? 'bg-brand-600 text-white border-brand-500'
-            : 'bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white';
-          return `<button type="button" data-tag="${escapeHtml(tag)}" class="drawer-tag-btn text-xs px-3 py-1.5 rounded-full border transition shrink-0 ${cls}">#${escapeHtml(tag)}</button>`;
+        dirTitle.textContent = `All Tags (${tags.length})`;
+        dirSub.textContent = 'Click any tag to open its dedicated videos page';
+        dirGrid.innerHTML = tags.map(tag => {
+          const count = STATE.videos.filter(v =>
+            (v.tags || []).some(t => t.toLowerCase() === tag.toLowerCase())
+          ).length;
+          return `
+            <button type="button" data-dir-tag="${escapeHtml(tag)}"
+                    class="dir-tag-card text-left bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-brand-500 rounded-xl p-3.5 transition group flex items-center justify-between gap-2">
+              <span class="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-brand-400 truncate">#${escapeHtml(tag)}</span>
+              <span class="text-xs bg-slate-800 group-hover:bg-brand-600 text-slate-300 group-hover:text-white px-2 py-0.5 rounded-full shrink-0 transition">${count}</span>
+            </button>
+          `;
         }).join('');
 
-        listEl.querySelectorAll('.drawer-tag-btn').forEach(btn => {
+        dirGrid.querySelectorAll('.dir-tag-card').forEach(btn => {
           btn.addEventListener('click', () => {
             STATE.filterType = 'tag';
-            STATE.filterValue = btn.dataset.tag;
+            STATE.filterValue = btn.dataset.dirTag;
             STATE.page = 1;
-            closeWatchPage(false);
-            renderNavDrawer();
-            renderGrid();
+            syncFilterUrl(true);
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           });
         });
       }
@@ -783,11 +802,12 @@
       if (STATE.filterType === 'all') {
         badge.classList.add('hidden');
         badge.classList.remove('flex');
-      } else {
-        label.textContent = STATE.filterType === 'tag' ? `#${STATE.filterValue}` : STATE.filterValue;
-        badge.classList.remove('hidden');
-        badge.classList.add('flex');
-      }
+    function renderNavDrawer() {
+      const drawer = document.getElementById('navSubDrawer');
+      const listEl = document.getElementById('navDrawerList');
+      drawer.classList.add('hidden');
+      listEl.innerHTML = '';
+    }
     }
 
     function getFilteredAndSortedVideos() {
@@ -1003,12 +1023,13 @@
 
       document.querySelectorAll('.watch-tag-chip').forEach(chip => {
         chip.addEventListener('click', () => {
+          STATE.navTab = 'tags';
           STATE.filterType = 'tag';
           STATE.filterValue = chip.dataset.watchTag || '';
           STATE.page = 1;
           closeWatchPage(false);
-          renderNavDrawer();
-          renderGrid();
+          syncFilterUrl(true);
+          renderAll();
         });
       });
 
@@ -1088,6 +1109,29 @@
       const params = new URLSearchParams(window.location.search);
       const pageNum = parseInt(params.get('page'), 10);
       STATE.page = pageNum && pageNum > 0 ? pageNum : 1;
+
+      const viewParam = params.get('view');
+      const catParam = params.get('category');
+      const tagParam = params.get('tag');
+
+      if (viewParam === 'categories' || viewParam === 'tags') {
+        STATE.navTab = viewParam;
+        STATE.filterType = 'all';
+        STATE.filterValue = 'All';
+      } else if (catParam) {
+        STATE.navTab = 'categories';
+        STATE.filterType = 'category';
+        STATE.filterValue = catParam;
+      } else if (tagParam) {
+        STATE.navTab = 'tags';
+        STATE.filterType = 'tag';
+        STATE.filterValue = tagParam;
+      } else {
+        STATE.navTab = 'home';
+        STATE.filterType = 'all';
+        STATE.filterValue = 'All';
+      }
+
       const vidId = params.get('v');
       if (vidId) {
         const found = STATE.videos.find(v => String(v.id) === String(vidId));
@@ -1096,324 +1140,6 @@
           return;
         }
       }
-      closeWatchPage(false);
-    });
-
-    function openAdminPrompt() {
-      if (STATE.isAdmin) {
-        openAdmin();
-        return;
-      }
-      const modal = document.getElementById('adminPinModal');
-      const input = document.getElementById('adminPinInput');
-      const err = document.getElementById('adminPinError');
-      err.classList.add('hidden');
-      input.value = '';
-      modal.classList.remove('hidden');
-      setTimeout(() => input.focus(), 50);
-    }
-
-    function closeAdminPrompt() {
-      document.getElementById('adminPinModal').classList.add('hidden');
-    }
-
-    function refreshWatchPageStatsIfOpen() {
-      if (!STATE.activeVideoId) return;
-      const vid = STATE.videos.find(v => String(v.id) === String(STATE.activeVideoId));
-      if (!vid) return;
-      const totalClicks = getTotalVideoClicks(vid);
-      vid.views = totalClicks;
-      document.getElementById('watchViewsBadge').classList.toggle('hidden', !STATE.isAdmin);
-      document.getElementById('watchViewsVal').textContent = `${formatViews(totalClicks)}`;
-    }
-
-    async function openAdmin() {
-      setAdminUnlocked(true);
-      const adminBtn = document.getElementById('openAdminBtn');
-      if (adminBtn) {
-        adminBtn.classList.remove('bg-slate-800/90', 'border-slate-700');
-        adminBtn.classList.add('bg-emerald-700', 'border-emerald-500/50', 'text-white');
-        adminBtn.innerHTML = '<span>🔓</span><span class="hidden sm:inline">Admin Mode</span>';
-      }
-      renderGrid();
-      refreshWatchPageStatsIfOpen();
-      renderAdminList();
-      document.body.classList.add('overflow-hidden');
-      document.getElementById('adminModal').classList.remove('hidden');
-      await syncRemoteClicksFromWorker();
-      renderAdminList();
-    }
-
-    function closeAdmin() {
-      document.body.classList.remove('overflow-hidden');
-      document.getElementById('adminModal').classList.add('hidden');
-    }
-
-    function logoutAdmin() {
-      setAdminUnlocked(false);
-      closeAdmin();
-      const adminBtn = document.getElementById('openAdminBtn');
-      if (adminBtn) {
-        adminBtn.classList.remove('bg-emerald-700', 'border-emerald-500/50', 'text-white');
-        adminBtn.classList.add('bg-slate-800/90', 'hover:bg-brand-600', 'text-slate-200', 'hover:text-white', 'border-slate-700', 'hover:border-brand-500');
-        adminBtn.innerHTML = '<span>🔐</span><span class="hidden sm:inline">Admin</span>';
-      }
-      renderGrid();
-      refreshWatchPageStatsIfOpen();
-      showToast('Logged out of Admin Mode.');
-    }
-
-    function parseCsvLine(line) {
-      const result = [];
-      let cur = '';
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') {
-          if (inQuotes && line[i + 1] === '"') {
-            cur += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (ch === ',' && !inQuotes) {
-          result.push(cur);
-          cur = '';
-        } else {
-          cur += ch;
-        }
-      }
-      result.push(cur);
-      return result;
-    }
-
-    function parseCsvText(text) {
-      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
-      if (lines.length < 2) return [];
-      const headers = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
-      const rows = [];
-      for (let i = 1; i < lines.length; i++) {
-        const vals = parseCsvLine(lines[i]);
-        const obj = {};
-        headers.forEach((h, idx) => {
-          obj[h] = (vals[idx] ?? '').trim();
-        });
-        rows.push(obj);
-      }
-      return rows;
-    }
-
-    async function handleImportFile() {
-      const fileInput = document.getElementById('csvFileInput');
-      const file = fileInput && fileInput.files && fileInput.files[0];
-      if (!file) {
-        showToast('Please select a CSV or JSON file first.');
-        return;
-      }
-
-      const defaultTagsEl = document.getElementById('defaultTagsInput');
-      const defaultTags = (defaultTagsEl && defaultTagsEl.value) || 'Trending, HD';
-      const rawText = await file.text();
-      let items = [];
-
-      if (file.name.toLowerCase().endsWith('.json')) {
-        try {
-          const parsed = JSON.parse(rawText);
-          items = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.videos) ? parsed.videos : []);
-        } catch (err) {
-          showToast('Invalid JSON file: ' + err.message);
-          return;
-        }
-      } else {
-        items = parseCsvText(rawText);
-      }
-
-      const existingKeys = new Set(STATE.videos.map(v => normalizeKey(v.title)));
-      let added = 0;
-      let skipped = 0;
-
-      items.forEach((raw, idx) => {
-        const norm = normalizeVideoItem(raw, idx, defaultTags);
-        const key = normalizeKey(norm.title);
-        if (!key || existingKeys.has(key)) {
-          skipped++;
-          return;
-        }
-        existingKeys.add(key);
-        STATE.videos.unshift(norm);
-        added++;
-      });
-      const statusEl = document.getElementById('importStatus');
-      if (statusEl) statusEl.textContent = `Added ${added}, skipped ${skipped} dupes`;
-      renderAll();
-      renderAdminList();
-      showToast(`Imported ${added} videos! Click Publish Live.`);
-    }
-
-    function renderAdminList() {
-      const q = (document.getElementById('adminSearchInput').value || '').trim().toLowerCase();
-      const listEl = document.getElementById('adminVideoList');
-      document.getElementById('manageCountLabel').textContent = `Videos & Server Link Analytics (${STATE.videos.length})`;
-
-      // Update top Admin Studio summary banner metrics
-      const totalViewsAll = STATE.videos.reduce((sum, item) => sum + getTotalVideoClicks(item), 0);
-      const totalWorkerClicks = STATE.videos.reduce((sum, item) => sum + Math.max(getUserClickDelta(item.id), getRemoteClickDelta(item.id)), 0);
-      const totalVidEl = document.getElementById('adminTotalVideosStat');
-      const totalViewEl = document.getElementById('adminTotalViewsStat');
-      const workerClickEl = document.getElementById('adminWorkerClicksStat');
-      const workerStatusEl = document.getElementById('adminWorkerStatusStat');
-      if (totalVidEl) totalVidEl.textContent = formatViews(STATE.videos.length);
-      if (totalViewEl) totalViewEl.textContent = formatViews(totalViewsAll);
-      if (workerClickEl) workerClickEl.textContent = formatViews(totalWorkerClicks);
-      if (workerStatusEl) {
-        workerStatusEl.textContent = VIEW_COUNTER_API ? 'Worker KV Active' : 'Local Only';
-        workerStatusEl.className = VIEW_COUNTER_API
-          ? 'text-xs font-semibold text-emerald-400 truncate mt-1'
-          : 'text-xs font-semibold text-amber-300 truncate mt-1';
-      }
-
-      const matches = STATE.videos.filter(v => !q || v.title.toLowerCase().includes(q));
-      if (!matches.length) {
-        listEl.innerHTML = '<p class="p-4 text-xs text-slate-400 text-center">No videos in list.</p>';
-        return;
-      }
-
-      listEl.innerHTML = matches.map(v => {
-        const serverEntries = Object.entries(v.mirrors || {}).filter(([, url]) => safeExternalUrl(url, '') !== '');
-        const serversHtml = serverEntries.length
-          ? serverEntries.map(([srv, url]) => {
-                const safeHref = safeExternalUrl(url, '#');
-                return `
-                <div class="inline-flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-md px-2 py-1 text-[11px]">
-                  <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-brand-400 font-semibold uppercase">${escapeHtml(srv)}</a>
-                </div>
-              `;
-              }).join('')
-          : '<span class="text-[11px] text-slate-500">No server links</span>';
-
-        return `
-          <div class="px-3.5 py-3 text-xs space-y-2">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0 flex-1">
-                <p class="font-semibold text-slate-100 truncate">${escapeHtml(v.title)}</p>
-                <div class="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-slate-400">
-                  ${v.resolution ? `<span>${escapeHtml(v.resolution)}</span>` : ''}
-                  ${v.duration ? `<span>⏱ ${escapeHtml(v.duration)}</span>` : ''}
-                </div>
-              </div>
-              <button type="button" data-del="${escapeHtml(v.id)}"
-                      class="del-vid-btn bg-rose-900/60 hover:bg-rose-700 text-rose-200 px-2.5 py-1 rounded-md shrink-0 transition">
-                Delete
-              </button>
-            </div>
-            <div class="flex flex-wrap items-center gap-1.5 pt-1">
-              ${serversHtml}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      listEl.querySelectorAll('.del-vid-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          STATE.videos = STATE.videos.filter(item => String(item.id) !== String(btn.dataset.del));
-          renderAll();
-          renderAdminList();
-        });
-      });
-    }
-
-    function downloadVideosJson() {
-      const exportList = STATE.videos.map(v => ({
-        id: v.id,
-        title: v.title,
-        category: v.category,
-        tags: v.tags,
-        thumbnail: v.thumb,
-        resolution: v.resolution,
-        duration: v.duration,
-        views: getTotalVideoClicks(v),
-        mirrors: v.mirrors
-      }));
-      const blob = new Blob([JSON.stringify(exportList, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'videos.json';
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('Downloaded videos.json');
-    }
-
-    function renderAll() {
-      updateNavButtons();
-      renderNavDrawer();
-      document.getElementById('sortBySelect').value = STATE.sortBy;
-      renderGrid();
-      refreshWatchPageStatsIfOpen();
-    }
-
-    document.getElementById('brandHomeLink').addEventListener('click', e => {
-      e.preventDefault();
-      STATE.navTab = 'home';
-      STATE.filterType = 'all';
-      STATE.filterValue = 'All';
-      STATE.search = '';
-      STATE.page = 1;
-      document.getElementById('searchInput').value = '';
-      closeWatchPage(true);
-      renderAll();
-    });
-
-    document.getElementById('navHomeBtn').addEventListener('click', () => {
-      STATE.navTab = 'home';
-      STATE.filterType = 'all';
-      STATE.filterValue = 'All';
-      STATE.page = 1;
-      closeWatchPage(true);
-      renderAll();
-    });
-
-    document.getElementById('navCategoriesBtn').addEventListener('click', () => {
-      STATE.navTab = STATE.navTab === 'categories' ? 'home' : 'categories';
-      updateNavButtons();
-      renderNavDrawer();
-    });
-
-    document.getElementById('navTagsBtn').addEventListener('click', () => {
-      STATE.navTab = STATE.navTab === 'tags' ? 'home' : 'tags';
-      updateNavButtons();
-      renderNavDrawer();
-    });
-
-    document.getElementById('clearActiveFilterBtn').addEventListener('click', () => {
-      STATE.filterType = 'all';
-      STATE.filterValue = 'All';
-      STATE.page = 1;
-      renderAll();
-    });
-
-    document.getElementById('sortBySelect').addEventListener('change', e => {
-      STATE.sortBy = e.target.value;
-      STATE.page = 1;
-      renderGrid();
-    });
-
-    document.getElementById('searchInput').addEventListener('input', e => {
-      STATE.search = e.target.value;
-      STATE.page = 1;
-      closeWatchPage(STATE.activeVideoId !== null);
-      renderGrid();
-    });
-
-    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
-      STATE.search = '';
-      STATE.navTab = 'home';
-      STATE.filterType = 'all';
-      STATE.filterValue = 'All';
-      STATE.sortBy = 'date';
-      STATE.page = 1;
-      document.getElementById('searchInput').value = '';
-      document.getElementById('sortBySelect').value = 'date';
       closeWatchPage(false);
       renderAll();
     });
@@ -1425,15 +1151,53 @@
       if (e.target.id === 'adminPinModal') closeAdminPrompt();
     });
     document.getElementById('adminPinForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const val = document.getElementById('adminPinInput').value.trim();
-      if (val === ADMIN_PASSWORD) {
-        closeAdminPrompt();
-        openAdmin();
-      } else {
-        document.getElementById('adminPinError').classList.remove('hidden');
-        document.getElementById('adminPinInput').focus();
+    function renderAll() {
+      updateNavButtons();
+      renderNavDrawer();
+      renderDirectoryPage();
+      document.getElementById('sortBySelect').value = STATE.sortBy;
+      if (!((STATE.navTab === 'categories' || STATE.navTab === 'tags') && STATE.filterType === 'all' && !STATE.activeVideoId)) {
+        renderGrid();
       }
+      refreshWatchPageStatsIfOpen();
+    }
+    document.getElementById('navCategoriesBtn').addEventListener('click', () => {
+      STATE.navTab = 'categories';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.page = 1;
+      closeWatchPage(false);
+      syncFilterUrl(true);
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('navTagsBtn').addEventListener('click', () => {
+      STATE.navTab = 'tags';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.page = 1;
+      closeWatchPage(false);
+      syncFilterUrl(true);
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('directoryBackHomeBtn').addEventListener('click', () => {
+      STATE.navTab = 'home';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.page = 1;
+      syncFilterUrl(true);
+      renderAll();
+    });
+
+    document.getElementById('clearActiveFilterBtn').addEventListener('click', () => {
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.page = 1;
+      syncFilterUrl(true);
+      renderAll();
     });
     document.getElementById('closeAdminBtn').addEventListener('click', closeAdmin);
     document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
