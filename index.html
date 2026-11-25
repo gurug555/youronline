@@ -237,10 +237,24 @@
             </div>
             <div id="adminVideoList" class="max-h-[520px] overflow-y-auto divide-y divide-slate-800/80 border border-slate-800 rounded-xl bg-slate-950/60"></div>
           </div>
-        <!-- Full-Page Watch View (SEO Slug URL + Embedded Player + Server Switcher + Related Videos) -->
-        <section id="watchSection" class="hidden mb-10 space-y-6">
-          <div class="max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-            <div id="embedContainer" class="relative aspect-video max-h-[480px] w-full bg-black flex items-center justify-center overflow-hidden"></div>
+
+          <!-- Bottom Action Bar -->
+          <div class="flex items-center justify-end gap-2.5 pt-2 flex-wrap">
+            <button id="downloadJsonBtn" type="button"
+                    class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition">
+              Download videos.json
+            </button>
+            <button id="publishLiveBtn" type="button"
+                    class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-lg transition">
+              🚀 Publish Live
+            </button>
+          </div>
+        </section>
+
+        <!-- Full-Page Watch View (Compact Left-Aligned Player Size) -->
+        <section id="watchSection" class="hidden mb-10 max-w-3xl space-y-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <div id="embedContainer" class="relative aspect-video max-h-[420px] w-full bg-black flex items-center justify-center overflow-hidden"></div>
 
             <div class="p-4 sm:p-5 space-y-4 border-t border-slate-800">
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -257,7 +271,7 @@
 
               <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-xs text-slate-400 mr-1">Stream / Servers:</span>
+                  <span class="text-xs text-slate-400 mr-1">Servers:</span>
                   <div id="mirrorButtons" class="flex flex-wrap gap-2"></div>
                 </div>
 
@@ -269,20 +283,6 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- Related Videos Section -->
-          <div id="relatedVideosWrapper" class="space-y-3 pt-2">
-            <div class="flex items-center justify-between">
-              <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                <span class="w-1.5 h-5 bg-brand-500 rounded-full inline-block"></span>
-                Related Videos
-              </h2>
-              <button id="watchBackHomeBtn" type="button" class="text-xs text-slate-400 hover:text-white transition">
-                ← All Videos
-              </button>
-            </div>
-            <div id="relatedVideosGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
           </div>
         </section>
 
@@ -871,122 +871,113 @@
       }
     }
 
-    function renderNavDrawer() {
-      const drawer = document.getElementById('navSubDrawer');
-      if (drawer) drawer.classList.add('hidden');
-    }
-
     function updateFilterBadge() {
       const badge = document.getElementById('activeFilterBadge');
       const label = document.getElementById('activeFilterLabel');
-      const sectionTitle = document.getElementById('sectionTitle');
-      const searchInput = document.getElementById('searchInput');
-
-      if (searchInput) {
-        searchInput.placeholder = STATE.page > 1
-          ? `Search videos, performers, studios... (Page ${STATE.page})`
-          : 'Search videos, performers, studios...';
-      }
-
-      if (STATE.filterType === 'category' && STATE.filterValue && STATE.filterValue !== 'All') {
-        sectionTitle.textContent = `Category: ${STATE.filterValue}`;
-        label.textContent = `Category: ${STATE.filterValue}`;
-        badge.classList.remove('hidden');
-        badge.classList.add('inline-flex');
-      } else if (STATE.filterType === 'tag' && STATE.filterValue) {
-        sectionTitle.textContent = `Tag: #${STATE.filterValue}`;
-        label.textContent = `#${STATE.filterValue}`;
-        badge.classList.remove('hidden');
-        badge.classList.add('inline-flex');
-      } else if (STATE.search.trim()) {
-        sectionTitle.textContent = `Search Results`;
-        label.textContent = `"${STATE.search.trim()}"`;
-        badge.classList.remove('hidden');
-        badge.classList.add('inline-flex');
-      } else {
-        sectionTitle.textContent = STATE.page > 1 ? `Latest Videos — Page ${STATE.page}` : 'Latest Videos';
+      if (STATE.filterType === 'all') {
         badge.classList.add('hidden');
-        badge.classList.remove('inline-flex');
+        badge.classList.remove('flex');
+      } else {
+        label.textContent = STATE.filterType === 'tag' ? `#${STATE.filterValue}` : STATE.filterValue;
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
       }
     }
 
-    function getFilteredVideos() {
+    function renderNavDrawer() {
+      const drawer = document.getElementById('navSubDrawer');
+      const listEl = document.getElementById('navDrawerList');
+      drawer.classList.add('hidden');
+      listEl.innerHTML = '';
+    }
+
+    function getFilteredAndSortedVideos() {
       const q = STATE.search.trim().toLowerCase();
-      let list = STATE.videos.filter(v => {
-        if (STATE.filterType === 'category' && STATE.filterValue && STATE.filterValue !== 'All') {
-          const fv = STATE.filterValue.toLowerCase();
-          const inCat = parseTags(v.category, '').some(c => c.toLowerCase() === fv);
-          const inTag = (v.tags || []).some(t => t.toLowerCase() === fv);
-          if (!inCat && !inTag) return false;
+      const filtered = STATE.videos.filter(v => {
+        if (STATE.activeVideoId && String(v.id) === String(STATE.activeVideoId)) return false;
+
+        if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
+          const target = STATE.filterValue.toLowerCase();
+          const inCat = parseTags(v.category, '').some(c => c.toLowerCase() === target);
+          const inTags = (v.tags || []).some(t => t.toLowerCase() === target);
+          if (!inCat && !inTags) return false;
+        } else if (STATE.filterType === 'tag') {
+          const target = STATE.filterValue.toLowerCase();
+          const inTags = (v.tags || []).some(t => t.toLowerCase() === target);
+          if (!inTags) return false;
         }
-        if (STATE.filterType === 'tag' && STATE.filterValue) {
-          const fv = STATE.filterValue.toLowerCase();
-          const inTag = (v.tags || []).some(t => t.toLowerCase() === fv);
-          if (!inTag) return false;
-        }
-        if (q) {
-          const hay = `${v.title} ${v.category} ${(v.tags || []).join(' ')}`.toLowerCase();
-          if (!hay.includes(q)) return false;
-        }
-        return true;
+
+        if (!q) return true;
+        const inTitle = (v.title || '').toLowerCase().includes(q);
+        const inTags = (v.tags || []).some(t => t.toLowerCase().includes(q));
+        return inTitle || inTags;
       });
 
+      const sorted = [...filtered];
       if (STATE.sortBy === 'views') {
-        list = [...list].sort((a, b) => getTotalVideoClicks(b) - getTotalVideoClicks(a));
+        sorted.sort((a, b) => getTotalVideoClicks(b) - getTotalVideoClicks(a));
       } else if (STATE.sortBy === 'duration') {
-        list = [...list].sort((a, b) => parseDurationSeconds(b.duration) - parseDurationSeconds(a.duration));
+        sorted.sort((a, b) => parseDurationSeconds(b.duration) - parseDurationSeconds(a.duration));
+      } else {
+        sorted.sort((a, b) => Number(new Date(b.addedAt || 0)) - Number(new Date(a.addedAt || 0)));
       }
-      return list;
+      return sorted;
     }
 
     function renderGrid() {
       updateFilterBadge();
-      const grid = document.getElementById('videoGrid');
-      const emptyState = document.getElementById('emptyState');
-      const filtered = getFilteredVideos();
-
-      const totalPages = Math.max(1, Math.ceil(filtered.length / STATE.perPage));
+      const items = getFilteredAndSortedVideos();
+      const total = items.length;
+      const totalPages = Math.max(1, Math.ceil(total / STATE.perPage));
       if (STATE.page > totalPages) STATE.page = totalPages;
 
       const start = (STATE.page - 1) * STATE.perPage;
-      const pageItems = filtered.slice(start, start + STATE.perPage);
+      const pageItems = items.slice(start, start + STATE.perPage);
+
+      if (STATE.activeVideoId) {
+        document.getElementById('sectionTitle').textContent = 'More Videos';
+      } else if (STATE.filterType === 'tag') {
+        document.getElementById('sectionTitle').textContent = `#${STATE.filterValue} Videos`;
+      } else if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
+        document.getElementById('sectionTitle').textContent = `${STATE.filterValue} Videos`;
+      } else {
+        const sortNames = { date: 'Latest Videos', views: 'Most Viewed Videos', duration: 'Longest Videos' };
+        document.getElementById('sectionTitle').textContent = sortNames[STATE.sortBy] || 'All Videos';
+      }
+
+      const grid = document.getElementById('videoGrid');
+      const empty = document.getElementById('emptyState');
 
       if (!pageItems.length) {
         grid.innerHTML = '';
-        emptyState.classList.remove('hidden');
+        empty.classList.remove('hidden');
         document.getElementById('paginationBar').innerHTML = '';
         return;
       }
 
-      emptyState.classList.add('hidden');
+      empty.classList.add('hidden');
       grid.innerHTML = pageItems.map(v => {
         const thumbSrc = v.thumb ? escapeHtml(v.thumb) : FALLBACK_SVG;
+        const totalClicks = getTotalVideoClicks(v);
         const badges = [];
-        if (v.resolution) {
-          badges.push(`<span class="bg-black/80 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded">${escapeHtml(v.resolution)}</span>`);
-        }
-        if (v.duration) {
-          badges.push(`<span class="bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">${escapeHtml(v.duration)}</span>`);
-        }
-        const viewsBadge = STATE.isAdmin
-          ? `<span class="bg-emerald-950/90 text-emerald-300 border border-emerald-700/50 text-[10px] font-semibold px-1.5 py-0.5 rounded">${formatViews(getTotalVideoClicks(v))} views</span>`
-          : '';
-        const tagsHtml = (v.tags || []).slice(0, 3)
-          .map(t => `<span class="text-[11px] text-slate-400">#${escapeHtml(t)}</span>`)
-          .join(' ');
+        if (v.resolution) badges.push(`<span class="bg-black/80 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded">${escapeHtml(v.resolution)}</span>`);
+        if (v.duration) badges.push(`<span class="bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">${escapeHtml(v.duration)}</span>`);
+        const tagsHtml = (v.tags || []).slice(0, 4).map(t => `<span class="text-[11px] text-slate-400">#${escapeHtml(t)}</span>`).join(' ');
 
         return `
-          <article data-vid-id="${escapeHtml(v.id)}" class="video-card group bg-slate-900 border border-slate-800 hover:border-brand-500/70 rounded-xl overflow-hidden cursor-pointer transition flex flex-col shadow">
+          <article data-id="${escapeHtml(v.id)}" data-title="${escapeHtml(v.title)}" class="video-card group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-xl overflow-hidden cursor-pointer transition flex flex-col">
             <div class="relative aspect-video bg-slate-950 overflow-hidden">
               <img src="${thumbSrc}" alt="${escapeHtml(v.title)}" loading="lazy"
                    onerror="handleThumbError(this, this.alt);"
                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-              ${viewsBadge ? `<div class="absolute top-2 left-2">${viewsBadge}</div>` : ''}
               ${badges.length ? `<div class="absolute bottom-2 right-2 flex items-center gap-1">${badges.join('')}</div>` : ''}
             </div>
-            <div class="p-3 flex-1 flex flex-col justify-between gap-1.5">
+            <div class="p-3 flex-1 flex flex-col justify-between gap-2">
               <h3 class="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h3>
-              <div class="flex flex-wrap gap-1.5 truncate">${tagsHtml}</div>
+              <div class="flex items-center justify-between gap-2 text-[11px] text-slate-400">
+                <div class="flex flex-wrap gap-1.5 truncate">${tagsHtml}</div>
+                ${STATE.isAdmin ? `<span class="shrink-0 text-amber-300/90 font-semibold">${formatViews(totalClicks)}</span>` : ''}
+              </div>
             </div>
           </article>
         `;
@@ -994,7 +985,7 @@
 
       grid.querySelectorAll('.video-card').forEach(card => {
         card.addEventListener('click', () => {
-          const vid = STATE.videos.find(item => String(item.id) === String(card.dataset.vidId));
+          const vid = STATE.videos.find(item => String(item.id) === String(card.dataset.id));
           if (vid) openWatchPage(vid, true);
         });
       });
@@ -1004,288 +995,331 @@
 
     function renderPagination(totalPages) {
       const bar = document.getElementById('paginationBar');
-      if (!bar) return;
+      const searchEl = document.getElementById('searchInput');
+      if (searchEl) {
+        searchEl.placeholder = STATE.page > 1
+          ? `Search videos, performers, studios... (Page ${STATE.page})`
+          : 'Search videos, performers, studios...';
+      }
       if (totalPages <= 1) {
         bar.innerHTML = '';
         return;
       }
-
-      const btns = [];
-      if (STATE.page > 1) {
-        btns.push(`<button type="button" data-page="${STATE.page - 1}" class="page-btn bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">← Prev</button>`);
-      }
-
+      let html = '';
       for (let p = 1; p <= totalPages; p++) {
         const active = p === STATE.page;
-        btns.push(
-          `<button type="button" data-page="${p}" class="page-btn ${active ? 'bg-brand-600 text-white border-brand-500' : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700'} border text-xs font-semibold px-3 py-1.5 rounded-lg transition">${p}</button>`
-        );
+        html += `<button type="button" data-page="${p}" class="page-btn px-3 py-1.5 rounded-lg text-xs font-semibold border ${active ? 'bg-brand-600 text-white border-brand-500' : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'}">${p}</button>`;
       }
-
-      if (STATE.page < totalPages) {
-        btns.push(`<button type="button" data-page="${STATE.page + 1}" class="page-btn bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Next →</button>`);
-      }
-
-      bar.innerHTML = btns.join('');
+      bar.innerHTML = html;
       bar.querySelectorAll('.page-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          STATE.page = parseInt(btn.dataset.page, 10) || 1;
-          syncFilterUrl(true);
+          STATE.page = Number(btn.dataset.page);
+          try {
+            const url = new URL(window.location.href);
+            if (STATE.page > 1) {
+              url.searchParams.set('page', String(STATE.page));
+            } else {
+              url.searchParams.delete('page');
+            }
+            window.history.pushState({ page: STATE.page }, '', url);
+          } catch (_) {}
           renderGrid();
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       });
     }
 
-    function slugifyTitle(title) {
-      return String(title || 'video')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 80) || 'video';
-    }
-
-    function getHostIconHtml(hostKey) {
-      const k = String(hostKey || '').toLowerCase();
-      if (k === 'doodstream') {
-        return `<img src="https://www.google.com/s2/favicons?domain=doodstream.com&sz=32" alt="" class="w-3.5 h-3.5 rounded-sm" onerror="this.outerHTML='<span class=&quot;inline-flex items-center justify-center w-3.5 h-3.5 rounded-sm bg-amber-500 text-black font-black text-[9px]&quot;>D</span>';" />`;
-      }
-      if (k === 'voe') {
-        return `<img src="https://www.google.com/s2/favicons?domain=voe.sx&sz=32" alt="" class="w-3.5 h-3.5 rounded-sm" onerror="this.outerHTML='<span class=&quot;inline-flex items-center justify-center w-3.5 h-3.5 rounded-sm bg-sky-500 text-white font-black text-[9px]&quot;>V</span>';" />`;
-      }
-      if (k === 'gofile') {
-        return `<img src="https://www.google.com/s2/favicons?domain=gofile.io&sz=32" alt="" class="w-3.5 h-3.5 rounded-sm" onerror="this.outerHTML='<span class=&quot;inline-flex items-center justify-center w-3.5 h-3.5 rounded-sm bg-emerald-500 text-white font-black text-[9px]&quot;>G</span>';" />`;
-      }
-      return `<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-sm bg-slate-600 text-white font-bold text-[9px]">S</span>`;
-    }
-
-    function toEmbedUrl(hostKey, rawUrl) {
-      const url = safeExternalUrl(rawUrl, '');
+    function buildEmbedUrl(url) {
       if (!url) return '';
-      const k = String(hostKey || '').toLowerCase();
-      if (k === 'doodstream') {
-        return url.replace(/\/(d|f)\//i, '/e/');
-      }
-      if (k === 'voe') {
-        return url.replace(/\/(f|d)\//i, '/e/');
-      }
-      if (k === 'streamtape') {
-        return url.replace(/\/v\//i, '/e/');
-      }
-      return '';
+      try {
+        const u = new URL(url);
+        if (u.hostname.includes('dood') && !u.pathname.includes('/e/')) {
+          const code = u.pathname.split('/').filter(Boolean).pop();
+          if (code) return `${u.origin}/e/${code}`;
+        }
+        if (u.hostname.includes('streamtape') && !u.pathname.includes('/e/')) {
+          const parts = u.pathname.split('/').filter(Boolean);
+          if (parts[0] === 'v' && parts[1]) return `${u.origin}/e/${parts[1]}`;
+        }
+      } catch (_) {}
+      return url;
     }
 
-    function renderRelatedVideos(video) {
-      const relGrid = document.getElementById('relatedVideosGrid');
-      const relWrap = document.getElementById('relatedVideosWrapper');
-      if (!relGrid || !relWrap) return;
-
-      const targetTags = new Set((video.tags || []).map(t => t.toLowerCase()));
-      const related = STATE.videos
-        .filter(v => String(v.id) !== String(video.id))
-        .map(v => {
-          let score = 0;
-          if (v.category && video.category && v.category.toLowerCase() === video.category.toLowerCase()) score += 3;
-          (v.tags || []).forEach(t => {
-            if (targetTags.has(t.toLowerCase())) score += 2;
-          });
-          return { v, score };
-        })
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 8)
-        .map(item => item.v);
-
-      if (!related.length) {
-        relWrap.classList.add('hidden');
-        return;
-      }
-
-      relWrap.classList.remove('hidden');
-      relGrid.innerHTML = related.map(v => {
-        const thumbSrc = v.thumb ? escapeHtml(v.thumb) : FALLBACK_SVG;
-        return `
-          <article data-rel-id="${escapeHtml(v.id)}" class="rel-video-card group bg-slate-900 border border-slate-800 hover:border-brand-500/70 rounded-xl overflow-hidden cursor-pointer transition flex flex-col shadow">
-            <div class="relative aspect-video bg-slate-950 overflow-hidden">
-              <img src="${thumbSrc}" alt="${escapeHtml(v.title)}" loading="lazy"
-                   onerror="handleThumbError(this, this.alt);"
-                   class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-              ${v.duration ? `<span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">${escapeHtml(v.duration)}</span>` : ''}
-            </div>
-            <div class="p-3">
-              <h3 class="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-brand-400 transition line-clamp-2">${escapeHtml(v.title)}</h3>
-            </div>
-          </article>
-        `;
-      }).join('');
-
-      relGrid.querySelectorAll('.rel-video-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const nextVid = STATE.videos.find(item => String(item.id) === String(card.dataset.relId));
-          if (nextVid) openWatchPage(nextVid, true);
-        });
-      });
+    function renderThumbnailPoster(embedBox, video) {
+      const thumbSrc = video.thumb ? escapeHtml(video.thumb) : FALLBACK_SVG;
+      embedBox.innerHTML = `
+        <div class="relative w-full h-full flex items-center justify-center bg-black">
+          <img src="${thumbSrc}" alt="${escapeHtml(video.title)}"
+               onerror="handleThumbError(this, this.alt);"
+               class="w-full h-full object-contain" />
+        </div>
+      `;
     }
 
-    function openWatchPage(video, pushState = true) {
-      if (!video) return;
-      const isFirstOpenForThisVideo = String(STATE.activeVideoId) !== String(video.id);
-      STATE.activeVideoId = video.id;
-
-      if (isFirstOpenForThisVideo) {
+    function openWatchPage(video, pushHistory = true) {
+      STATE.activeVideoId = String(video.id);
+      if (!STATE.isAdmin && !isOwnerDevice()) {
         incrementUserClickDelta(video.id);
       }
+      const totalClicks = getTotalVideoClicks(video);
+      video.views = totalClicks;
+      document.title = `${video.title} — yourpo.online`;
 
-      document.getElementById('directorySection').classList.add('hidden');
-      document.getElementById('adminSection').classList.add('hidden');
-      const watchSec = document.getElementById('watchSection');
-      watchSec.classList.remove('hidden');
-      setFeedVisibility(false);
+      const topAd = document.getElementById('topAdWrapper');
+      if (topAd) topAd.classList.add('hidden');
 
-      document.getElementById('watchTitle').textContent = video.title;
-
-      const qBadge = document.getElementById('watchQualityBadge');
-      if (video.resolution) {
-        qBadge.textContent = video.resolution;
-        qBadge.classList.remove('hidden');
-      } else {
-        qBadge.classList.add('hidden');
-      }
-
-      const dBadge = document.getElementById('watchDurationBadge');
-      const dVal = document.getElementById('watchDurationVal');
-      if (video.duration) {
-        dVal.textContent = video.duration;
-        dBadge.classList.remove('hidden');
-      } else {
-        dBadge.classList.add('hidden');
-      }
-
-      refreshWatchPageStatsIfOpen();
-
-      const tagsWrap = document.getElementById('watchTags');
-      tagsWrap.innerHTML = (video.tags || [])
-        .map(t => `<button type="button" data-watch-tag="${escapeHtml(t)}" class="watch-tag-pill bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white border border-slate-700 text-xs px-2.5 py-1 rounded-full transition">#${escapeHtml(t)}</button>`)
-        .join('');
-
-      tagsWrap.querySelectorAll('.watch-tag-pill').forEach(btn => {
-        btn.addEventListener('click', () => {
-          closeWatchPage(false);
-          STATE.navTab = 'tags';
-          STATE.filterType = 'tag';
-          STATE.filterValue = btn.dataset.watchTag;
-          STATE.page = 1;
-          syncFilterUrl(true);
-          renderAll();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-      });
-
-      const mirrorEntries = Object.entries(video.mirrors || {});
-      const mirrorWrap = document.getElementById('mirrorButtons');
-      const embedBox = document.getElementById('embedContainer');
-
-      function loadServerPlayer(hostKey, rawUrl) {
-        const embedSrc = toEmbedUrl(hostKey, rawUrl);
-        const safeHref = safeExternalUrl(rawUrl, '#');
-        const thumbSrc = video.thumb ? escapeHtml(video.thumb) : FALLBACK_SVG;
-
-        if (embedSrc) {
-          embedBox.innerHTML = `
-            <iframe src="${escapeHtml(embedSrc)}" class="w-full h-full border-0" allowfullscreen allow="autoplay; fullscreen"></iframe>
-          `;
-        } else {
-          embedBox.innerHTML = `
-            <img src="${thumbSrc}" alt="${escapeHtml(video.title)}" onerror="handleThumbError(this, this.alt);" class="w-full h-full object-cover opacity-50" />
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center bg-black/55">
-              <p class="text-xs sm:text-sm text-slate-200 font-medium">Direct stream embed unavailable for ${escapeHtml(hostKey.toUpperCase())}</p>
-              <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"
-                 class="bg-brand-600 hover:bg-brand-500 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg transition">
-                ▶ Open ${escapeHtml(hostKey.toUpperCase())} Stream
-              </a>
-            </div>
-          `;
-        }
-      }
-
-      if (mirrorEntries.length) {
-        mirrorWrap.innerHTML = mirrorEntries.map(([srv, link], i) => {
-          const safeHref = safeExternalUrl(link, '#');
-          return `
-            <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"
-               data-srv-key="${escapeHtml(srv)}" data-srv-url="${escapeHtml(safeHref)}"
-               class="srv-switch-btn inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition ${i === 0 ? 'bg-brand-600 text-white border-brand-500' : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'}">
-              ${getHostIconHtml(srv)}
-              <span>${escapeHtml(srv.toUpperCase())}</span>
-            </a>
-          `;
-        }).join('');
-
-        const firstEmbeddable = mirrorEntries.find(([k, u]) => Boolean(toEmbedUrl(k, u))) || mirrorEntries[0];
-        loadServerPlayer(firstEmbeddable[0], firstEmbeddable[1]);
-
-        mirrorWrap.querySelectorAll('.srv-switch-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const srvKey = btn.dataset.srvKey;
-            const srvUrl = btn.dataset.srvUrl;
-            if (toEmbedUrl(srvKey, srvUrl)) {
-              e.preventDefault();
-              mirrorWrap.querySelectorAll('.srv-switch-btn').forEach(b => {
-                b.className = 'srv-switch-btn inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700';
-              });
-              btn.className = 'srv-switch-btn inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition bg-brand-600 text-white border-brand-500';
-              loadServerPlayer(srvKey, srvUrl);
-            }
-          });
-        });
-      } else {
-        mirrorWrap.innerHTML = '<span class="text-xs text-slate-500">No mirrors available</span>';
-        const thumbSrc = video.thumb ? escapeHtml(video.thumb) : FALLBACK_SVG;
-        embedBox.innerHTML = `<img src="${thumbSrc}" alt="${escapeHtml(video.title)}" onerror="handleThumbError(this, this.alt);" class="w-full h-full object-cover" />`;
-      }
-
-      renderRelatedVideos(video);
-
-      if (pushState) {
+      if (pushHistory) {
         try {
-          const slug = slugifyTitle(video.title);
-          const nextPath = `/video/${slug}-${encodeURIComponent(video.id)}.html`;
-          window.history.pushState({ videoId: video.id }, '', nextPath);
+          const url = new URL(window.location.href);
+          url.searchParams.set('v', String(video.id));
+          window.history.pushState({ videoId: String(video.id) }, '', url);
         } catch (_) {}
       }
 
+      document.getElementById('watchTitle').textContent = video.title;
+
+      const qualEl = document.getElementById('watchQualityBadge');
+      if (video.resolution) {
+        qualEl.textContent = video.resolution;
+        qualEl.classList.remove('hidden');
+      } else {
+        qualEl.classList.add('hidden');
+      }
+
+      const durWrap = document.getElementById('watchDurationBadge');
+      const durVal = document.getElementById('watchDurationVal');
+      if (video.duration) {
+        durVal.textContent = video.duration;
+        durWrap.classList.remove('hidden');
+      } else {
+        durWrap.classList.add('hidden');
+      }
+
+      document.getElementById('watchViewsBadge').classList.toggle('hidden', !STATE.isAdmin);
+      document.getElementById('watchViewsVal').textContent = `${formatViews(totalClicks)}`;
+
+      document.getElementById('watchTags').innerHTML = (video.tags || [])
+        .map(t => `<button type="button" data-watch-tag="${escapeHtml(t)}" class="watch-tag-chip text-xs bg-slate-800 hover:bg-brand-600 text-slate-300 hover:text-white px-2.5 py-0.5 rounded-full border border-slate-700 transition">#${escapeHtml(t)}</button>`)
+        .join('');
+
+      document.querySelectorAll('.watch-tag-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          STATE.navTab = 'tags';
+          STATE.filterType = 'tag';
+          STATE.filterValue = chip.dataset.watchTag || '';
+          STATE.page = 1;
+          closeWatchPage(false);
+          syncFilterUrl(true);
+          renderAll();
+        });
+      });
+
+      const entries = Object.entries(video.mirrors || {}).filter(([, url]) => safeExternalUrl(url, '') !== '');
+      const btnBox = document.getElementById('mirrorButtons');
+      const embedBox = document.getElementById('embedContainer');
+
+      renderThumbnailPoster(embedBox, video);
+
+      const dlLink = document.getElementById('directDownloadLink');
+      if (dlLink) {
+        dlLink.href = safeExternalUrl(dlLink.getAttribute('href'), '#');
+      }
+
+      if (!entries.length) {
+        btnBox.innerHTML = '<span class="text-xs text-slate-400">Direct Download Available</span>';
+      } else {
+        const preferredOrder = ['doodstream', 'voe', 'streamtape', 'lulustream', 'gofile'];
+        entries.sort((a, b) => {
+          const ia = preferredOrder.indexOf(a[0]);
+          const ib = preferredOrder.indexOf(b[0]);
+          return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+        });
+
+        btnBox.innerHTML = entries.map(([srv, rawUrl]) => {
+          const safeHref = safeExternalUrl(rawUrl, '');
+          if (!safeHref) return '';
+          let domain = '';
+          try {
+            domain = new URL(safeHref).hostname;
+          } catch (_) {}
+          const favDomain = srv === 'doodstream' ? 'doodstream.com' : domain;
+          const fallbackBadge = `<span class="hidden w-4 h-4 rounded-sm bg-brand-600 text-white text-[10px] font-black items-center justify-center shrink-0">${escapeHtml(srv.charAt(0).toUpperCase())}</span>`;
+          const iconHtml = favDomain
+            ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(favDomain)}&sz=32" alt="" onerror="this.style.display='none'; if(this.nextElementSibling){this.nextElementSibling.classList.remove('hidden');this.nextElementSibling.classList.add('inline-flex');}" class="w-4 h-4 rounded-sm shrink-0" />${fallbackBadge}`
+            : '';
+
+          return `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"
+              data-vid="${escapeHtml(video.id)}" data-srv="${escapeHtml(srv)}"
+              class="srv-btn bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 hover:border-brand-500 uppercase transition inline-flex items-center gap-1.5">
+             ${iconHtml}
+             <span>${escapeHtml(srv)}</span>
+           </a>`;
+        }).join('');
+      }
+
+      document.getElementById('watchSection').classList.remove('hidden');
+      renderGrid();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function closeWatchPage(pushState = true) {
+    function closeWatchPage(pushHistory = true) {
       STATE.activeVideoId = null;
-      document.getElementById('embedContainer').innerHTML = '';
+      document.title = 'yourpo.online — Watch & Download';
       document.getElementById('watchSection').classList.add('hidden');
-      if (pushState) {
-        syncFilterUrl(true);
+      document.getElementById('embedContainer').innerHTML = '';
+
+      const topAd = document.getElementById('topAdWrapper');
+      if (topAd) topAd.classList.remove('hidden');
+
+      if (pushHistory) {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('v');
+          if (STATE.page > 1) {
+            url.searchParams.set('page', String(STATE.page));
+          } else {
+            url.searchParams.delete('page');
+          }
+          window.history.pushState({ page: STATE.page }, '', url);
+        } catch (_) {}
       }
+      renderGrid();
+    }
+
+    window.addEventListener('popstate', () => {
+      const params = new URLSearchParams(window.location.search);
+      const pageNum = parseInt(params.get('page'), 10);
+      STATE.page = pageNum && pageNum > 0 ? pageNum : 1;
+
+      const viewParam = params.get('view');
+      const catParam = params.get('category');
+      const tagParam = params.get('tag');
+
+      if (viewParam === 'admin' && STATE.isAdmin) {
+        STATE.navTab = 'admin';
+        STATE.filterType = 'all';
+        STATE.filterValue = 'All';
+      } else if (viewParam === 'categories' || viewParam === 'tags') {
+        STATE.navTab = viewParam;
+        STATE.filterType = 'all';
+        STATE.filterValue = 'All';
+      } else if (catParam) {
+        STATE.navTab = 'categories';
+        STATE.filterType = 'category';
+        STATE.filterValue = catParam;
+      } else if (tagParam) {
+        STATE.navTab = 'tags';
+        STATE.filterType = 'tag';
+        STATE.filterValue = tagParam;
+      } else {
+        STATE.navTab = 'home';
+        STATE.filterType = 'all';
+        STATE.filterValue = 'All';
+      }
+
+      const vidId = params.get('v');
+      if (vidId) {
+        const found = STATE.videos.find(v => String(v.id) === String(vidId));
+        if (found) {
+          openWatchPage(found, false);
+          return;
+        }
+      }
+      closeWatchPage(false);
       renderAll();
-    }
+    });
 
-    function purgeInjectedAdsAndPopups() {
-      document.querySelectorAll('.ad-zone').forEach(el => {
-        el.innerHTML = '';
-        el.style.display = 'none';
-      });
-    }
+    document.getElementById('openAdminBtn').addEventListener('click', openAdminPrompt);
+    document.getElementById('closePinModalBtn').addEventListener('click', closeAdminPrompt);
+    document.getElementById('cancelPinBtn').addEventListener('click', closeAdminPrompt);
+    document.getElementById('adminPinModal').addEventListener('click', e => {
+      if (e.target.id === 'adminPinModal') closeAdminPrompt();
+    });
+    document.getElementById('adminPinForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const inputEl = document.getElementById('adminPinInput');
+      const errEl = document.getElementById('adminPinError');
+      if ((inputEl.value || '').trim() === ADMIN_PASSWORD) {
+        errEl.classList.add('hidden');
+        STATE.isAdmin = true;
+        window.__YOURPO_BLOCK_ADS__ = true;
+        markAsOwnerDevice();
+        try {
+          sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+        } catch (_) {}
+        document.documentElement.classList.add('admin-mode');
+        const adminBtn = document.getElementById('openAdminBtn');
+        if (adminBtn) {
+          adminBtn.classList.remove('bg-slate-800/90', 'border-slate-700');
+          adminBtn.classList.add('bg-emerald-700', 'border-emerald-500/50', 'text-white');
+          adminBtn.innerHTML = '<span>🔓</span><span class="hidden sm:inline">Admin Mode</span>';
+        }
+        closeAdminPrompt();
+        openAdminStudio();
+        renderAll();
+      } else {
+        errEl.classList.remove('hidden');
+      }
+    });
 
-    function renderAdminSection() {
-      const adminSec = document.getElementById('adminSection');
-      if (!adminSec) return;
-
-      if (STATE.navTab !== 'admin' || !STATE.isAdmin) {
-        adminSec.classList.add('hidden');
+    function openAdminPrompt() {
+      if (STATE.isAdmin) {
+        openAdminStudio();
         return;
       }
+      const modal = document.getElementById('adminPinModal');
+      const inputEl = document.getElementById('adminPinInput');
+      document.getElementById('adminPinError').classList.add('hidden');
+      inputEl.value = '';
+      modal.classList.remove('hidden');
+      setTimeout(() => inputEl.focus(), 50);
+    }
 
-      document.getElementById('watchSection').classList.add('hidden');
-      document.getElementById('directorySection').classList.add('hidden');
-      setFeedVisibility(false);
-      adminSec.classList.remove('hidden');
+    function closeAdminPrompt() {
+      document.getElementById('adminPinModal').classList.add('hidden');
+    }
+
+    function openAdminStudio() {
+      STATE.navTab = 'admin';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      closeWatchPage(false);
+      syncFilterUrl(true);
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeAdmin() {
+      if (STATE.navTab === 'admin') {
+        STATE.navTab = 'home';
+        syncFilterUrl(true);
+        renderAll();
+      }
+    }
+
+    function logoutAdmin() {
+      STATE.isAdmin = false;
+      window.__YOURPO_BLOCK_ADS__ = false;
+      // Keep OWNER_DEVICE_KEY intact so your own views still do NOT count after logout
+      try {
+        sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      } catch (_) {}
+      document.documentElement.classList.remove('admin-mode');
+      const adminBtn = document.getElementById('openAdminBtn');
+      if (adminBtn) {
+        adminBtn.classList.add('bg-slate-800/90', 'border-slate-700');
+        adminBtn.classList.remove('bg-emerald-700', 'border-emerald-500/50', 'text-white');
+        adminBtn.innerHTML = '<span>🔐</span><span class="hidden sm:inline">Admin</span>';
+      }
+      closeAdmin();
+      renderAll();
+      showToast('Logged out of Admin Mode (Your device views remain excluded).');
+    }
+
+    function renderAdminList() {
+      const q = (document.getElementById('adminSearchInput').value || '').trim().toLowerCase();
+      const filtered = STATE.videos.filter(v => !q || (v.title || '').toLowerCase().includes(q));
+      document.getElementById('manageCountLabel').textContent = `Videos & Server Link Analytics (${filtered.length})`;
 
       let totalViews = 0;
       let workerClicks = 0;
@@ -1293,31 +1327,40 @@
         totalViews += getTotalVideoClicks(v);
         workerClicks += getRemoteClickDelta(v.id);
       });
-
       document.getElementById('adminTotalVideosStat').textContent = String(STATE.videos.length);
       document.getElementById('adminTotalViewsStat').textContent = formatViews(totalViews);
       document.getElementById('adminWorkerClicksStat').textContent = formatViews(workerClicks);
-
-      const q = (document.getElementById('adminSearchInput')?.value || '').trim().toLowerCase();
-      const filtered = STATE.videos.filter(v => !q || v.title.toLowerCase().includes(q));
-      document.getElementById('manageCountLabel').textContent = `Videos & Server Link Analytics (${filtered.length})`;
+      const ownerStatEl = document.getElementById('adminOwnerDeviceStat');
+      if (ownerStatEl) {
+        ownerStatEl.textContent = isOwnerDevice() ? 'Ignored (Owner)' : 'Tracking';
+      }
 
       const listEl = document.getElementById('adminVideoList');
+      if (!filtered.length) {
+        listEl.innerHTML = '<div class="p-4 text-xs text-slate-400 text-center">No videos in list.</div>';
+        return;
+      }
+
       listEl.innerHTML = filtered.map(v => {
         const clicks = getTotalVideoClicks(v);
-        const servers = Object.keys(v.mirrors || {}).map(s => s.toUpperCase()).join(', ') || 'None';
+        const srvBadges = Object.keys(v.mirrors || {})
+          .map(s => `<span class="bg-slate-800 text-slate-300 text-[10px] font-semibold px-2 py-0.5 rounded uppercase border border-slate-700">${escapeHtml(s)}</span>`)
+          .join(' ');
         return `
-          <div class="p-3.5 flex items-center justify-between gap-3 hover:bg-slate-900/80 transition">
-            <div class="min-w-0 flex-1">
-              <p class="text-xs sm:text-sm font-semibold text-white truncate">${escapeHtml(v.title)}</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">
-                Views: <span class="text-amber-300 font-bold">${clicks}</span> &bull;
-                Duration: ${escapeHtml(v.duration || 'N/A')} &bull;
-                Servers: <span class="text-slate-300">${escapeHtml(servers)}</span>
-              </p>
+          <div class="p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0 space-y-1">
+              <p class="text-xs font-semibold text-white truncate">${escapeHtml(v.title)}</p>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                <span>${escapeHtml(v.resolution || '1080p')}</span>
+                <span>•</span>
+                <span>${escapeHtml(v.duration || '00:00')}</span>
+                <span>•</span>
+                <span class="text-amber-300 font-semibold">${formatViews(clicks)} views</span>
+              </div>
+              <div class="flex flex-wrap gap-1 pt-0.5">${srvBadges}</div>
             </div>
             <button type="button" data-del-id="${escapeHtml(v.id)}"
-                    class="admin-del-btn bg-rose-950/90 hover:bg-rose-800 text-rose-200 border border-rose-800/60 text-xs font-semibold px-3 py-1.5 rounded-lg shrink-0 transition">
+                    class="admin-del-btn shrink-0 bg-rose-950 hover:bg-rose-800 text-rose-200 border border-rose-800/60 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition">
               Delete
             </button>
           </div>
@@ -1328,313 +1371,235 @@
         btn.addEventListener('click', () => {
           const delId = btn.dataset.delId;
           STATE.videos = STATE.videos.filter(item => String(item.id) !== String(delId));
-          renderAdminSection();
-          showToast('Video removed from list');
+          renderAll();
+          renderAdminList();
+          showToast('Video removed from list.');
         });
       });
     }
 
-    function unlockAdminMode() {
-      STATE.isAdmin = true;
-      window.__YOURPO_BLOCK_ADS__ = true;
-      document.documentElement.classList.add('admin-mode');
-      try {
-        sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
-      } catch (_) {}
-      markAsOwnerDevice();
-      purgeInjectedAdsAndPopups();
-      closeAdminPrompt();
-      STATE.activeVideoId = null;
-      STATE.navTab = 'admin';
-      syncFilterUrl(true);
-      renderAll();
-      showToast('Admin Studio unlocked — ads disabled & your views excluded.');
-    }
-
-    function logoutAdmin() {
-      STATE.isAdmin = false;
-      try {
-        sessionStorage.removeItem(ADMIN_SESSION_KEY);
-      } catch (_) {}
-      STATE.navTab = 'home';
-      syncFilterUrl(true);
-      renderAll();
-      showToast('Logged out of Admin Studio.');
-    }
-
-    function openAdminPrompt() {
-      if (STATE.isAdmin) {
-        STATE.activeVideoId = null;
-        STATE.navTab = 'admin';
-        syncFilterUrl(true);
-        renderAll();
-        return;
-      }
-      const modal = document.getElementById('adminPinModal');
-      const input = document.getElementById('adminPinInput');
-      const err = document.getElementById('adminPinError');
-      err.classList.add('hidden');
-      input.value = '';
-      modal.classList.remove('hidden');
-      setTimeout(() => input.focus(), 50);
-    }
-
-    function closeAdminPrompt() {
-      document.getElementById('adminPinModal').classList.add('hidden');
-    }
-
-    function handleImportFile() {
+    async function handleImportFile() {
       const fileInput = document.getElementById('csvFileInput');
       const statusEl = document.getElementById('importStatus');
-      const defaultTags = document.getElementById('defaultTagsInput')?.value || 'Trending, HD';
-      const file = fileInput?.files?.[0];
+      const defaultTags = document.getElementById('defaultTagsInput').value || 'Trending, HD';
+      const file = fileInput && fileInput.files && fileInput.files[0];
       if (!file) {
         statusEl.textContent = 'Select a .json or .csv file first.';
         return;
       }
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const text = String(reader.result || '').trim();
-          let items = [];
-          if (file.name.toLowerCase().endsWith('.json') || text.startsWith('[') || text.startsWith('{')) {
-            const parsed = JSON.parse(text);
-            items = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.videos) ? parsed.videos : []);
-          } else {
-            const lines = text.split(/\r?\n/).filter(Boolean);
-            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-            items = lines.slice(1).map(line => {
-              const cols = line.split(',');
-              const obj = {};
-              headers.forEach((h, i) => { obj[h] = (cols[i] || '').trim(); });
-              return obj;
-            });
+      try {
+        const text = await file.text();
+        let imported = [];
+        if (file.name.toLowerCase().endsWith('.json') || text.trim().startsWith('[') || text.trim().startsWith('{')) {
+          const parsed = JSON.parse(text);
+          const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.videos) ? parsed.videos : []);
+          imported = arr.map((item, idx) => normalizeVideoItem(item, idx, defaultTags));
+        } else {
+          const lines = text.split(/\r?\n/).filter(Boolean);
+          const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',').map(c => c.trim());
+            const obj = {};
+            headers.forEach((h, idx) => { obj[h] = cols[idx] || ''; });
+            imported.push(normalizeVideoItem(obj, i, defaultTags));
           }
-
-          const existingTitles = new Set(STATE.videos.map(v => normalizeKey(v.title)));
-          const added = [];
-          items.forEach((raw, idx) => {
-            const norm = normalizeVideoItem(raw, idx, defaultTags);
-            if (!existingTitles.has(normalizeKey(norm.title))) {
-              existingTitles.add(normalizeKey(norm.title));
-              added.push(norm);
-            }
-          });
-
-          STATE.videos = [...added, ...STATE.videos];
-          statusEl.textContent = `Imported ${added.length} new videos.`;
-          renderAdminSection();
-          showToast(`Imported ${added.length} new videos!`);
-        } catch (err) {
-          statusEl.textContent = `Import error: ${err.message}`;
         }
-      };
-      reader.readAsText(file);
+        const existingKeys = new Set(STATE.videos.map(v => normalizeKey(v.title)));
+        const fresh = imported.filter(v => !existingKeys.has(normalizeKey(v.title)));
+        STATE.videos = [...fresh, ...STATE.videos];
+        statusEl.textContent = `Imported ${fresh.length} new videos!`;
+        renderAll();
+        renderAdminList();
+        showToast(`Imported ${fresh.length} new videos.`);
+      } catch (err) {
+        statusEl.textContent = 'Invalid JSON / CSV format.';
+      }
+    }
+
+    function downloadVideosJson() {
+      const exportArr = STATE.videos.map(v => ({
+        id: v.id,
+        title: v.title,
+        category: v.category,
+        tags: v.tags,
+        thumbnail: v.thumb,
+        resolution: v.resolution,
+        duration: v.duration,
+        views: getTotalVideoClicks(v),
+        mirrors: v.mirrors
+      }));
+      const blob = new Blob([JSON.stringify(exportArr, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'videos.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
     function renderAll() {
       updateNavButtons();
       renderNavDrawer();
+      const adminSec = document.getElementById('adminSection');
       if (STATE.navTab === 'admin' && STATE.isAdmin) {
-        renderAdminSection();
+        document.getElementById('directorySection').classList.add('hidden');
+        document.getElementById('watchSection').classList.add('hidden');
+        setFeedVisibility(false);
+        if (adminSec) adminSec.classList.remove('hidden');
+        renderAdminList();
         return;
       }
-      document.getElementById('adminSection').classList.add('hidden');
-      if (STATE.activeVideoId) {
-        return;
-      }
+      if (adminSec) adminSec.classList.add('hidden');
       renderDirectoryPage();
-      if (!((STATE.navTab === 'categories' || STATE.navTab === 'tags') && STATE.filterType === 'all')) {
+      document.getElementById('sortBySelect').value = STATE.sortBy;
+      if (!((STATE.navTab === 'categories' || STATE.navTab === 'tags') && STATE.filterType === 'all' && !STATE.activeVideoId)) {
         renderGrid();
       }
+      refreshWatchPageStatsIfOpen();
     }
 
-    // Event Listeners
-    document.getElementById('brandHomeLink').addEventListener('click', (e) => {
-      e.preventDefault();
-      STATE.activeVideoId = null;
+    document.getElementById('searchInput').addEventListener('input', e => {
+      STATE.search = e.target.value || '';
+      STATE.page = 1;
+      renderAll();
+    });
+
+    document.getElementById('sortBySelect').addEventListener('change', e => {
+      STATE.sortBy = e.target.value;
+      STATE.page = 1;
+      renderGrid();
+    });
+
+    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+      STATE.search = '';
       STATE.navTab = 'home';
       STATE.filterType = 'all';
       STATE.filterValue = 'All';
-      STATE.search = '';
       STATE.page = 1;
       document.getElementById('searchInput').value = '';
-      document.getElementById('watchSection').classList.add('hidden');
       syncFilterUrl(true);
       renderAll();
     });
 
     document.getElementById('navHomeBtn').addEventListener('click', () => {
-      STATE.activeVideoId = null;
       STATE.navTab = 'home';
       STATE.filterType = 'all';
       STATE.filterValue = 'All';
       STATE.page = 1;
-      document.getElementById('watchSection').classList.add('hidden');
+      closeWatchPage(false);
       syncFilterUrl(true);
       renderAll();
     });
 
     document.getElementById('navCategoriesBtn').addEventListener('click', () => {
-      STATE.activeVideoId = null;
       STATE.navTab = 'categories';
       STATE.filterType = 'all';
       STATE.filterValue = 'All';
       STATE.page = 1;
-      document.getElementById('watchSection').classList.add('hidden');
+      closeWatchPage(false);
       syncFilterUrl(true);
       renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     document.getElementById('navTagsBtn').addEventListener('click', () => {
-      STATE.activeVideoId = null;
       STATE.navTab = 'tags';
       STATE.filterType = 'all';
       STATE.filterValue = 'All';
       STATE.page = 1;
-      document.getElementById('watchSection').classList.add('hidden');
+      closeWatchPage(false);
       syncFilterUrl(true);
       renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     document.getElementById('directoryBackHomeBtn').addEventListener('click', () => {
       STATE.navTab = 'home';
       STATE.filterType = 'all';
       STATE.filterValue = 'All';
+      STATE.page = 1;
       syncFilterUrl(true);
       renderAll();
-    });
-
-    document.getElementById('watchBackHomeBtn').addEventListener('click', () => {
-      closeWatchPage(true);
-    });
-
-    document.getElementById('openAdminBtn').addEventListener('click', openAdminPrompt);
-    document.getElementById('closePinModalBtn').addEventListener('click', closeAdminPrompt);
-    document.getElementById('cancelPinBtn').addEventListener('click', closeAdminPrompt);
-
-    document.getElementById('adminPinForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const val = document.getElementById('adminPinInput').value.trim();
-      if (val === ADMIN_PASSWORD) {
-        unlockAdminMode();
-      } else {
-        document.getElementById('adminPinError').classList.remove('hidden');
-      }
-    });
-
-    document.getElementById('adminBackHomeBtn').addEventListener('click', () => {
-      STATE.navTab = 'home';
-      syncFilterUrl(true);
-      renderAll();
-    });
-
-    document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
-    document.getElementById('importFileBtn').addEventListener('click', handleImportFile);
-    document.getElementById('adminSearchInput').addEventListener('input', renderAdminSection);
-    document.getElementById('clearAllBtn').addEventListener('click', () => {
-      STATE.videos = [];
-      renderAdminSection();
-      showToast('Cleared all videos from current session.');
-    });
-
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      STATE.search = e.target.value;
-      STATE.page = 1;
-      if (STATE.activeVideoId) {
-        closeWatchPage(false);
-      }
-      if (STATE.navTab === 'categories' || STATE.navTab === 'tags') {
-        STATE.navTab = 'home';
-      }
-      renderAll();
-    });
-
-    document.getElementById('sortBySelect').addEventListener('change', (e) => {
-      STATE.sortBy = e.target.value;
-      STATE.page = 1;
-      renderGrid();
     });
 
     document.getElementById('clearActiveFilterBtn').addEventListener('click', () => {
       STATE.filterType = 'all';
       STATE.filterValue = 'All';
-      STATE.search = '';
       STATE.page = 1;
-      document.getElementById('searchInput').value = '';
       syncFilterUrl(true);
       renderAll();
     });
+    document.getElementById('adminBackHomeBtn').addEventListener('click', closeAdmin);
+    document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
 
-    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
-      STATE.filterType = 'all';
-      STATE.filterValue = 'All';
-      STATE.search = '';
-      STATE.page = 1;
-      document.getElementById('searchInput').value = '';
-      syncFilterUrl(true);
+    const importFileBtn = document.getElementById('importFileBtn');
+    if (importFileBtn) {
+      importFileBtn.addEventListener('click', handleImportFile);
+    }
+    document.getElementById('adminSearchInput').addEventListener('input', renderAdminList);
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+      STATE.videos = [];
       renderAll();
+      renderAdminList();
+      showToast('Cleared all videos from preview list.');
     });
 
-    let footerTapCount = 0;
-    let footerTapTimer = null;
-    document.getElementById('secretFooterTap').addEventListener('click', () => {
-      footerTapCount += 1;
-      clearTimeout(footerTapTimer);
-      footerTapTimer = setTimeout(() => { footerTapCount = 0; }, 2000);
-      if (footerTapCount >= 5) {
-        footerTapCount = 0;
-        openAdminPrompt();
-      }
+    document.getElementById('downloadJsonBtn').addEventListener('click', downloadVideosJson);
+    document.getElementById('publishLiveBtn').addEventListener('click', () => {
+      downloadVideosJson();
+      showToast('Upload videos.json to Cloudflare R2 bucket to go live!');
     });
 
-    window.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', e => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         openAdminPrompt();
       }
     });
 
-    window.addEventListener('popstate', () => {
-      const params = new URLSearchParams(window.location.search);
-      const vParam = params.get('v');
-      if (vParam) {
-        const found = STATE.videos.find(v => String(v.id) === String(vParam));
-        if (found) {
-          openWatchPage(found, false);
-          return;
-        }
+    let footerTaps = 0;
+    document.getElementById('secretFooterTap').addEventListener('click', () => {
+      footerTaps++;
+      clearTimeout(document.getElementById('secretFooterTap')._t);
+      document.getElementById('secretFooterTap')._t = setTimeout(() => { footerTaps = 0; }, 1500);
+      if (footerTaps >= 5) {
+        footerTaps = 0;
+        openAdminPrompt();
       }
-      STATE.activeVideoId = null;
-      document.getElementById('watchSection').classList.add('hidden');
-      const view = params.get('view');
-      const cat = params.get('category');
-      const tag = params.get('tag');
-      STATE.page = parseInt(params.get('page'), 10) || 1;
-      if (view === 'admin' && STATE.isAdmin) {
-        STATE.navTab = 'admin';
-      } else if (view === 'categories' || view === 'tags') {
-        STATE.navTab = view;
-        STATE.filterType = 'all';
-        STATE.filterValue = 'All';
-      } else if (cat) {
-        STATE.navTab = 'categories';
-        STATE.filterType = 'category';
-        STATE.filterValue = cat;
-      } else if (tag) {
-        STATE.navTab = 'tags';
-        STATE.filterType = 'tag';
-        STATE.filterValue = tag;
-      } else {
-        STATE.navTab = 'home';
-        STATE.filterType = 'all';
-        STATE.filterValue = 'All';
-      }
-      renderAll();
     });
 
+    if (new URLSearchParams(window.location.search).get('admin') === '1') {
+      openAdminPrompt();
+    }
+
+    if (STATE.isAdmin) {
+      document.documentElement.classList.add('admin-mode');
+      const adminBtn = document.getElementById('openAdminBtn');
+      if (adminBtn) {
+        adminBtn.classList.remove('bg-slate-800/90', 'border-slate-700');
+        adminBtn.classList.add('bg-emerald-700', 'border-emerald-500/50', 'text-white');
+        adminBtn.innerHTML = '<span>🔓</span><span class="hidden sm:inline">Admin Mode</span>';
+      }
+    }
+
     loadInitialVideos();
+  </script>
+
+  <!-- Zone 6A & 6B: Adsterra Popunder & Social Bar (Skipped completely in Admin Mode) -->
+  <script>
+    if (window.shouldLoadAds && window.shouldLoadAds()) {
+      var popScript = document.createElement('script');
+      popScript.setAttribute('data-cfasync', 'false');
+      popScript.src = 'https://benchform.org/1/4c4ca49e2e5f4745faebc1d79b918b7b';
+      document.body.appendChild(popScript);
+
+      var socialScript = document.createElement('script');
+      socialScript.setAttribute('data-cfasync', 'false');
+      socialScript.src = 'https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43';
+      document.body.appendChild(socialScript);
+    }
   </script>
 </body>
 </html>
