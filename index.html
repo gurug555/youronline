@@ -39,6 +39,32 @@
       display: none !important;
     }
   </style>
+  <script>
+    // Block all ad scripts, popunders, and social bars immediately when Admin Mode is active
+    (function () {
+      var isAdminBoot = false;
+      try {
+        if (sessionStorage.getItem('yourpo_admin_unlocked_v1') === '1') isAdminBoot = true;
+        if (new URLSearchParams(window.location.search).get('admin') === '1') isAdminBoot = true;
+      } catch (_) {}
+      window.__YOURPO_BLOCK_ADS__ = isAdminBoot;
+      if (isAdminBoot) {
+        document.documentElement.classList.add('admin-mode');
+      }
+      window.shouldLoadAds = function () {
+        try {
+          if (sessionStorage.getItem('yourpo_admin_unlocked_v1') === '1') return false;
+        } catch (_) {}
+        return !window.__YOURPO_BLOCK_ADS__;
+      };
+      // Guard window.open so popunder scripts cannot open popup windows in Admin Mode
+      var origOpen = window.open;
+      window.open = function () {
+        if (!window.shouldLoadAds()) return null;
+        return origOpen.apply(this, arguments);
+      };
+    })();
+  </script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
@@ -105,10 +131,19 @@
     <!-- Zone 1: JuicyAds 800x100 Top Banner -->
     <div id="topAdWrapper" class="ad-zone mb-6 flex justify-center">
       <div class="ad-box-isolated bg-slate-900/70 border border-slate-800 rounded-xl p-1.5 overflow-x-auto overflow-y-hidden w-full max-w-[816px] min-h-[116px] flex items-center justify-center">
-        <script>window.adsbyjuicy = window.adsbyjuicy || [];</script>
-        <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
         <ins id="1133790" data-width="800" data-height="100"></ins>
-        <script type="text/javascript" data-cfasync="false" async>(window.adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1133790});</script>
+        <script>
+          if (window.shouldLoadAds && window.shouldLoadAds()) {
+            window.adsbyjuicy = window.adsbyjuicy || [];
+            var jadsScript = document.createElement('script');
+            jadsScript.type = 'text/javascript';
+            jadsScript.setAttribute('data-cfasync', 'false');
+            jadsScript.async = true;
+            jadsScript.src = 'https://poweredby.jads.co/js/jads.js';
+            document.currentScript.parentNode.appendChild(jadsScript);
+            (window.adsbyjuicy = window.adsbyjuicy || []).push({ 'adzone': 1133790 });
+          }
+        </script>
       </div>
     </div>
 
@@ -181,8 +216,16 @@
 
         <!-- Zone 3: Adsterra Native Banner -->
         <div id="nativeAdSlot" class="ad-zone ad-box-isolated mt-8 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 overflow-hidden">
-          <script async="async" data-cfasync="false" src="https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a"></script>
           <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
+          <script>
+            if (window.shouldLoadAds && window.shouldLoadAds()) {
+              var nativeScript = document.createElement('script');
+              nativeScript.async = true;
+              nativeScript.setAttribute('data-cfasync', 'false');
+              nativeScript.src = 'https://biomanos.org/21/8ebe172168680c52df883eca2f77b34a';
+              document.currentScript.parentNode.appendChild(nativeScript);
+            }
+          </script>
         </div>
 
         <!-- Pagination -->
@@ -192,15 +235,19 @@
       <!-- Zone 5: Adsterra 160x600 Sidebar Banner -->
       <aside class="ad-zone ad-box-isolated hidden lg:flex flex-col items-center shrink-0 w-[176px] sticky top-24 bg-slate-900/60 border border-slate-800/80 rounded-xl p-2 overflow-hidden">
         <script>
-          atOptions = {
-            'key' : '58b8868202e44dc8ea861ccc8d62b9c7',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-          };
+          if (window.shouldLoadAds && window.shouldLoadAds()) {
+            window.atOptions = {
+              'key': '58b8868202e44dc8ea861ccc8d62b9c7',
+              'format': 'iframe',
+              'height': 600,
+              'width': 160,
+              'params': {}
+            };
+            var sideScript = document.createElement('script');
+            sideScript.src = 'https://biomanos.org/22/58b8868202e44dc8ea861ccc8d62b9c7';
+            document.currentScript.parentNode.appendChild(sideScript);
+          }
         </script>
-        <script src="https://biomanos.org/22/58b8868202e44dc8ea861ccc8d62b9c7"></script>
       </aside>
     </div>
   </main>
@@ -335,6 +382,266 @@
       REMOTE_CLICKS_MAP = {};
     }
 
+    const FALLBACK_SVG =
+      'data:image/svg+xml;charset=UTF-8,' +
+      encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">' +
+          '<rect width="640" height="360" fill="#0f172a"/>' +
+          '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="22">No Preview</text>' +
+        '</svg>'
+      );
+
+    const STATE = {
+      videos: [],
+      navTab: 'home',
+      filterType: 'all',
+      filterValue: 'All',
+      search: '',
+      sortBy: 'date',
+      page: 1,
+      perPage: 16,
+      activeVideoId: null,
+      isAdmin: (function () {
+        try {
+          return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+        } catch (_) {
+          return false;
+        }
+      })()
+    };
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function safeExternalUrl(raw, fallback = '') {
+      if (!raw) return fallback;
+      try {
+        const u = new URL(String(raw).trim(), window.location.href);
+        if (u.protocol === 'http:' || u.protocol === 'https:') return u.href;
+      } catch (_) {}
+      return fallback;
+    }
+
+    function handleThumbError(imgEl, titleText) {
+      if (!imgEl || imgEl.dataset.fallbackApplied === '1') return;
+      imgEl.dataset.fallbackApplied = '1';
+      imgEl.src = FALLBACK_SVG;
+    }
+
+    function formatViews(num) {
+      const n = Number(num) || 0;
+      if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+      return String(n);
+    }
+
+    function parseDurationSeconds(dur) {
+      if (!dur) return 0;
+      const parts = String(dur).split(':').map(p => parseInt(p, 10) || 0);
+      if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+      if (parts.length === 2) return parts[0] * 60 + parts[1];
+      return parts[0] || 0;
+    }
+
+    function parseTags(rawTags, fallback = '') {
+      if (Array.isArray(rawTags)) {
+        return rawTags.map(t => String(t).trim()).filter(Boolean);
+      }
+      const str = String(rawTags || fallback || '');
+      return str
+        .split(/[,|#]+/)
+        .map(t => t.trim())
+        .filter(Boolean);
+    }
+
+    function normalizeKey(str) {
+      return String(str || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+
+    function normalizeVideoItem(raw, idx = 0, defaultTags = 'Trending, HD') {
+      const title = String(raw.title || raw.name || `Video ${idx + 1}`).trim();
+      const id = String(raw.id || `vid_${Date.now()}_${idx}`).trim();
+      const rawThumb = String(raw.thumbnail || raw.thumb || raw.poster || '').trim();
+      const thumb = rawThumb
+        ? /^https?:\/\//i.test(rawThumb) || rawThumb.startsWith('data:')
+          ? rawThumb
+          : ASSET_BASE + rawThumb.replace(/^\/+/, '')
+        : '';
+
+      const mirrors = {};
+      if (raw.mirrors && typeof raw.mirrors === 'object') {
+        Object.entries(raw.mirrors).forEach(([k, v]) => {
+          const clean = safeExternalUrl(v, '');
+          if (clean) mirrors[k.toLowerCase()] = clean;
+        });
+      }
+      ['doodstream', 'voe', 'streamtape', 'lulustream', 'gofile'].forEach(srv => {
+        if (raw[srv]) {
+          const clean = safeExternalUrl(raw[srv], '');
+          if (clean) mirrors[srv] = clean;
+        }
+      });
+
+      const baseViews = Number(raw.views) || 0;
+      return {
+        id,
+        title,
+        category: String(raw.category || 'General').trim(),
+        tags: parseTags(raw.tags, defaultTags),
+        thumb,
+        resolution: String(raw.resolution || raw.quality || '').trim(),
+        duration: String(raw.duration || '').trim(),
+        views: baseViews,
+        baseViews,
+        pastViews: Number(raw.pastViews || raw.past_views) || 0,
+        addedAt: raw.addedAt || raw.date || new Date(Date.now() - idx * 60000).toISOString(),
+        mirrors
+      };
+    }
+
+    function getUserClicksMap() {
+      try {
+        return JSON.parse(localStorage.getItem(USER_CLICKS_STORAGE_KEY) || '{}') || {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function getUserClickDelta(videoId) {
+      const map = getUserClicksMap();
+      return Number(map[String(videoId)]) || 0;
+    }
+
+    function getRemoteClickDelta(videoId) {
+      return Number(REMOTE_CLICKS_MAP[String(videoId)]) || 0;
+    }
+
+    function recordRemoteVideoClick(videoId) {
+      if (!VIEW_COUNTER_API || !videoId) return;
+      const endpoint = `${VIEW_COUNTER_API.replace(/\/+$/, '')}/hit`;
+      const payload = JSON.stringify({ id: String(videoId) });
+      try {
+        if (navigator.sendBeacon) {
+          const blob = new Blob([payload], { type: 'application/json' });
+          navigator.sendBeacon(endpoint, blob);
+        }
+      } catch (_) {}
+      try {
+        fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true
+        })
+          .then(r => (r.ok ? r.json() : null))
+          .then(data => {
+            if (data && data.id && typeof data.count === 'number') {
+              REMOTE_CLICKS_MAP[String(data.id)] = data.count;
+              saveRemoteClicksCache(REMOTE_CLICKS_MAP);
+            }
+          })
+          .catch(() => {});
+      } catch (_) {}
+    }
+
+    function incrementUserClickDelta(videoId) {
+      const id = String(videoId);
+      const map = getUserClicksMap();
+      map[id] = (Number(map[id]) || 0) + 1;
+      try {
+        localStorage.setItem(USER_CLICKS_STORAGE_KEY, JSON.stringify(map));
+      } catch (_) {}
+      recordRemoteVideoClick(id);
+    }
+
+    async function syncRemoteClicksFromWorker() {
+      if (!VIEW_COUNTER_API) return;
+      try {
+        const res = await fetch(`${VIEW_COUNTER_API.replace(/\/+$/, '')}/views`, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.views && typeof data.views === 'object') {
+          saveRemoteClicksCache(data.views);
+        }
+      } catch (_) {}
+    }
+
+    function getAllCategories() {
+      const set = new Set(['All']);
+      STATE.videos.forEach(v => {
+        parseTags(v.category, '').forEach(c => set.add(c));
+      });
+      return Array.from(set);
+    }
+
+    function getAllTags() {
+      const set = new Set();
+      STATE.videos.forEach(v => {
+        (v.tags || []).forEach(t => set.add(t));
+      });
+      return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
+
+    function updateNavButtons() {
+      const map = {
+        home: document.getElementById('navHomeBtn'),
+        categories: document.getElementById('navCategoriesBtn'),
+        tags: document.getElementById('navTagsBtn')
+      };
+      Object.entries(map).forEach(([key, btn]) => {
+        if (!btn) return;
+        const active = STATE.navTab === key;
+        btn.className = active
+          ? 'nav-tab-btn bg-brand-600 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full transition'
+          : 'nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition';
+      });
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      if (!box) return;
+      box.textContent = msg;
+      box.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => box.classList.add('hidden'), 3200);
+    }
+
+    async function loadInitialVideos() {
+      const sources = [`${ASSET_BASE}videos.json`, 'videos.json'];
+      let loadedList = [];
+
+      for (const src of sources) {
+        try {
+          const res = await fetch(src, { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            const arr = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : []);
+            if (arr.length) {
+              loadedList = arr;
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+
+      STATE.videos = loadedList.map((item, idx) => normalizeVideoItem(item, idx));
+      await syncRemoteClicksFromWorker();
+      renderAll();
+
+      const vidParam = new URLSearchParams(window.location.search).get('v');
+      if (vidParam) {
+        const found = STATE.videos.find(v => String(v.id) === String(vidParam));
+        if (found) openWatchPage(found, false);
+      }
+    }
+
     // Total clicks = previous historical views (from videos.json + past watch opens) + new normal-user clicks (local + Worker)
     function getTotalVideoClicks(video) {
       if (!video) return 0;
@@ -364,433 +671,43 @@
 
     function setAdminUnlocked(flag) {
       if (STATE) STATE.isAdmin = Boolean(flag);
+      window.__YOURPO_BLOCK_ADS__ = Boolean(flag);
       document.documentElement.classList.toggle('admin-mode', Boolean(flag));
       try {
         if (flag) {
           sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+          purgeInjectedAdsAndPopups();
         } else {
           sessionStorage.removeItem(ADMIN_SESSION_KEY);
         }
       } catch (_) {}
     }
 
-    function loadUserClicksMap() {
-      try {
-        return JSON.parse(localStorage.getItem(USER_CLICKS_STORAGE_KEY) || '{}') || {};
-      } catch (_) {
-        return {};
-      }
-    }
-
-    function saveUserClicksMap(map) {
-      try {
-        localStorage.setItem(USER_CLICKS_STORAGE_KEY, JSON.stringify(map));
-      } catch (_) {}
-    }
-
-    function getUserClickDelta(videoId) {
-      const map = loadUserClicksMap();
-      return Number(map[String(videoId)] || 0);
-    }
-
-    function getRemoteClickDelta(videoId) {
-      return Number(REMOTE_CLICKS_MAP[String(videoId)] || 0);
-    }
-
-    async function syncRemoteClicksFromWorker() {
-      if (!VIEW_COUNTER_API) return;
-      try {
-        const endpoint = VIEW_COUNTER_API.replace(/\/+$/, '') + '/views';
-        const res = await fetch(endpoint, { cache: 'no-store' });
-        if (!res.ok) return;
-        const data = await res.json();
-        const incoming = data && typeof data === 'object' ? (data.views || data) : {};
-        if (incoming && typeof incoming === 'object') {
-          const merged = { ...REMOTE_CLICKS_MAP };
-          Object.entries(incoming).forEach(([id, val]) => {
-            const num = Number(val) || 0;
-            merged[String(id)] = Math.max(Number(merged[String(id)] || 0), num);
-          });
-          saveRemoteClicksCache(merged);
-          STATE.videos.forEach(v => {
-            v.views = getTotalVideoClicks(v);
-          });
-          if (STATE.isAdmin) {
-            renderGrid();
-            refreshWatchPageStatsIfOpen();
-          }
-        }
-      } catch (_) {}
-    }
-
-    async function recordRemoteVideoClick(videoId) {
-      if (!VIEW_COUNTER_API || !videoId) return;
-      const cleanId = String(videoId).trim();
-      if (!cleanId) return;
-      const endpoint = VIEW_COUNTER_API.replace(/\/+$/, '') + '/hit';
-      const payload = JSON.stringify({ id: cleanId });
-
-      // Try sendBeacon first for instant non-blocking delivery even if ads/redirects trigger
-      try {
-        if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
-          const blob = new Blob([payload], { type: 'application/json' });
-          navigator.sendBeacon(endpoint, blob);
-        }
-      } catch (_) {}
-
-      try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: payload,
-          keepalive: true,
-          cache: 'no-store'
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        const count = Number(data && (data.count ?? data.views));
-        if (!Number.isNaN(count) && count > 0) {
-          const updated = { ...REMOTE_CLICKS_MAP, [cleanId]: count };
-          saveRemoteClicksCache(updated);
-        }
-      } catch (_) {}
-    }
-
-    function incrementUserClickDelta(videoId) {
-      const map = loadUserClicksMap();
-      const key = String(videoId);
-      map[key] = Number(map[key] || 0) + 1;
-      saveUserClicksMap(map);
-      recordRemoteVideoClick(key);
-      return map[key];
-    }
-
-    // Helper to build crisp 3x3 collage preview SVGs for the preview sandbox if R2 is unreachable
-    function make3x3PreviewSvg(label, accentColor) {
-      const cells = [];
-      const shades = ['#0f172a', '#1e293b', '#172554', '#1e1b4b', '#31102f', '#0f172a', '#1e293b', '#172554', '#1e1b4b'];
-      let idx = 0;
-      for (let r = 0; r < 3; r++) {
-        for (let c = 0; c < 3; c++) {
-          const x = c * 213 + 2;
-          const y = r * 120 + 2;
-          const ts = `0${r * 3 + c + 1}:15`;
-          cells.push(`
-            <rect x="${x}" y="${y}" width="209" height="116" rx="4" fill="${shades[idx % shades.length]}" stroke="#334155" stroke-width="1"/>
-            <circle cx="${x + 104}" cy="${y + 52}" r="16" fill="${accentColor}" fill-opacity="0.25"/>
-            <text x="${x + 10}" y="${y + 106}" fill="#94a3b8" font-family="sans-serif" font-size="11" font-weight="600">${ts}</text>
-          `);
-          idx++;
-        }
-      }
-      return "data:image/svg+xml;utf8," + encodeURIComponent(`
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
-          <rect width="640" height="360" fill="#020617"/>
-          ${cells.join('')}
-          <rect x="170" y="156" width="300" height="48" rx="10" fill="#020617" fill-opacity="0.82" stroke="${accentColor}" stroke-width="1.5"/>
-          <text x="320" y="185" text-anchor="middle" fill="#f8fafc" font-family="sans-serif" font-size="15" font-weight="700">${label}</text>
-        </svg>
-      `);
-    }
-
-    const FALLBACK_VIDEOS = [
-      {
-        id: 'demo_1',
-        title: 'StudioOne_Elena_Rostova - Midnight Lounge 3x3 Preview',
-        category: 'Featured',
-        tags: ['StudioOne', 'Elena Rostova', '4K', 'Trending'],
-        thumb: make3x3PreviewSvg('3×3 GRID PREVIEW • SAMPLE 01', '#ef4444'),
-        resolution: '4K',
-        duration: '28:45',
-        views: 42800,
-        addedAt: 1800000000000,
-        mirrors: {
-          doodstream: 'https://dood.li/d/sample01',
-          voe: 'https://voe.sx/sample01',
-          gofile: 'https://gofile.io/d/sample01'
-        }
-      },
-      {
-        id: 'demo_2',
-        title: 'VixenHD_Maya_Lin - Rooftop Sunset Session',
-        category: 'HD Releases',
-        tags: ['VixenHD', 'Maya Lin', '1080p'],
-        thumb: make3x3PreviewSvg('3×3 GRID PREVIEW • SAMPLE 02', '#f59e0b'),
-        resolution: '1080p',
-        duration: '34:12',
-        views: 31500,
-        addedAt: 1799999900000,
-        mirrors: {
-          doodstream: 'https://dood.li/d/sample02',
-          streamtape: 'https://streamtape.com/v/sample02',
-          gofile: 'https://gofile.io/d/sample02'
-        }
-      },
-      {
-        id: 'demo_3',
-        title: 'Luxure_Sofia_Vance - Velvet Suite Full Cut',
-        category: 'Featured',
-        tags: ['Luxure', 'Sofia Vance', '4K'],
-        thumb: make3x3PreviewSvg('3×3 GRID PREVIEW • SAMPLE 03', '#10b981'),
-        resolution: '4K',
-        duration: '41:08',
-        views: 58900,
-        addedAt: 1799999800000,
-        mirrors: {
-          voe: 'https://voe.sx/sample03',
-          lulustream: 'https://lulustream.com/sample03',
-          gofile: 'https://gofile.io/d/sample03'
-        }
-      },
-      {
-        id: 'demo_4',
-        title: 'Deeper_Aria_K - Neon Penthouse Special',
-        category: 'Trending',
-        tags: ['Deeper', 'Aria K', '1080p', 'Trending'],
-        thumb: make3x3PreviewSvg('3×3 GRID PREVIEW • SAMPLE 04', '#3b82f6'),
-        resolution: '1080p',
-        duration: '22:50',
-        views: 19400,
-        addedAt: 1799999700000,
-        mirrors: {
-          doodstream: 'https://dood.li/d/sample04',
-          voe: 'https://voe.sx/sample04',
-          gofile: 'https://gofile.io/d/sample04'
-        }
-      }
-    ];
-
-    const STATE = {
-      videos: [],
-      activeVideoId: null,
-      isAdmin: false,
-      search: '',
-      navTab: 'home',
-      filterType: 'all',
-      filterValue: 'All',
-      sortBy: 'date',
-      page: 1,
-      perPage: 24
-    };
-    STATE.isAdmin = isAdminUnlocked();
-
-    const FALLBACK_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
-        <rect width="640" height="360" fill="#0f172a"/>
-        <circle cx="320" cy="180" r="44" fill="#dc2626"/>
-        <polygon points="308,158 308,202 346,180" fill="#ffffff"/>
-      </svg>
-    `);
-
-    function handleThumbError(imgEl, title) {
-      const step = Number(imgEl.dataset.errStep || 0);
-      const cleanName = String(title || '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '');
-      const rawName = String(title || '').trim();
-      const candidates = [
-        `${ASSET_BASE}thumbs/${encodeURIComponent(rawName)}.jpg`,
-        `${ASSET_BASE}thumbs/${cleanName}.jpg`,
-        `${ASSET_BASE}thumbs/${cleanName.slice(0, 60)}.jpg`,
-        `${ASSET_BASE}thumbnails/${encodeURIComponent(rawName)}.jpg`,
-        FALLBACK_SVG
-      ];
-      if (step < candidates.length) {
-        imgEl.dataset.errStep = String(step + 1);
-        imgEl.src = candidates[step];
-      } else {
-        imgEl.onerror = null;
-        imgEl.src = FALLBACK_SVG;
-      }
-    }
-
-    function showToast(msg) {
-      const box = document.getElementById('toastBox');
-      box.textContent = msg;
-      box.classList.remove('hidden');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => box.classList.add('hidden'), 3200);
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    // Allow only explicit http/https URLs for external server or download links
-    function safeExternalUrl(rawUrl, fallback = '#') {
-      const text = String(rawUrl ?? '').trim();
-      if (!text) return fallback;
-      try {
-        const parsed = new URL(text, window.location.origin);
-        if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
-          return parsed.href;
-        }
-      } catch (_) {}
-      return fallback;
-    }
-
-    function normalizeKey(str) {
-      return String(str ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '');
-    }
-
-    function parseTags(raw, fallback = '') {
-      const source = raw && String(raw).trim() ? String(raw) : fallback;
-      const parts = source.split(/[,|;/]+/).map(s => s.trim()).filter(Boolean);
-      return parts.length ? parts : ['General'];
-    }
-
-    function extractAutoTags(title, baseTags) {
-      const set = new Set(baseTags);
-      const raw = String(title || '').trim();
-      if (raw.includes('_')) {
-        const studio = raw.split('_')[0].trim();
-        if (studio) set.add(studio);
-      }
-      const afterStudio = raw.includes('_') ? raw.split('_').slice(1).join('_') : raw;
-      if (afterStudio.includes(' - ')) {
-        const actorsPart = afterStudio.split(' - ')[0];
-        actorsPart.split(',').map(a => a.trim()).filter(Boolean).forEach(actor => set.add(actor));
-      }
-      return Array.from(set);
-    }
-
-    function parseDurationSeconds(dur) {
-      if (!dur) return 0;
-      if (typeof dur === 'number') return dur;
-      const parts = String(dur).trim().split(':').map(Number).filter(n => !Number.isNaN(n));
-      if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-      if (parts.length === 2) return parts[0] * 60 + parts[1];
-      if (parts.length === 1) return parts[0];
-      return 0;
-    }
-
-    function formatViews(v) {
-      const n = Number(v) || 0;
-      if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-      if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-      return String(n);
-    }
-
-    function normalizeVideoItem(item, index = 0, defaultTags = '') {
-      const mirrors = {};
-      const keys = ['gofile', 'doodstream', 'streamtape', 'lulustream', 'voe'];
-      keys.forEach(k => {
-        if (item[k] && String(item[k]).trim()) mirrors[k] = String(item[k]).trim();
+    // Remove any already-injected third-party ad iframes, popunders, or social bar overlays when unlocking Admin Mode
+    function purgeInjectedAdsAndPopups() {
+      document.querySelectorAll('.ad-zone').forEach(el => {
+        el.innerHTML = '';
+        el.style.display = 'none';
       });
-      if (item.mirrors && typeof item.mirrors === 'object') {
-        Object.entries(item.mirrors).forEach(([k, v]) => {
-          if (v && String(v).trim()) mirrors[k.toLowerCase()] = String(v).trim();
-        });
-      }
-      if (item.links && typeof item.links === 'object') {
-        Object.entries(item.links).forEach(([k, v]) => {
-          if (v && String(v).trim()) mirrors[k.toLowerCase()] = String(v).trim();
-        });
-      }
-
-      const title = String(item.title || item.name || item.filename || 'Untitled Video').trim();
-      const baseTags = Array.isArray(item.tags) && item.tags.length
-        ? item.tags.map(t => String(t).trim()).filter(Boolean)
-        : parseTags(item.tags || item.category, defaultTags);
-      const tags = extractAutoTags(title, baseTags);
-
-      const category = String(item.category || '').trim();
-      const rawViews = Number(item.views);
-      const baseViews = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : 0;
-      const rawPastViews = Number(item.pastViews ?? item.past_views);
-      const pastViews = !Number.isNaN(rawPastViews) && rawPastViews > 0 ? rawPastViews : 0;
-      const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 - index * 60000);
-      const rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('vid_' + Math.random().toString(36).slice(2, 10));
-
-      let thumb = String(item.thumbnail || item.thumb || '').trim();
-      if (thumb && !thumb.startsWith('http') && !thumb.startsWith('data:')) {
-        thumb = ASSET_BASE + thumb.replace(/^\/+/, '');
-      }
-
-      return {
-        id: rawId,
-        title,
-        category,
-        tags: tags.length ? tags : ['General'],
-        thumb,
-        resolution: String(item.resolution || '').trim(),
-        duration: String(item.duration || '').trim(),
-        baseViews,
-        pastViews,
-        views: baseViews + pastViews + (Number(PAST_WATCH_PAGE_VIEWS) || 0) + getUserClickDelta(rawId),
-        addedAt,
-        mirrors
-      };
-    }
-
-    function applyVideoList(list) {
-      STATE.videos = list.map((v, idx) => normalizeVideoItem(v, idx));
-      renderAll();
-      checkUrlVideoParam();
-    }
-
-    async function loadInitialVideos() {
-      try {
-        const res = await fetch(`${ASSET_BASE}videos.json?t=${Date.now()}`, { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          const list = Array.isArray(data) ? data : (Array.isArray(data.videos) ? data.videos : []);
-          if (list.length > 0) {
-            applyVideoList(list);
-            syncRemoteClicksFromWorker();
-            return;
-          }
+      document.querySelectorAll('script[src*="jads.co"], script[src*="biomanos.org"], script[src*="benchform.org"]').forEach(s => s.remove());
+      document.querySelectorAll('iframe, ins').forEach(el => {
+        const src = String(el.getAttribute('src') || '');
+        const id = String(el.id || '');
+        if (
+          src.includes('jads.co') ||
+          src.includes('biomanos.org') ||
+          src.includes('benchform.org') ||
+          id === '1133790' ||
+          id.startsWith('container-8ebe172168680c52df883eca2f77b34a')
+        ) {
+          el.remove();
         }
-      } catch (e) {
-        // Fallback to demo entries in preview sandbox
-      }
-      applyVideoList(FALLBACK_VIDEOS);
-      syncRemoteClicksFromWorker();
-    }
-
-    function checkUrlVideoParam() {
-      const vidId = new URLSearchParams(window.location.search).get('v');
-      if (vidId) {
-        const found = STATE.videos.find(v => String(v.id) === String(vidId));
-        if (found) openWatchPage(found, false);
-      }
-    }
-
-    function getAllCategories() {
-      const set = new Set(['All']);
-      STATE.videos.forEach(v => {
-        parseTags(v.category, '').forEach(c => set.add(c));
       });
-      return Array.from(set);
-    }
-
-    function getAllTags() {
-      const counts = new Map();
-      STATE.videos.forEach(v => {
-        (v.tags || []).forEach(t => {
-          counts.set(t, (counts.get(t) || 0) + 1);
-        });
-      });
-      if (!counts.size) return ['Trending', 'HD'];
-      return Array.from(counts.entries())
-        .sort((a, b) => b[1] - a[1])
-        .map(([tag]) => tag);
-    }
-
-    function updateNavButtons() {
-      const map = {
-        home: document.getElementById('navHomeBtn'),
-        categories: document.getElementById('navCategoriesBtn'),
-        tags: document.getElementById('navTagsBtn')
-      };
-      Object.entries(map).forEach(([key, btn]) => {
-        if (!btn) return;
-        const active = STATE.navTab === key;
-        btn.className = active
-          ? 'nav-tab-btn bg-brand-600 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full transition'
-          : 'nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition';
+      // Remove any floating third-party social bar / overlay divs outside our app containers
+      Array.from(document.body.children).forEach(child => {
+        if (!child.matches('header, main, footer, #adminPinModal, #adminModal, #toastBox, script')) {
+          child.remove();
+        }
       });
     }
 
@@ -1103,8 +1020,10 @@
           try {
             domain = new URL(safeHref).hostname;
           } catch (_) {}
-          const iconHtml = domain
-            ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-sm shrink-0" />`
+          const favDomain = srv === 'doodstream' ? 'doodstream.com' : domain;
+          const fallbackBadge = `<span class="hidden w-4 h-4 rounded-sm bg-brand-600 text-white text-[10px] font-black items-center justify-center shrink-0">${escapeHtml(srv.charAt(0).toUpperCase())}</span>`;
+          const iconHtml = favDomain
+            ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(favDomain)}&sz=32" alt="" onerror="this.style.display='none'; if(this.nextElementSibling){this.nextElementSibling.classList.remove('hidden');this.nextElementSibling.classList.add('inline-flex');}" class="w-4 h-4 rounded-sm shrink-0" />${fallbackBadge}`
             : '';
 
           return `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"
@@ -1547,10 +1466,19 @@
     loadInitialVideos();
   </script>
 
-  <!-- Zone 6A: Adsterra Popunder -->
-  <script data-cfasync="false" src="https://benchform.org/1/4c4ca49e2e5f4745faebc1d79b918b7b"></script>
+  <!-- Zone 6A & 6B: Adsterra Popunder & Social Bar (Skipped completely in Admin Mode) -->
+  <script>
+    if (window.shouldLoadAds && window.shouldLoadAds()) {
+      var popScript = document.createElement('script');
+      popScript.setAttribute('data-cfasync', 'false');
+      popScript.src = 'https://benchform.org/1/4c4ca49e2e5f4745faebc1d79b918b7b';
+      document.body.appendChild(popScript);
 
-  <!-- Zone 6B: Adsterra Social Bar -->
-  <script data-cfasync="false" src="https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43"></script>
+      var socialScript = document.createElement('script');
+      socialScript.setAttribute('data-cfasync', 'false');
+      socialScript.src = 'https://biomanos.org/14/7e2fba4ee9c2e82b3d53347f74951c43';
+      document.body.appendChild(socialScript);
+    }
+  </script>
 </body>
 </html>
