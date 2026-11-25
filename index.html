@@ -165,6 +165,92 @@
           <div id="directoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
         </section>
 
+        <!-- Dedicated Full-Page Admin Studio View -->
+        <section id="adminSection" class="hidden mb-10 space-y-6">
+          <div class="flex items-center justify-between gap-3 flex-wrap border-b border-slate-800 pb-4">
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">🛠️ Admin Studio</h1>
+              <p class="text-xs text-slate-400 mt-0.5">Bulk CSV / JSON Upload + Video Views &amp; Server Link Analytics</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="adminBackHomeBtn" type="button"
+                      class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3.5 py-2 rounded-lg transition">
+                ← Back to Home
+              </button>
+              <button id="logoutAdminBtn" type="button"
+                      class="bg-rose-950/80 hover:bg-rose-800 text-rose-200 border border-rose-800/60 text-xs font-semibold px-3.5 py-2 rounded-lg transition">
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <!-- Admin Mode Top Summary Banner -->
+          <div id="adminSummaryBanner" class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 shadow-lg">
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5">
+              <p class="text-[11px] text-slate-400">Total Videos</p>
+              <p id="adminTotalVideosStat" class="text-lg font-bold text-white mt-0.5">0</p>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5">
+              <p class="text-[11px] text-slate-400">Total Views (All)</p>
+              <p id="adminTotalViewsStat" class="text-lg font-bold text-amber-300 mt-0.5">0</p>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5">
+              <p class="text-[11px] text-slate-400">Live Worker Clicks</p>
+              <p id="adminWorkerClicksStat" class="text-lg font-bold text-emerald-400 mt-0.5">0</p>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5">
+              <p class="text-[11px] text-slate-400">Counter API</p>
+              <p id="adminWorkerStatusStat" class="text-xs font-semibold text-sky-300 truncate mt-1.5">Connected</p>
+            </div>
+          </div>
+
+          <!-- Bulk CSV / JSON Upload Section -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-lg">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <h3 class="text-sm font-semibold text-white">Bulk CSV / JSON Upload</h3>
+              <span id="importStatus" class="text-xs text-slate-400"></span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <input id="csvFileInput" type="file" accept=".csv,.json,text/csv,application/json"
+                     class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500" />
+              <input id="defaultTagsInput" type="text" value="Trending, HD" placeholder="Default tags (comma separated)"
+                     class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" />
+              <button id="importFileBtn" type="button"
+                      class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+                Import CSV / JSON
+              </button>
+            </div>
+          </div>
+
+          <!-- Videos & Server Link Analytics List -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <h3 id="manageCountLabel" class="text-sm font-semibold text-white">Videos &amp; Server Link Analytics (0)</h3>
+              <div class="flex items-center gap-2">
+                <input id="adminSearchInput" type="search" placeholder="Filter admin list..."
+                       class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-slate-500" />
+                <button id="clearAllBtn" type="button"
+                        class="bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-xs px-3 py-1.5 rounded-lg transition">
+                  Clear All
+                </button>
+              </div>
+            </div>
+            <div id="adminVideoList" class="max-h-[520px] overflow-y-auto divide-y divide-slate-800/80 border border-slate-800 rounded-xl bg-slate-950/60"></div>
+          </div>
+
+          <!-- Bottom Action Bar -->
+          <div class="flex items-center justify-end gap-2.5 pt-2 flex-wrap">
+            <button id="downloadJsonBtn" type="button"
+                    class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition">
+              Download videos.json
+            </button>
+            <button id="publishLiveBtn" type="button"
+                    class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-lg transition">
+              🚀 Publish Live
+            </button>
+          </div>
+        </section>
+
         <!-- Full-Page Watch View (Compact Left-Aligned Player Size) -->
         <section id="watchSection" class="hidden mb-10 max-w-3xl space-y-4">
           <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
@@ -289,91 +375,6 @@
           <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">Unlock</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Admin Studio Modal -->
-  <div id="adminModal" class="fixed inset-0 z-[2147483647] hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full my-auto max-h-[90vh] flex flex-col shadow-2xl">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800">
-        <div>
-          <h2 class="text-lg font-bold text-white">Admin Studio</h2>
-          <p class="text-xs text-slate-400">Bulk CSV / JSON Upload + Video Views &amp; Server Link Clicks</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="logoutAdminBtn" type="button"
-                  class="bg-rose-950/80 hover:bg-rose-800 text-rose-200 border border-rose-800/60 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
-            Logout
-          </button>
-          <button id="closeAdminBtn" type="button" class="text-slate-400 hover:text-white text-xl px-2 py-1">✕</button>
-        </div>
-      </div>
-
-      <div class="p-5 overflow-y-auto space-y-6">
-        <!-- Admin Mode Top Summary Banner -->
-        <div id="adminSummaryBanner" class="bg-slate-950/90 border border-emerald-500/30 rounded-xl p-3.5 grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2">
-            <p class="text-[11px] text-slate-400">Total Videos</p>
-            <p id="adminTotalVideosStat" class="text-base font-bold text-white mt-0.5">0</p>
-          </div>
-          <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2">
-            <p class="text-[11px] text-slate-400">Total Views (All)</p>
-            <p id="adminTotalViewsStat" class="text-base font-bold text-amber-300 mt-0.5">0</p>
-          </div>
-          <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2">
-            <p class="text-[11px] text-slate-400">Live Worker Clicks</p>
-            <p id="adminWorkerClicksStat" class="text-base font-bold text-emerald-400 mt-0.5">0</p>
-          </div>
-          <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2">
-            <p class="text-[11px] text-slate-400">Counter API</p>
-            <p id="adminWorkerStatusStat" class="text-xs font-semibold text-sky-300 truncate mt-1">Connected</p>
-          </div>
-        </div>
-
-        <!-- Bulk CSV / JSON Upload Section -->
-        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
-          <div class="flex items-center justify-between gap-2 flex-wrap">
-            <h3 class="text-sm font-semibold text-white">Bulk CSV / JSON Upload</h3>
-            <span id="importStatus" class="text-xs text-slate-400"></span>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <input id="csvFileInput" type="file" accept=".csv,.json,text/csv,application/json"
-                   class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500" />
-            <input id="defaultTagsInput" type="text" value="Trending, HD" placeholder="Default tags (comma separated)"
-                   class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" />
-            <button id="importFileBtn" type="button"
-                    class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
-              Import CSV / JSON
-            </button>
-          </div>
-        </div>
-
-        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
-          <div class="flex items-center justify-between gap-3 flex-wrap">
-            <h3 id="manageCountLabel" class="text-sm font-semibold text-white">Videos &amp; Server Link Analytics (0)</h3>
-            <div class="flex items-center gap-2">
-              <input id="adminSearchInput" type="search" placeholder="Filter admin list..."
-                     class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-slate-500" />
-              <button id="clearAllBtn" type="button"
-                      class="bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-xs px-3 py-1.5 rounded-lg transition">
-                Clear All
-              </button>
-            </div>
-          </div>
-          <div id="adminVideoList" class="max-h-72 overflow-y-auto divide-y divide-slate-800/80 border border-slate-800 rounded-lg bg-slate-900/50"></div>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-end gap-2.5 px-5 py-3.5 border-t border-slate-800 bg-slate-900 rounded-b-2xl flex-wrap">
-        <button id="downloadJsonBtn" type="button"
-                class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-4 py-2 rounded-lg transition">
-          Download videos.json
-        </button>
-        <button id="publishLiveBtn" type="button"
-                class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
-          🚀 Publish Live
-        </button>
-      </div>
     </div>
   </div>
 
@@ -687,7 +688,9 @@
       STATE.videos = loadedList.map((item, idx) => normalizeVideoItem(item, idx));
       await syncRemoteClicksFromWorker();
 
-      if (initView === 'categories' || initView === 'tags') {
+      if (initView === 'admin' && STATE.isAdmin) {
+        STATE.navTab = 'admin';
+      } else if (initView === 'categories' || initView === 'tags') {
         STATE.navTab = initView;
       } else if (initCat) {
         STATE.navTab = 'categories';
@@ -715,12 +718,14 @@
         url.searchParams.delete('view');
         url.searchParams.delete('category');
         url.searchParams.delete('tag');
-        if (STATE.page > 1) {
+        if (STATE.page > 1 && STATE.navTab !== 'admin') {
           url.searchParams.set('page', String(STATE.page));
         } else {
           url.searchParams.delete('page');
         }
-        if ((STATE.navTab === 'categories' || STATE.navTab === 'tags') && STATE.filterType === 'all') {
+        if (STATE.navTab === 'admin') {
+          url.searchParams.set('view', 'admin');
+        } else if ((STATE.navTab === 'categories' || STATE.navTab === 'tags') && STATE.filterType === 'all') {
           url.searchParams.set('view', STATE.navTab);
         } else if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
           url.searchParams.set('category', STATE.filterValue);
@@ -755,6 +760,12 @@
       const dirGrid = document.getElementById('directoryGrid');
       const dirTitle = document.getElementById('directoryTitle');
       const dirSub = document.getElementById('directorySubtitle');
+
+      if (STATE.navTab === 'admin') {
+        dirSec.classList.add('hidden');
+        setFeedVisibility(false);
+        return;
+      }
 
       const showDir = (STATE.navTab === 'categories' || STATE.navTab === 'tags') && STATE.filterType === 'all' && !STATE.activeVideoId;
       if (!showDir) {
@@ -1148,7 +1159,11 @@
       const catParam = params.get('category');
       const tagParam = params.get('tag');
 
-      if (viewParam === 'categories' || viewParam === 'tags') {
+      if (viewParam === 'admin' && STATE.isAdmin) {
+        STATE.navTab = 'admin';
+        STATE.filterType = 'all';
+        STATE.filterValue = 'All';
+      } else if (viewParam === 'categories' || viewParam === 'tags') {
         STATE.navTab = viewParam;
         STATE.filterType = 'all';
         STATE.filterValue = 'All';
@@ -1228,15 +1243,21 @@
     }
 
     function openAdminStudio() {
-      const modal = document.getElementById('adminModal');
-      modal.classList.remove('hidden');
-      document.body.classList.add('overflow-hidden');
-      renderAdminList();
+      STATE.navTab = 'admin';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      closeWatchPage(false);
+      syncFilterUrl(true);
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function closeAdmin() {
-      document.getElementById('adminModal').classList.add('hidden');
-      document.body.classList.remove('overflow-hidden');
+      if (STATE.navTab === 'admin') {
+        STATE.navTab = 'home';
+        syncFilterUrl(true);
+        renderAll();
+      }
     }
 
     function logoutAdmin() {
@@ -1379,6 +1400,16 @@
     function renderAll() {
       updateNavButtons();
       renderNavDrawer();
+      const adminSec = document.getElementById('adminSection');
+      if (STATE.navTab === 'admin' && STATE.isAdmin) {
+        document.getElementById('directorySection').classList.add('hidden');
+        document.getElementById('watchSection').classList.add('hidden');
+        setFeedVisibility(false);
+        if (adminSec) adminSec.classList.remove('hidden');
+        renderAdminList();
+        return;
+      }
+      if (adminSec) adminSec.classList.add('hidden');
       renderDirectoryPage();
       document.getElementById('sortBySelect').value = STATE.sortBy;
       if (!((STATE.navTab === 'categories' || STATE.navTab === 'tags') && STATE.filterType === 'all' && !STATE.activeVideoId)) {
@@ -1458,11 +1489,8 @@
       syncFilterUrl(true);
       renderAll();
     });
-    document.getElementById('closeAdminBtn').addEventListener('click', closeAdmin);
+    document.getElementById('adminBackHomeBtn').addEventListener('click', closeAdmin);
     document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
-    document.getElementById('adminModal').addEventListener('click', e => {
-      if (e.target.id === 'adminModal') closeAdmin();
-    });
 
     const importFileBtn = document.getElementById('importFileBtn');
     if (importFileBtn) {
