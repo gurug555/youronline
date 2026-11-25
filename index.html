@@ -537,6 +537,34 @@
       return Number(REMOTE_CLICKS_MAP[String(videoId)]) || 0;
     }
 
+    function saveRemoteClicksCache(map) {
+      REMOTE_CLICKS_MAP = map && typeof map === 'object' ? map : {};
+      try {
+        localStorage.setItem(REMOTE_CLICKS_CACHE_KEY, JSON.stringify(REMOTE_CLICKS_MAP));
+      } catch (_) {}
+    }
+
+    function getTotalVideoClicks(video) {
+      if (!video) return 0;
+      const base = Number(video.baseViews) || 0;
+      const past = Number(video.pastViews) || PAST_WATCH_PAGE_VIEWS || 0;
+      const remote = getRemoteClickDelta(video.id);
+      const local = getUserClickDelta(video.id);
+      return base + past + Math.max(remote, local);
+    }
+
+    function refreshWatchPageStatsIfOpen() {
+      if (!STATE.activeVideoId) return;
+      const vid = STATE.videos.find(v => String(v.id) === String(STATE.activeVideoId));
+      if (!vid) return;
+      const viewsBadge = document.getElementById('watchViewsBadge');
+      const viewsVal = document.getElementById('watchViewsVal');
+      if (viewsBadge && viewsVal) {
+        viewsBadge.classList.toggle('hidden', !STATE.isAdmin);
+        viewsVal.textContent = formatViews(getTotalVideoClicks(vid));
+      }
+    }
+
     function recordRemoteVideoClick(videoId) {
       if (!VIEW_COUNTER_API || !videoId) return;
       const endpoint = `${VIEW_COUNTER_API.replace(/\/+$/, '')}/hit`;
@@ -802,12 +830,18 @@
       if (STATE.filterType === 'all') {
         badge.classList.add('hidden');
         badge.classList.remove('flex');
+      } else {
+        label.textContent = STATE.filterType === 'tag' ? `#${STATE.filterValue}` : STATE.filterValue;
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
+      }
+    }
+
     function renderNavDrawer() {
       const drawer = document.getElementById('navSubDrawer');
       const listEl = document.getElementById('navDrawerList');
       drawer.classList.add('hidden');
       listEl.innerHTML = '';
-    }
     }
 
     function getFilteredAndSortedVideos() {
@@ -1151,6 +1185,197 @@
       if (e.target.id === 'adminPinModal') closeAdminPrompt();
     });
     document.getElementById('adminPinForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const inputEl = document.getElementById('adminPinInput');
+      const errEl = document.getElementById('adminPinError');
+      if ((inputEl.value || '').trim() === ADMIN_PASSWORD) {
+        errEl.classList.add('hidden');
+        STATE.isAdmin = true;
+        window.__YOURPO_BLOCK_ADS__ = true;
+        try {
+          sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+        } catch (_) {}
+        document.documentElement.classList.add('admin-mode');
+        const adminBtn = document.getElementById('openAdminBtn');
+        if (adminBtn) {
+          adminBtn.classList.remove('bg-slate-800/90', 'border-slate-700');
+          adminBtn.classList.add('bg-emerald-700', 'border-emerald-500/50', 'text-white');
+          adminBtn.innerHTML = '<span>🔓</span><span class="hidden sm:inline">Admin Mode</span>';
+        }
+        closeAdminPrompt();
+        openAdminStudio();
+        renderAll();
+      } else {
+        errEl.classList.remove('hidden');
+      }
+    });
+
+    function openAdminPrompt() {
+      if (STATE.isAdmin) {
+        openAdminStudio();
+        return;
+      }
+      const modal = document.getElementById('adminPinModal');
+      const inputEl = document.getElementById('adminPinInput');
+      document.getElementById('adminPinError').classList.add('hidden');
+      inputEl.value = '';
+      modal.classList.remove('hidden');
+      setTimeout(() => inputEl.focus(), 50);
+    }
+
+    function closeAdminPrompt() {
+      document.getElementById('adminPinModal').classList.add('hidden');
+    }
+
+    function openAdminStudio() {
+      const modal = document.getElementById('adminModal');
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+      renderAdminList();
+    }
+
+    function closeAdmin() {
+      document.getElementById('adminModal').classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    function logoutAdmin() {
+      STATE.isAdmin = false;
+      window.__YOURPO_BLOCK_ADS__ = false;
+      try {
+        sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      } catch (_) {}
+      document.documentElement.classList.remove('admin-mode');
+      const adminBtn = document.getElementById('openAdminBtn');
+      if (adminBtn) {
+        adminBtn.classList.add('bg-slate-800/90', 'border-slate-700');
+        adminBtn.classList.remove('bg-emerald-700', 'border-emerald-500/50', 'text-white');
+        adminBtn.innerHTML = '<span>🔐</span><span class="hidden sm:inline">Admin</span>';
+      }
+      closeAdmin();
+      renderAll();
+      showToast('Logged out of Admin Mode.');
+    }
+
+    function renderAdminList() {
+      const q = (document.getElementById('adminSearchInput').value || '').trim().toLowerCase();
+      const filtered = STATE.videos.filter(v => !q || (v.title || '').toLowerCase().includes(q));
+      document.getElementById('manageCountLabel').textContent = `Videos & Server Link Analytics (${filtered.length})`;
+
+      let totalViews = 0;
+      let workerClicks = 0;
+      STATE.videos.forEach(v => {
+        totalViews += getTotalVideoClicks(v);
+        workerClicks += getRemoteClickDelta(v.id);
+      });
+      document.getElementById('adminTotalVideosStat').textContent = String(STATE.videos.length);
+      document.getElementById('adminTotalViewsStat').textContent = formatViews(totalViews);
+      document.getElementById('adminWorkerClicksStat').textContent = formatViews(workerClicks);
+
+      const listEl = document.getElementById('adminVideoList');
+      if (!filtered.length) {
+        listEl.innerHTML = '<div class="p-4 text-xs text-slate-400 text-center">No videos in list.</div>';
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(v => {
+        const clicks = getTotalVideoClicks(v);
+        const srvBadges = Object.keys(v.mirrors || {})
+          .map(s => `<span class="bg-slate-800 text-slate-300 text-[10px] font-semibold px-2 py-0.5 rounded uppercase border border-slate-700">${escapeHtml(s)}</span>`)
+          .join(' ');
+        return `
+          <div class="p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0 space-y-1">
+              <p class="text-xs font-semibold text-white truncate">${escapeHtml(v.title)}</p>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                <span>${escapeHtml(v.resolution || '1080p')}</span>
+                <span>•</span>
+                <span>${escapeHtml(v.duration || '00:00')}</span>
+                <span>•</span>
+                <span class="text-amber-300 font-semibold">${formatViews(clicks)} views</span>
+              </div>
+              <div class="flex flex-wrap gap-1 pt-0.5">${srvBadges}</div>
+            </div>
+            <button type="button" data-del-id="${escapeHtml(v.id)}"
+                    class="admin-del-btn shrink-0 bg-rose-950 hover:bg-rose-800 text-rose-200 border border-rose-800/60 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition">
+              Delete
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      listEl.querySelectorAll('.admin-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const delId = btn.dataset.delId;
+          STATE.videos = STATE.videos.filter(item => String(item.id) !== String(delId));
+          renderAll();
+          renderAdminList();
+          showToast('Video removed from list.');
+        });
+      });
+    }
+
+    async function handleImportFile() {
+      const fileInput = document.getElementById('csvFileInput');
+      const statusEl = document.getElementById('importStatus');
+      const defaultTags = document.getElementById('defaultTagsInput').value || 'Trending, HD';
+      const file = fileInput && fileInput.files && fileInput.files[0];
+      if (!file) {
+        statusEl.textContent = 'Select a .json or .csv file first.';
+        return;
+      }
+      try {
+        const text = await file.text();
+        let imported = [];
+        if (file.name.toLowerCase().endsWith('.json') || text.trim().startsWith('[') || text.trim().startsWith('{')) {
+          const parsed = JSON.parse(text);
+          const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.videos) ? parsed.videos : []);
+          imported = arr.map((item, idx) => normalizeVideoItem(item, idx, defaultTags));
+        } else {
+          const lines = text.split(/\r?\n/).filter(Boolean);
+          const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',').map(c => c.trim());
+            const obj = {};
+            headers.forEach((h, idx) => { obj[h] = cols[idx] || ''; });
+            imported.push(normalizeVideoItem(obj, i, defaultTags));
+          }
+        }
+        const existingKeys = new Set(STATE.videos.map(v => normalizeKey(v.title)));
+        const fresh = imported.filter(v => !existingKeys.has(normalizeKey(v.title)));
+        STATE.videos = [...fresh, ...STATE.videos];
+        statusEl.textContent = `Imported ${fresh.length} new videos!`;
+        renderAll();
+        renderAdminList();
+        showToast(`Imported ${fresh.length} new videos.`);
+      } catch (err) {
+        statusEl.textContent = 'Invalid JSON / CSV format.';
+      }
+    }
+
+    function downloadVideosJson() {
+      const exportArr = STATE.videos.map(v => ({
+        id: v.id,
+        title: v.title,
+        category: v.category,
+        tags: v.tags,
+        thumbnail: v.thumb,
+        resolution: v.resolution,
+        duration: v.duration,
+        views: getTotalVideoClicks(v),
+        mirrors: v.mirrors
+      }));
+      const blob = new Blob([JSON.stringify(exportArr, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'videos.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
     function renderAll() {
       updateNavButtons();
       renderNavDrawer();
@@ -1161,6 +1386,40 @@
       }
       refreshWatchPageStatsIfOpen();
     }
+
+    document.getElementById('searchInput').addEventListener('input', e => {
+      STATE.search = e.target.value || '';
+      STATE.page = 1;
+      renderAll();
+    });
+
+    document.getElementById('sortBySelect').addEventListener('change', e => {
+      STATE.sortBy = e.target.value;
+      STATE.page = 1;
+      renderGrid();
+    });
+
+    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+      STATE.search = '';
+      STATE.navTab = 'home';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.page = 1;
+      document.getElementById('searchInput').value = '';
+      syncFilterUrl(true);
+      renderAll();
+    });
+
+    document.getElementById('navHomeBtn').addEventListener('click', () => {
+      STATE.navTab = 'home';
+      STATE.filterType = 'all';
+      STATE.filterValue = 'All';
+      STATE.page = 1;
+      closeWatchPage(false);
+      syncFilterUrl(true);
+      renderAll();
+    });
+
     document.getElementById('navCategoriesBtn').addEventListener('click', () => {
       STATE.navTab = 'categories';
       STATE.filterType = 'all';
