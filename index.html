@@ -88,7 +88,7 @@
         </nav>
       </div>
 
-      <button id="openAdminBtn" type="button" class="hidden md:inline-flex bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-sm px-3.5 py-1.5 rounded-full transition shrink-0">
+      <button id="openAdminBtn" type="button" class="hidden bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-sm px-3.5 py-1.5 rounded-full transition shrink-0">
         Admin Studio
       </button>
 
@@ -117,7 +117,7 @@
         <span>🏷️ Tags</span>
         <span class="text-xs text-slate-400">→</span>
       </a>
-      <button id="mobileOpenAdminBtn" type="button" class="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-emerald-700/90 hover:bg-emerald-600 text-white text-sm font-semibold border border-emerald-500/40 transition">
+      <button id="mobileOpenAdminBtn" type="button" class="hidden items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-emerald-700/90 hover:bg-emerald-600 text-white text-sm font-semibold border border-emerald-500/40 transition">
         <span>🛠️ Admin Studio</span>
         <span class="text-xs text-emerald-100">Unlock</span>
       </button>
@@ -1033,11 +1033,24 @@
       renderGrid();
     }
 
+    function setAdminMenuButtonsVisible(visible) {
+      const desktopBtn = document.getElementById('openAdminBtn');
+      const mobileBtn = document.getElementById('mobileOpenAdminBtn');
+      if (desktopBtn) {
+        desktopBtn.classList.toggle('hidden', !visible);
+        desktopBtn.classList.toggle('md:inline-flex', visible);
+      }
+      if (mobileBtn) {
+        mobileBtn.classList.toggle('hidden', !visible);
+        mobileBtn.classList.toggle('flex', visible);
+      }
+    }
+
     function openAdmin() {
       if (sessionStorage.getItem(ADMIN_SESSION_KEY) === '1') {
         renderAdminList();
         document.getElementById('adminModal').classList.remove('hidden');
-        document.getElementById('openAdminBtn').classList.remove('hidden');
+        setAdminMenuButtonsVisible(true);
         return;
       }
       document.getElementById('adminAuthError').classList.add('hidden');
@@ -1052,7 +1065,7 @@
 
     function lockAdmin() {
       sessionStorage.removeItem(ADMIN_SESSION_KEY);
-      document.getElementById('openAdminBtn').classList.add('hidden');
+      setAdminMenuButtonsVisible(false);
       closeAdmin();
       showToast('Admin Studio locked.');
     }
@@ -1328,7 +1341,7 @@
     });
 
     if (sessionStorage.getItem(ADMIN_SESSION_KEY) === '1') {
-      document.getElementById('openAdminBtn').classList.remove('hidden');
+      setAdminMenuButtonsVisible(true);
     }
 
     if (URL_PARAMS.get('admin') === '1') {
