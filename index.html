@@ -560,7 +560,8 @@
       const category = String(item.category || '').trim();
       const rawViews = Number(item.views);
       const views = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : 0;
-      const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 - index * 60000);
+      // Later entries appended at the end of videos.json get a higher addedAt so recent uploads appear first
+      const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 + index * 60000);
       const rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('vid_' + Math.random().toString(36).slice(2, 10));
 
       let thumb = String(item.thumbnail || item.thumb || '').trim();
@@ -1103,6 +1104,7 @@
       }
 
       const existingKeys = new Set(STATE.videos.map(v => normalizeKey(v.title)));
+      const maxAddedAt = STATE.videos.reduce((max, v) => Math.max(max, Number(v.addedAt) || 0), 1800000000000);
       let added = 0;
       let skipped = 0;
 
@@ -1114,7 +1116,8 @@
           return;
         }
         existingKeys.add(key);
-        STATE.videos.unshift(norm);
+        norm.addedAt = maxAddedAt + (idx + 1) * 60000;
+        STATE.videos.push(norm);
         added++;
       });
 
@@ -1129,7 +1132,7 @@
       const listEl = document.getElementById('adminVideoList');
       document.getElementById('manageCountLabel').textContent = `Manage Videos (${STATE.videos.length})`;
 
-      const matches = STATE.videos.filter(v => !q || v.title.toLowerCase().includes(q));
+      const matches = [...STATE.videos].reverse().filter(v => !q || v.title.toLowerCase().includes(q));
       if (!matches.length) {
         listEl.innerHTML = '<p class="p-4 text-xs text-slate-400 text-center">No videos in list.</p>';
         return;
