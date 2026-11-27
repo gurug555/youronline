@@ -178,7 +178,6 @@
           <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
             <div class="flex items-center gap-3 flex-wrap">
               <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>
-              <span id="pageIndicatorBadge" class="hidden bg-slate-800 text-slate-300 text-xs font-medium px-2.5 py-0.5 rounded-full border border-slate-700"></span>
               <div id="activeFilterBadge" class="hidden items-center gap-1.5 text-xs">
                 <span id="activeFilterLabel" class="bg-slate-800 text-brand-400 font-semibold px-2.5 py-0.5 rounded-full border border-slate-700"></span>
                 <a href="index.html" class="text-slate-400 hover:text-white px-1" title="Clear filter">✕</a>
@@ -188,7 +187,7 @@
             <div class="flex items-center gap-2 ml-auto">
               <label for="sortBySelect" class="text-xs font-medium text-slate-400 shrink-0">Sort by:</label>
               <select id="sortBySelect" class="bg-slate-900 hover:bg-slate-800 text-slate-100 text-xs sm:text-sm font-medium rounded-lg px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-brand-500 cursor-pointer transition">
-                <option value="date">Recently Added</option>
+                <option value="date">Latest</option>
                 <option value="views">Most Views</option>
                 <option value="duration">Duration</option>
               </select>
@@ -808,18 +807,10 @@
       } else if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
         headingText = `${STATE.filterValue} Videos`;
       } else {
-        const sortNames = { date: 'Recently Added Videos', views: 'Most Viewed Videos', duration: 'Longest Videos' };
+        const sortNames = { date: 'Latest Videos', views: 'Most Viewed Videos', duration: 'Longest Videos' };
         headingText = sortNames[STATE.sortBy] || 'Latest Videos';
       }
       document.getElementById('sectionTitle').textContent = headingText;
-
-      const pageBadge = document.getElementById('pageIndicatorBadge');
-      if (STATE.page > 1 || totalPages > 1) {
-        pageBadge.textContent = `Page ${STATE.page} of ${totalPages}`;
-        pageBadge.classList.remove('hidden');
-      } else {
-        pageBadge.classList.add('hidden');
-      }
 
       if (!STATE.activeVideoId) {
         document.title = STATE.page > 1
