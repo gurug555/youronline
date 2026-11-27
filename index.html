@@ -1207,18 +1207,25 @@
         return;
       }
 
-      listEl.innerHTML = matches.map(v => `
+      listEl.innerHTML = matches.map(v => {
+        const metaParts = [
+          v.resolution,
+          v.duration,
+          v.views > 0 ? `${formatViews(v.views)} views` : ''
+        ].filter(Boolean);
+        return `
         <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 text-xs">
           <div class="min-w-0 flex-1">
             <p class="font-medium text-slate-100 truncate">${escapeHtml(v.title)}</p>
-            <p class="text-[11px] text-slate-400 truncate">${[v.resolution, v.duration, `${formatViews(v.views)} views`].filter(Boolean).join(' • ')}</p>
+            <p class="text-[11px] text-slate-400 truncate">${metaParts.join(' • ')}</p>
           </div>
           <button type="button" data-del="${escapeHtml(v.id)}"
                   class="del-vid-btn bg-rose-900/60 hover:bg-rose-700 text-rose-200 px-2.5 py-1 rounded-md shrink-0 transition">
             Delete
           </button>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       listEl.querySelectorAll('.del-vid-btn').forEach(btn => {
         btn.addEventListener('click', () => {
