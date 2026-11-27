@@ -483,7 +483,7 @@
       filterValue: URL_PARAMS.get('category') || URL_PARAMS.get('tag') || 'All',
       sortBy: URL_PARAMS.get('sort') || 'date',
       page: Math.max(1, parseInt(URL_PARAMS.get('page') || '1', 10) || 1),
-      perPage: 16
+      perPage: 24
     };
 
     const FALLBACK_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
