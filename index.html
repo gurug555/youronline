@@ -65,36 +65,32 @@
       </a>
 
       <div class="flex-1 flex items-center gap-2 sm:gap-3 max-w-3xl">
-        <div class="relative flex-1 min-w-0">
+        <form id="searchForm" class="relative flex-1 min-w-0">
           <input
             id="searchInput"
             type="search"
             placeholder="Search videos, performers, studios..."
             class="w-full bg-slate-800/90 text-slate-100 placeholder-slate-400 text-sm rounded-full pl-4 pr-10 py-2 border border-slate-700 focus:outline-none focus:border-brand-500 transition"
           />
-          <span class="absolute right-3.5 top-2.5 text-slate-400 text-sm pointer-events-none">🔍</span>
-        </div>
+          <button type="submit" aria-label="Search" class="absolute right-3.5 top-2 text-slate-400 hover:text-white text-sm">🔍</button>
+        </form>
 
         <nav class="flex items-center gap-1 sm:gap-1.5 shrink-0">
-          <button id="navHomeBtn" type="button" class="nav-tab-btn bg-brand-600 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full transition">
+          <a id="navHomeBtn" href="index.html" class="nav-tab-btn bg-brand-600 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full transition">
             Home
-          </button>
-          <button id="navCategoriesBtn" type="button" class="nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition">
+          </a>
+          <a id="navCategoriesBtn" href="index.html?tab=categories" class="nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition">
             Categories
-          </button>
-          <button id="navTagsBtn" type="button" class="nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition">
+          </a>
+          <a id="navTagsBtn" href="index.html?tab=tags" class="nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition">
             Tags
-          </button>
+          </a>
         </nav>
       </div>
 
       <button id="openAdminBtn" type="button" class="hidden bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white text-xs sm:text-sm px-3.5 py-1.5 rounded-full transition shrink-0">
         Admin Studio
       </button>
-    </div>
-
-    <div id="navSubDrawer" class="hidden border-t border-slate-800/80 bg-slate-900/95">
-      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 overflow-x-auto" id="navDrawerList"></div>
     </div>
   </header>
 
@@ -115,8 +111,35 @@
     <div class="flex flex-col lg:flex-row items-start gap-6">
       <div class="flex-1 w-full min-w-0">
 
-        <!-- Full-Page Watch View -->
+        <!-- Dedicated Categories Directory Page -->
+        <section id="categoriesDirectorySection" class="hidden mb-10 space-y-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap border-b border-slate-800 pb-3">
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-white">All Categories</h1>
+              <p class="text-xs text-slate-400 mt-0.5">Select a category to open its dedicated video page</p>
+            </div>
+            <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition">← Back to Home</a>
+          </div>
+          <div id="categoriesDirectoryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        </section>
+
+        <!-- Dedicated Tags Directory Page -->
+        <section id="tagsDirectorySection" class="hidden mb-10 space-y-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap border-b border-slate-800 pb-3">
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-white">All Tags</h1>
+              <p class="text-xs text-slate-400 mt-0.5">Select any tag to view all matching videos on a dedicated page</p>
+            </div>
+            <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition">← Back to Home</a>
+          </div>
+          <div id="tagsDirectoryGrid" class="flex flex-wrap gap-2.5"></div>
+        </section>
+
+        <!-- Dedicated Watch Page -->
         <section id="watchSection" class="hidden mb-10 space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <a href="index.html" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-lg transition">← Back to Videos</a>
+          </div>
           <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
             <div id="embedContainer" class="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden"></div>
 
@@ -150,34 +173,37 @@
           </div>
         </section>
 
-        <!-- Video Grid Header + Top-Right Sort Dropdown -->
-        <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
-          <div class="flex items-center gap-3 flex-wrap">
-            <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>
-            <div id="activeFilterBadge" class="hidden items-center gap-1.5 text-xs">
-              <span id="activeFilterLabel" class="bg-slate-800 text-brand-400 font-semibold px-2.5 py-0.5 rounded-full border border-slate-700"></span>
-              <button id="clearActiveFilterBtn" type="button" class="text-slate-400 hover:text-white">✕</button>
+        <!-- Video Listing Section -->
+        <section id="videoListingSection">
+          <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <div class="flex items-center gap-3 flex-wrap">
+              <h2 id="sectionTitle" class="text-lg sm:text-xl font-semibold text-white">Latest Videos</h2>
+              <span id="pageIndicatorBadge" class="hidden bg-slate-800 text-slate-300 text-xs font-medium px-2.5 py-0.5 rounded-full border border-slate-700"></span>
+              <div id="activeFilterBadge" class="hidden items-center gap-1.5 text-xs">
+                <span id="activeFilterLabel" class="bg-slate-800 text-brand-400 font-semibold px-2.5 py-0.5 rounded-full border border-slate-700"></span>
+                <a href="index.html" class="text-slate-400 hover:text-white px-1" title="Clear filter">✕</a>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 ml-auto">
+              <label for="sortBySelect" class="text-xs font-medium text-slate-400 shrink-0">Sort by:</label>
+              <select id="sortBySelect" class="bg-slate-900 hover:bg-slate-800 text-slate-100 text-xs sm:text-sm font-medium rounded-lg px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-brand-500 cursor-pointer transition">
+                <option value="date">Recently Added</option>
+                <option value="views">Most Views</option>
+                <option value="duration">Duration</option>
+              </select>
             </div>
           </div>
 
-          <div class="flex items-center gap-2 ml-auto">
-            <label for="sortBySelect" class="text-xs font-medium text-slate-400 shrink-0">Sort by:</label>
-            <select id="sortBySelect" class="bg-slate-900 hover:bg-slate-800 text-slate-100 text-xs sm:text-sm font-medium rounded-lg px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-brand-500 cursor-pointer transition">
-              <option value="date" selected>Date Added</option>
-              <option value="views">Most Views</option>
-              <option value="duration">Duration</option>
-            </select>
+          <!-- 4-Column Video Grid -->
+          <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+
+          <!-- Empty State -->
+          <div id="emptyState" class="hidden text-center py-20">
+            <p class="text-slate-400 text-base mb-2">No matching videos found.</p>
+            <a href="index.html" class="text-sm text-brand-400 hover:underline">Reset search &amp; filters</a>
           </div>
-        </div>
-
-        <!-- 4-Column Video Grid -->
-        <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
-
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden text-center py-20">
-          <p class="text-slate-400 text-base mb-2">No matching videos found.</p>
-          <button id="resetFiltersBtn" type="button" class="text-sm text-brand-400 hover:underline">Reset search &amp; filters</button>
-        </div>
+        </section>
 
         <!-- Zone 3: Native Banner Ad -->
         <div id="nativeAdSlot" class="ad-box-isolated mt-8 bg-slate-900/60 border border-slate-800 rounded-xl p-3 flex items-center justify-center overflow-hidden">
@@ -185,7 +211,7 @@
           <div id="container-8ebe172168680c52df883eca2f77b34a"></div>
         </div>
 
-        <!-- Pagination -->
+        <!-- Pagination (Separate Page Links) -->
         <div id="paginationBar" class="mt-8 flex items-center justify-center gap-2 flex-wrap"></div>
       </div>
 
@@ -319,6 +345,20 @@
     const ADMIN_PASS_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
     const ADMIN_SESSION_KEY = 'yourpo_admin_unlocked_v1';
 
+    function buildPageUrl(paramsObj = {}) {
+      const url = new URL('index.html', window.location.href);
+      Object.entries(paramsObj).forEach(([k, v]) => {
+        if (v !== null && v !== undefined && String(v).trim() !== '') {
+          url.searchParams.set(k, String(v));
+        }
+      });
+      return url.pathname + (url.search ? url.search : '');
+    }
+
+    function navigateToPage(paramsObj = {}) {
+      window.location.href = buildPageUrl(paramsObj);
+    }
+
     async function sha256Hex(text) {
       const data = new TextEncoder().encode(text);
       const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -433,15 +473,17 @@
       }
     ];
 
+    const URL_PARAMS = new URLSearchParams(window.location.search);
+
     const STATE = {
       videos: [],
-      activeVideoId: null,
-      search: '',
-      navTab: 'home',
-      filterType: 'all',
-      filterValue: 'All',
-      sortBy: 'date',
-      page: 1,
+      activeVideoId: URL_PARAMS.get('v') || null,
+      search: URL_PARAMS.get('q') || '',
+      tab: URL_PARAMS.get('tab') || 'home',
+      filterType: URL_PARAMS.get('category') ? 'category' : (URL_PARAMS.get('tag') ? 'tag' : 'all'),
+      filterValue: URL_PARAMS.get('category') || URL_PARAMS.get('tag') || 'All',
+      sortBy: URL_PARAMS.get('sort') || 'date',
+      page: Math.max(1, parseInt(URL_PARAMS.get('page') || '1', 10) || 1),
       perPage: 16
     };
 
@@ -560,7 +602,6 @@
       const category = String(item.category || '').trim();
       const rawViews = Number(item.views);
       const views = !Number.isNaN(rawViews) && rawViews > 0 ? rawViews : 0;
-      // Top entries in videos.json (index 0, 1, 2...) get highest addedAt so newest uploads appear first on Page 1
       const addedAt = item.addedAt || item.date || item.created_at || (1800000000000 - index * 60000);
       const rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('vid_' + Math.random().toString(36).slice(2, 10));
 
@@ -588,8 +629,7 @@
 
     function applyVideoList(list) {
       STATE.videos = list.map((v, idx) => normalizeVideoItem(v, idx));
-      renderAll();
-      checkUrlVideoParam();
+      renderCurrentPage();
     }
 
     async function loadInitialVideos() {
@@ -609,36 +649,36 @@
       applyVideoList(FALLBACK_VIDEOS);
     }
 
-    function checkUrlVideoParam() {
-      const vidId = new URLSearchParams(window.location.search).get('v');
-      if (vidId) {
-        const found = STATE.videos.find(v => String(v.id) === String(vidId));
-        if (found) openWatchPage(found, false);
-      }
-    }
-
-    function getAllCategories() {
-      const set = new Set(['All']);
+    function getCategoryStats() {
+      const map = new Map();
       STATE.videos.forEach(v => {
-        parseTags(v.category, '').forEach(c => set.add(c));
+        parseTags(v.category, 'General').forEach(c => {
+          if (!map.has(c)) {
+            map.set(c, { name: c, count: 0, thumb: v.thumb || FALLBACK_SVG });
+          }
+          map.get(c).count++;
+        });
       });
-      return Array.from(set);
+      return Array.from(map.values()).sort((a, b) => b.count - a.count);
     }
 
-    function getAllTags() {
+    function getTagStats() {
       const counts = new Map();
       STATE.videos.forEach(v => {
         (v.tags || []).forEach(t => {
           counts.set(t, (counts.get(t) || 0) + 1);
         });
       });
-      if (!counts.size) return ['Trending', 'HD'];
       return Array.from(counts.entries())
         .sort((a, b) => b[1] - a[1])
-        .map(([tag]) => tag);
+        .map(([tag, count]) => ({ tag, count }));
     }
 
     function updateNavButtons() {
+      const activeTab = STATE.tab === 'categories' || STATE.filterType === 'category'
+        ? 'categories'
+        : (STATE.tab === 'tags' || STATE.filterType === 'tag' ? 'tags' : 'home');
+
       const map = {
         home: document.getElementById('navHomeBtn'),
         categories: document.getElementById('navCategoriesBtn'),
@@ -646,82 +686,67 @@
       };
       Object.entries(map).forEach(([key, btn]) => {
         if (!btn) return;
-        const active = STATE.navTab === key;
+        const active = activeTab === key;
         btn.className = active
           ? 'nav-tab-btn bg-brand-600 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full transition'
           : 'nav-tab-btn bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full transition';
       });
     }
 
-    function renderNavDrawer() {
-      const drawer = document.getElementById('navSubDrawer');
-      const listEl = document.getElementById('navDrawerList');
+    function renderCategoriesPage() {
+      document.title = 'Categories — yourpo.online';
+      document.getElementById('categoriesDirectorySection').classList.remove('hidden');
+      document.getElementById('tagsDirectorySection').classList.add('hidden');
+      document.getElementById('watchSection').classList.add('hidden');
+      document.getElementById('videoListingSection').classList.add('hidden');
+      document.getElementById('paginationBar').innerHTML = '';
 
-      if (STATE.navTab === 'home') {
-        drawer.classList.add('hidden');
-        listEl.innerHTML = '';
-        return;
-      }
+      const cats = getCategoryStats();
+      const grid = document.getElementById('categoriesDirectoryGrid');
+      grid.innerHTML = cats.map(cat => `
+        <a href="${escapeHtml(buildPageUrl({ category: cat.name }))}" class="group bg-slate-900 border border-slate-800 hover:border-brand-500/60 rounded-xl overflow-hidden transition flex flex-col">
+          <div class="relative aspect-video bg-slate-950 overflow-hidden">
+            <img src="${escapeHtml(cat.thumb)}" alt="${escapeHtml(cat.name)}" loading="lazy"
+                 onerror="this.onerror=null; this.src='${FALLBACK_SVG}';"
+                 class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition duration-300" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
+            <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+              <span class="text-sm sm:text-base font-bold text-white group-hover:text-brand-400 transition truncate">${escapeHtml(cat.name)}</span>
+              <span class="bg-brand-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0">${cat.count}</span>
+            </div>
+          </div>
+        </a>
+      `).join('');
+    }
 
-      drawer.classList.remove('hidden');
+    function renderTagsPage() {
+      document.title = 'Tags — yourpo.online';
+      document.getElementById('tagsDirectorySection').classList.remove('hidden');
+      document.getElementById('categoriesDirectorySection').classList.add('hidden');
+      document.getElementById('watchSection').classList.add('hidden');
+      document.getElementById('videoListingSection').classList.add('hidden');
+      document.getElementById('paginationBar').innerHTML = '';
 
-      if (STATE.navTab === 'categories') {
-        const cats = getAllCategories();
-        listEl.innerHTML = cats.map(cat => {
-          const active = STATE.filterType === 'category' && STATE.filterValue.toLowerCase() === cat.toLowerCase();
-          const cls = active
-            ? 'bg-brand-600 text-white border-brand-500'
-            : 'bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white';
-          return `<button type="button" data-cat="${escapeHtml(cat)}" class="drawer-cat-btn text-xs px-3 py-1.5 rounded-full border transition shrink-0 ${cls}">${escapeHtml(cat)}</button>`;
-        }).join('');
-
-        listEl.querySelectorAll('.drawer-cat-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const val = btn.dataset.cat;
-            if (val === 'All') {
-              STATE.filterType = 'all';
-              STATE.filterValue = 'All';
-            } else {
-              STATE.filterType = 'category';
-              STATE.filterValue = val;
-            }
-            STATE.page = 1;
-            closeWatchPage(false);
-            renderNavDrawer();
-            renderGrid();
-          });
-        });
-      } else if (STATE.navTab === 'tags') {
-        const tags = getAllTags();
-        listEl.innerHTML = tags.map(tag => {
-          const active = STATE.filterType === 'tag' && STATE.filterValue.toLowerCase() === tag.toLowerCase();
-          const cls = active
-            ? 'bg-brand-600 text-white border-brand-500'
-            : 'bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white';
-          return `<button type="button" data-tag="${escapeHtml(tag)}" class="drawer-tag-btn text-xs px-3 py-1.5 rounded-full border transition shrink-0 ${cls}">#${escapeHtml(tag)}</button>`;
-        }).join('');
-
-        listEl.querySelectorAll('.drawer-tag-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            STATE.filterType = 'tag';
-            STATE.filterValue = btn.dataset.tag;
-            STATE.page = 1;
-            closeWatchPage(false);
-            renderNavDrawer();
-            renderGrid();
-          });
-        });
-      }
+      const tags = getTagStats();
+      const grid = document.getElementById('tagsDirectoryGrid');
+      grid.innerHTML = tags.map(item => `
+        <a href="${escapeHtml(buildPageUrl({ tag: item.tag }))}" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-brand-600 text-slate-200 hover:text-white border border-slate-700 hover:border-brand-500 text-xs sm:text-sm font-medium px-3.5 py-2 rounded-full transition">
+          <span>#${escapeHtml(item.tag)}</span>
+          <span class="bg-slate-800 text-slate-300 text-[11px] px-2 py-0.5 rounded-full">${item.count}</span>
+        </a>
+      `).join('');
     }
 
     function updateFilterBadge() {
       const badge = document.getElementById('activeFilterBadge');
       const label = document.getElementById('activeFilterLabel');
-      if (STATE.filterType === 'all') {
+      if (STATE.filterType === 'all' && !STATE.search.trim()) {
         badge.classList.add('hidden');
         badge.classList.remove('flex');
       } else {
-        label.textContent = STATE.filterType === 'tag' ? `#${STATE.filterValue}` : STATE.filterValue;
+        label.textContent = STATE.search.trim()
+          ? `Search: "${STATE.search.trim()}"`
+          : (STATE.filterType === 'tag' ? `#${STATE.filterValue}` : STATE.filterValue);
         badge.classList.remove('hidden');
         badge.classList.add('flex');
       }
@@ -762,6 +787,8 @@
 
     function renderGrid() {
       updateFilterBadge();
+      document.getElementById('videoListingSection').classList.remove('hidden');
+
       const items = getFilteredAndSortedVideos();
       const total = items.length;
       const totalPages = Math.max(1, Math.ceil(total / STATE.perPage));
@@ -770,15 +797,33 @@
       const start = (STATE.page - 1) * STATE.perPage;
       const pageItems = items.slice(start, start + STATE.perPage);
 
+      let headingText = 'Latest Videos';
       if (STATE.activeVideoId) {
-        document.getElementById('sectionTitle').textContent = 'More Videos';
+        headingText = 'More Videos';
+      } else if (STATE.search.trim()) {
+        headingText = `Search Results for "${STATE.search.trim()}"`;
       } else if (STATE.filterType === 'tag') {
-        document.getElementById('sectionTitle').textContent = `#${STATE.filterValue} Videos`;
+        headingText = `#${STATE.filterValue} Videos`;
       } else if (STATE.filterType === 'category' && STATE.filterValue !== 'All') {
-        document.getElementById('sectionTitle').textContent = `${STATE.filterValue} Videos`;
+        headingText = `${STATE.filterValue} Videos`;
       } else {
-        const sortNames = { date: 'Latest Videos', views: 'Most Viewed Videos', duration: 'Longest Videos' };
-        document.getElementById('sectionTitle').textContent = sortNames[STATE.sortBy] || 'All Videos';
+        const sortNames = { date: 'Recently Added Videos', views: 'Most Viewed Videos', duration: 'Longest Videos' };
+        headingText = sortNames[STATE.sortBy] || 'Latest Videos';
+      }
+      document.getElementById('sectionTitle').textContent = headingText;
+
+      const pageBadge = document.getElementById('pageIndicatorBadge');
+      if (STATE.page > 1 || totalPages > 1) {
+        pageBadge.textContent = `Page ${STATE.page} of ${totalPages}`;
+        pageBadge.classList.remove('hidden');
+      } else {
+        pageBadge.classList.add('hidden');
+      }
+
+      if (!STATE.activeVideoId) {
+        document.title = STATE.page > 1
+          ? `${headingText} (Page ${STATE.page}) — yourpo.online`
+          : `${headingText} — yourpo.online`;
       }
 
       const grid = document.getElementById('videoGrid');
@@ -794,13 +839,14 @@
       empty.classList.add('hidden');
       grid.innerHTML = pageItems.map(v => {
         const thumbSrc = isSafeUrl(v.thumb, true) ? escapeHtml(v.thumb) : FALLBACK_SVG;
+        const watchHref = escapeHtml(buildPageUrl({ v: v.id }));
         const badges = [];
         if (v.resolution) badges.push(`<span class="bg-black/80 text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded">${escapeHtml(v.resolution)}</span>`);
         if (v.duration) badges.push(`<span class="bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">${escapeHtml(v.duration)}</span>`);
         const tagsHtml = (v.tags || []).slice(0, 4).map(t => `<span class="text-[11px] text-slate-400">#${escapeHtml(t)}</span>`).join(' ');
 
         return `
-          <article data-id="${escapeHtml(v.id)}" data-title="${escapeHtml(v.title)}" class="video-card group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-xl overflow-hidden cursor-pointer transition flex flex-col">
+          <a href="${watchHref}" class="video-card group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-xl overflow-hidden cursor-pointer transition flex flex-col">
             <div class="relative aspect-video bg-slate-950 overflow-hidden">
               <img src="${thumbSrc}" alt="${escapeHtml(v.title)}" loading="lazy"
                    onerror="handleThumbError(this, this.alt);"
@@ -814,18 +860,22 @@
                 ${v.views > 0 ? `<span class="shrink-0 text-slate-400">👁 ${formatViews(v.views)}</span>` : ''}
               </div>
             </div>
-          </article>
+          </a>
         `;
       }).join('');
 
-      grid.querySelectorAll('.video-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const vid = STATE.videos.find(item => String(item.id) === String(card.dataset.id));
-          if (vid) openWatchPage(vid, true);
-        });
-      });
-
       renderPagination(totalPages);
+    }
+
+    function getCurrentListingParams(targetPage) {
+      const p = {};
+      if (STATE.activeVideoId) p.v = STATE.activeVideoId;
+      if (STATE.filterType === 'category' && STATE.filterValue !== 'All') p.category = STATE.filterValue;
+      if (STATE.filterType === 'tag') p.tag = STATE.filterValue;
+      if (STATE.search.trim()) p.q = STATE.search.trim();
+      if (STATE.sortBy && STATE.sortBy !== 'date') p.sort = STATE.sortBy;
+      if (targetPage && targetPage > 1) p.page = targetPage;
+      return p;
     }
 
     function renderPagination(totalPages) {
@@ -835,18 +885,20 @@
         return;
       }
       let html = '';
+      if (STATE.page > 1) {
+        const prevHref = escapeHtml(buildPageUrl(getCurrentListingParams(STATE.page - 1)));
+        html += `<a href="${prevHref}" class="px-3 py-1.5 rounded-lg text-xs font-semibold border bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800">← Prev</a>`;
+      }
       for (let p = 1; p <= totalPages; p++) {
         const active = p === STATE.page;
-        html += `<button type="button" data-page="${p}" class="page-btn px-3 py-1.5 rounded-lg text-xs font-semibold border ${active ? 'bg-brand-600 text-white border-brand-500' : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'}">${p}</button>`;
+        const pageHref = escapeHtml(buildPageUrl(getCurrentListingParams(p)));
+        html += `<a href="${pageHref}" class="px-3 py-1.5 rounded-lg text-xs font-semibold border ${active ? 'bg-brand-600 text-white border-brand-500' : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'}">${p}</a>`;
+      }
+      if (STATE.page < totalPages) {
+        const nextHref = escapeHtml(buildPageUrl(getCurrentListingParams(STATE.page + 1)));
+        html += `<a href="${nextHref}" class="px-3 py-1.5 rounded-lg text-xs font-semibold border bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800">Next →</a>`;
       }
       bar.innerHTML = html;
-      bar.querySelectorAll('.page-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          STATE.page = Number(btn.dataset.page);
-          renderGrid();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-      });
     }
 
     function renderThumbnailPoster(embedBox, video) {
@@ -860,20 +912,11 @@
       `;
     }
 
-    function openWatchPage(video, pushHistory = true) {
-      STATE.activeVideoId = String(video.id);
+    function renderWatchView(video) {
       document.title = `${video.title} — yourpo.online`;
 
       const topAd = document.getElementById('topAdWrapper');
       if (topAd) topAd.classList.add('hidden');
-
-      if (pushHistory) {
-        try {
-          const url = new URL(window.location.href);
-          url.searchParams.set('v', String(video.id));
-          window.history.pushState({ videoId: String(video.id) }, '', url);
-        } catch (_) {}
-      }
 
       document.getElementById('watchTitle').textContent = video.title;
 
@@ -898,17 +941,8 @@
       document.getElementById('watchViewsVal').textContent = `${formatViews(video.views)} views`;
 
       document.getElementById('watchTags').innerHTML = (video.tags || [])
-        .map(t => `<button type="button" data-watch-tag="${escapeHtml(t)}" class="watch-tag-chip text-xs bg-slate-800 hover:bg-brand-600 text-slate-300 hover:text-white px-2.5 py-0.5 rounded-full border border-slate-700 transition">#${escapeHtml(t)}</button>`)
+        .map(t => `<a href="${escapeHtml(buildPageUrl({ tag: t }))}" class="text-xs bg-slate-800 hover:bg-brand-600 text-slate-300 hover:text-white px-2.5 py-0.5 rounded-full border border-slate-700 transition">#${escapeHtml(t)}</a>`)
         .join('');
-
-      document.querySelectorAll('.watch-tag-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-          STATE.filterType = 'tag';
-          STATE.filterValue = chip.dataset.watchTag;
-          STATE.page = 1;
-          closeWatchPage(true);
-        });
-      });
 
       const entries = Object.entries(video.mirrors || {}).filter(([, url]) => isSafeUrl(url));
       const btnBox = document.getElementById('mirrorButtons');
@@ -945,39 +979,37 @@
 
       document.getElementById('watchSection').classList.remove('hidden');
       renderGrid();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function closeWatchPage(pushHistory = true) {
-      STATE.activeVideoId = null;
-      document.title = 'yourpo.online — Watch & Download';
-      document.getElementById('watchSection').classList.add('hidden');
-      document.getElementById('embedContainer').innerHTML = '';
+    function renderCurrentPage() {
+      updateNavButtons();
+      document.getElementById('searchInput').value = STATE.search;
+      document.getElementById('sortBySelect').value = STATE.sortBy;
 
-      const topAd = document.getElementById('topAdWrapper');
-      if (topAd) topAd.classList.remove('hidden');
-
-      if (pushHistory) {
-        try {
-          const url = new URL(window.location.href);
-          url.searchParams.delete('v');
-          window.history.pushState({}, '', url);
-        } catch (_) {}
+      if (STATE.tab === 'categories') {
+        renderCategoriesPage();
+        return;
       }
-      renderGrid();
-    }
+      if (STATE.tab === 'tags') {
+        renderTagsPage();
+        return;
+      }
 
-    window.addEventListener('popstate', () => {
-      const vidId = new URLSearchParams(window.location.search).get('v');
-      if (vidId) {
-        const found = STATE.videos.find(v => String(v.id) === String(vidId));
+      document.getElementById('categoriesDirectorySection').classList.add('hidden');
+      document.getElementById('tagsDirectorySection').classList.add('hidden');
+
+      if (STATE.activeVideoId) {
+        const found = STATE.videos.find(v => String(v.id) === String(STATE.activeVideoId));
         if (found) {
-          openWatchPage(found, false);
+          renderWatchView(found);
           return;
         }
+        STATE.activeVideoId = null;
       }
-      closeWatchPage(false);
-    });
+
+      document.getElementById('watchSection').classList.add('hidden');
+      renderGrid();
+    }
 
     function openAdmin() {
       if (sessionStorage.getItem(ADMIN_SESSION_KEY) === '1') {
@@ -1122,7 +1154,7 @@
       });
 
       document.getElementById('importStatus').textContent = `Added ${added}, skipped ${skipped} dupes`;
-      renderAll();
+      renderCurrentPage();
       renderAdminList();
       showToast(`Imported ${added} videos! Click Publish Live.`);
     }
@@ -1154,7 +1186,7 @@
       listEl.querySelectorAll('.del-vid-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           STATE.videos = STATE.videos.filter(item => String(item.id) !== String(btn.dataset.del));
-          renderAll();
+          renderCurrentPage();
           renderAdminList();
         });
       });
@@ -1182,77 +1214,21 @@
       showToast('Downloaded videos.json');
     }
 
-    function renderAll() {
-      updateNavButtons();
-      renderNavDrawer();
-      document.getElementById('sortBySelect').value = STATE.sortBy;
-      renderGrid();
-    }
-
-    document.getElementById('brandHomeLink').addEventListener('click', e => {
-      e.preventDefault();
-      STATE.navTab = 'home';
-      STATE.filterType = 'all';
-      STATE.filterValue = 'All';
-      STATE.search = '';
-      STATE.page = 1;
-      document.getElementById('searchInput').value = '';
-      closeWatchPage(true);
-      renderAll();
-    });
-
-    document.getElementById('navHomeBtn').addEventListener('click', () => {
-      STATE.navTab = 'home';
-      STATE.filterType = 'all';
-      STATE.filterValue = 'All';
-      STATE.page = 1;
-      closeWatchPage(true);
-      renderAll();
-    });
-
-    document.getElementById('navCategoriesBtn').addEventListener('click', () => {
-      STATE.navTab = STATE.navTab === 'categories' ? 'home' : 'categories';
-      updateNavButtons();
-      renderNavDrawer();
-    });
-
-    document.getElementById('navTagsBtn').addEventListener('click', () => {
-      STATE.navTab = STATE.navTab === 'tags' ? 'home' : 'tags';
-      updateNavButtons();
-      renderNavDrawer();
-    });
-
-    document.getElementById('clearActiveFilterBtn').addEventListener('click', () => {
-      STATE.filterType = 'all';
-      STATE.filterValue = 'All';
-      STATE.page = 1;
-      renderAll();
-    });
-
     document.getElementById('sortBySelect').addEventListener('change', e => {
-      STATE.sortBy = e.target.value;
-      STATE.page = 1;
-      renderGrid();
+      const nextSort = e.target.value;
+      const params = getCurrentListingParams(1);
+      if (nextSort === 'date') {
+        delete params.sort;
+      } else {
+        params.sort = nextSort;
+      }
+      navigateToPage(params);
     });
 
-    document.getElementById('searchInput').addEventListener('input', e => {
-      STATE.search = e.target.value;
-      STATE.page = 1;
-      closeWatchPage(STATE.activeVideoId !== null);
-      renderGrid();
-    });
-
-    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
-      STATE.search = '';
-      STATE.navTab = 'home';
-      STATE.filterType = 'all';
-      STATE.filterValue = 'All';
-      STATE.sortBy = 'date';
-      STATE.page = 1;
-      document.getElementById('searchInput').value = '';
-      document.getElementById('sortBySelect').value = 'date';
-      closeWatchPage(false);
-      renderAll();
+    document.getElementById('searchForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const q = document.getElementById('searchInput').value.trim();
+      navigateToPage(q ? { q } : {});
     });
 
     document.getElementById('openAdminBtn').addEventListener('click', openAdmin);
@@ -1266,7 +1242,7 @@
     document.getElementById('adminSearchInput').addEventListener('input', renderAdminList);
     document.getElementById('clearAllBtn').addEventListener('click', () => {
       STATE.videos = [];
-      renderAll();
+      renderCurrentPage();
       renderAdminList();
       showToast('Cleared all videos from preview list.');
     });
@@ -1299,7 +1275,7 @@
       document.getElementById('openAdminBtn').classList.remove('hidden');
     }
 
-    if (new URLSearchParams(window.location.search).get('admin') === '1') {
+    if (URL_PARAMS.get('admin') === '1') {
       openAdmin();
     }
 
