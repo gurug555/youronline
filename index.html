@@ -615,6 +615,7 @@
 
       return {
         id: rawId,
+        orderIndex: index,
         title,
         category,
         tags: tags.length ? tags : ['General'],
@@ -780,7 +781,7 @@
       } else if (STATE.sortBy === 'duration') {
         sorted.sort((a, b) => parseDurationSeconds(b.duration) - parseDurationSeconds(a.duration));
       } else {
-        sorted.sort((a, b) => Number(new Date(b.addedAt || 0)) - Number(new Date(a.addedAt || 0)));
+        sorted.sort((a, b) => (Number(a.orderIndex ?? 0)) - (Number(b.orderIndex ?? 0)));
       }
       return sorted;
     }
@@ -1147,7 +1148,9 @@
           skipped++;
           return;
         }
+        const minOrder = STATE.videos.reduce((min, v) => Math.min(min, Number(v.orderIndex ?? 0)), 0);
         existingKeys.add(key);
+        norm.orderIndex = minOrder - (items.length - idx);
         norm.addedAt = maxAddedAt + (items.length - idx) * 60000;
         STATE.videos.unshift(norm);
         added++;
@@ -1185,7 +1188,9 @@
 
       listEl.querySelectorAll('.del-vid-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          STATE.videos = STATE.videos.filter(item => String(item.id) !== String(btn.dataset.del));
+          STATE.videos = STATE.videos
+            .filter(item => String(item.id) !== String(btn.dataset.del))
+            .map((item, i) => ({ ...item, orderIndex: i }));
           renderCurrentPage();
           renderAdminList();
         });
